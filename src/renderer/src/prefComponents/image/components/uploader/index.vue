@@ -120,41 +120,59 @@
           </details>
         </div>
       </div>
-      <div v-if="currentUploader === 'github'" class="github">
-        <div class="warning">{{ t('preferences.image.uploader.githubDeprecated') }}</div>
+      <div v-if="currentUploader === 'wechatOfficial'" class="wechat-official">
+        <div class="description">
+          {{ t('preferences.image.uploader.wechatOfficialDescription') }}
+        </div>
         <div class="form-group">
           <div class="label">
-            {{ t('preferences.image.uploader.githubToken') }}:
+            {{ t('preferences.image.uploader.wechatAppId') }}:
             <el-tooltip
               class="item"
               effect="dark"
-              :content="t('preferences.image.uploader.tokenTooltip')"
+              :content="t('preferences.image.uploader.wechatAppIdTooltip')"
               placement="top-start"
             >
               <InfoFilled width="16" height="16" />
             </el-tooltip>
           </div>
-          <el-input v-model="githubToken" :placeholder="t('preferences.image.uploader.inputToken')" size="mini"></el-input>
+          <el-input v-model="wechatOfficial.appId" :placeholder="t('preferences.image.uploader.inputAppId')" size="mini"></el-input>
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.ownerName') }}:</div>
-          <el-input v-model="github.owner" :placeholder="t('preferences.image.uploader.owner')" size="mini"></el-input>
+          <div class="label">
+            {{ t('preferences.image.uploader.wechatAppSecret') }}:
+            <el-tooltip
+              class="item"
+              effect="dark"
+              :content="t('preferences.image.uploader.wechatAppSecretTooltip')"
+              placement="top-start"
+            >
+              <InfoFilled width="16" height="16" />
+            </el-tooltip>
+          </div>
+          <el-input v-model="wechatOfficial.appSecret" type="password" :placeholder="t('preferences.image.uploader.inputAppSecret')" size="mini"></el-input>
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.repoName') }}:</div>
-          <el-input v-model="github.repo" :placeholder="t('preferences.image.uploader.repo')" size="mini"></el-input>
+          <div class="label">{{ t('preferences.image.uploader.wechatDefaultPath') }}:</div>
+          <el-input v-model="wechatOfficial.defaultPath" :placeholder="t('preferences.image.uploader.inputDefaultPath')" size="mini"></el-input>
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.branchName') }}:</div>
-          <el-input v-model="github.branch" :placeholder="t('preferences.image.uploader.branch')" size="mini"></el-input>
+          <el-button size="mini" @click="testWeChatConnection" :loading="isTestingWeChat">
+            {{ t('preferences.image.uploader.testConnection') }}
+          </el-button>
+          <span v-if="wechatTestResult" :class="['test-result', wechatTestResult.success ? 'success' : 'error']">
+            {{ wechatTestResult.message }}
+          </span>
         </div>
         <legal-notices-checkbox
-          class="github"
-          :class="[{ error: legalNoticesErrorStates.github }]"
-          :uploader-service="uploadServices.github"
+          class="wechat-official"
+          :class="[{ error: legalNoticesErrorStates.wechatOfficial }]"
+          :uploader-service="uploadServices.wechatOfficial"
         ></legal-notices-checkbox>
         <div class="form-group">
-          <el-button size="mini" :disabled="githubDisable" @click="save('github')">{{ t('preferences.image.uploader.save') }}</el-button>
+          <el-button size="mini" :disabled="wechatOfficialDisable" @click="save('wechatOfficial')">
+            {{ t('preferences.image.uploader.save') }}
+          </el-button>
         </div>
       </div>
       <div v-else-if="currentUploader === 'cliScript'" class="script">
@@ -207,6 +225,13 @@ const github = reactive({
   branch: ''
 })
 const cliScript = ref('')
+const wechatOfficial = reactive({
+  appId: '',
+  appSecret: '',
+  defaultPath: '/marktext'
+})
+const isTestingWeChat = ref(false)
+const wechatTestResult = ref(null)
 const picgoExists = ref(false)
 const picgoDetectionFailed = ref(false) // 检测是否失败
 const picgoDetectionStatus = ref('') // 检测状态文本
@@ -229,7 +254,8 @@ const initialButtonTimer = ref(null) // 初始按钮定时器
 const showStandaloneRefreshButton = ref(true) // 是否显示独立刷新按钮
 const uploadServices = getServices()
 const legalNoticesErrorStates = reactive({
-  github: false
+  github: false,
+  wechatOfficial: false
 })
 
 // computed
@@ -242,11 +268,15 @@ const cliScriptDisable = computed(() => {
   }
   return !isFileExecutableSync(cliScript.value)
 })
+const wechatOfficialDisable = computed(() => !wechatOfficial.appId || !wechatOfficial.appSecret)
 
 // watch
 watch(imageBed, (value, oldValue) => {
   if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
     Object.assign(github, value.github)
+    if (value.wechatOfficial) {
+      Object.assign(wechatOfficial, value.wechatOfficial)
+    }
   }
 })
 
@@ -426,6 +456,9 @@ onMounted(() => {
     if (imageBed.value.github) {
       Object.assign(github, imageBed.value.github)
     }
+    if (imageBed.value.wechatOfficial) {
+      Object.assign(wechatOfficial, imageBed.value.wechatOfficial)
+    }
     githubToken.value = prefGithubToken.value
     cliScript.value = prefCliScript.value
     
@@ -517,6 +550,8 @@ const save = (type) => {
     newImageBedConfig.github = { ...github }
   } else if (type === 'cliScript') {
     newImageBedConfig.cliScript = cliScript.value
+  } else if (type === 'wechatOfficial') {
+    newImageBedConfig.wechatOfficial = { ...wechatOfficial }
   }
 
   preferenceStore.SET_USER_DATA({
@@ -540,6 +575,8 @@ const save = (type) => {
     message:
       type === 'github'
         ? t('preferences.image.uploader.githubConfigSaved')
+        : type === 'wechatOfficial'
+        ? t('preferences.image.uploader.wechatConfigSaved')
         : t('preferences.image.uploader.scriptConfigSaved'),
     type: 'primary'
   })
@@ -548,6 +585,44 @@ const save = (type) => {
 const setCurrentUploader = (value) => {
   const type = 'currentUploader'
   preferenceStore.SET_USER_DATA({ type, value })
+}
+
+// 测试微信公众号连接
+const testWeChatConnection = async () => {
+  if (!wechatOfficial.appId || !wechatOfficial.appSecret) {
+    wechatTestResult.value = {
+      success: false,
+      message: t('preferences.image.uploader.wechatTestIncomplete')
+    }
+    return
+  }
+
+  isTestingWeChat.value = true
+  wechatTestResult.value = null
+
+  try {
+    // 这里应该调用微信API测试连接
+    // 由于这是一个前端组件，我们需要通过主进程来调用API
+    const result = await window.electron.ipcRenderer.invoke('wechat-test-connection', {
+      appId: wechatOfficial.appId,
+      appSecret: wechatOfficial.appSecret
+    })
+
+    wechatTestResult.value = {
+      success: result.success,
+      message: result.success
+        ? t('preferences.image.uploader.wechatTestSuccess')
+        : t('preferences.image.uploader.wechatTestFailed')
+    }
+  } catch (error) {
+    console.error('WeChat connection test failed:', error)
+    wechatTestResult.value = {
+      success: false,
+      message: t('preferences.image.uploader.wechatTestError')
+    }
+  } finally {
+    isTestingWeChat.value = false
+  }
 }
 
 // 手动触发检测（保留用于调试）
@@ -1197,5 +1272,56 @@ const validate = (value) => {
 
 .pref-image-uploader .pref-cb-legal-notices.error {
   border: 1px solid var(--deleteColor);
+}
+
+/* 微信公众号样式 */
+.pref-image-uploader .wechat-official {
+  margin-top: 20px;
+}
+
+.pref-image-uploader .wechat-official .description {
+  margin-bottom: 20px;
+  padding: 12px;
+  background-color: var(--floatBgColor);
+  border-radius: 6px;
+  border-left: 4px solid #07C160;
+  color: var(--editorColor);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.pref-image-uploader .wechat-official .form-group {
+  margin-bottom: 16px;
+}
+
+.pref-image-uploader .wechat-official .label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--editorColor);
+  font-size: 14px;
+}
+
+.pref-image-uploader .wechat-official .el-input {
+  width: 100%;
+}
+
+.pref-image-uploader .wechat-official .test-result {
+  margin-left: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.pref-image-uploader .wechat-official .test-result.success {
+  color: #67C23A;
+}
+
+.pref-image-uploader .wechat-official .test-result.error {
+  color: #F56C6C;
+}
+
+.pref-image-uploader .pref-cb-legal-notices.wechat-official {
+  margin-top: 20px;
 }
 </style>

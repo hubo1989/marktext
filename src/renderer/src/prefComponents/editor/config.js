@@ -48,6 +48,34 @@ export const getTextDirectionOptions = () => [{
   value: 'rtl'
 }]
 
+export const getDualScreenModeOptions = () => [{
+  label: t('preferences.editor.misc.dualScreenMode.disabled'),
+  value: 'disabled'
+}, {
+  label: t('preferences.editor.misc.dualScreenMode.enabled'),
+  value: 'enabled'
+}, {
+  label: t('preferences.editor.misc.dualScreenMode.auto'),
+  value: 'auto'
+}]
+
+export const getDualScreenSplitRatioOptions = () => [{
+  label: '30% / 70%',
+  value: 0.3
+}, {
+  label: '40% / 60%',
+  value: 0.4
+}, {
+  label: '50% / 50%',
+  value: 0.5
+}, {
+  label: '60% / 40%',
+  value: 0.6
+}, {
+  label: '70% / 30%',
+  value: 0.7
+}]
+
 let defaultEncodingOptions = null
 export const getDefaultEncodingOptions = () => {
   if (defaultEncodingOptions) {

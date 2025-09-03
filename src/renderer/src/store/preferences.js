@@ -43,6 +43,12 @@ export const usePreferencesStore = defineStore('preferences', {
     hideLinkPopup: false,
     autoCheck: false,
 
+    // Dual Screen Mode
+    dualScreenMode: 'disabled',
+    dualScreenSplitRatio: 0.5,
+    dualScreenSyncScroll: true,
+    dualScreenSyncCursor: true,
+
     preferLooseListItem: true,
     bulletListMarker: '-',
     orderListDelimiter: '.',

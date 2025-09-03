@@ -96,13 +96,22 @@
       </template>
       <template #children>
         <section class="startup-action-ctrl">
-          <el-radio-group v-model="startUpAction">
-            <el-radio label="lastState" style="margin-bottom: 10px">{{ t('preferences.general.startup.restoreLastSession') }}</el-radio>
-            <el-radio label="folder" style="margin-bottom: 10px"
-              >{{ t('preferences.general.startup.openDefaultDirectory') }}<span>: {{ defaultDirectoryToOpen }}</span></el-radio
-            >
-            <el-button size="small" @click="selectDefaultDirectoryToOpen">{{ t('preferences.general.startup.selectFolder') }}</el-button>
-            <el-radio label="blank">{{ t('preferences.general.startup.openBlankPage') }}</el-radio>
+          <el-radio-group v-model="startUpAction" class="startup-radio-group">
+            <el-radio label="lastState" class="startup-radio-item">
+              <span class="radio-label">{{ t('preferences.general.startup.restoreLastSession') }}</span>
+            </el-radio>
+            <el-radio label="folder" class="startup-radio-item">
+              <div class="radio-content">
+                <span class="radio-label">{{ t('preferences.general.startup.openDefaultDirectory') }}</span>
+                <span class="radio-value">: {{ defaultDirectoryToOpen }}</span>
+                <el-button size="small" @click="selectDefaultDirectoryToOpen" class="select-btn">
+                  {{ t('preferences.general.startup.selectFolder') }}
+                </el-button>
+              </div>
+            </el-radio>
+            <el-radio label="blank" class="startup-radio-item">
+              <span class="radio-label">{{ t('preferences.general.startup.openBlankPage') }}</span>
+            </el-radio>
           </el-radio-group>
         </section>
       </template>
@@ -180,12 +189,55 @@ const selectDefaultDirectoryToOpen = () => {
   color: var(--editorColor);
 }
 
-.pref-general .startup-action-ctrl .el-button--small {
-  margin-left: 25px;
+.startup-radio-group {
+  width: 100%;
 }
 
-.pref-general .startup-action-ctrl label {
+.startup-radio-item {
   display: block;
-  margin: 20px 0;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.startup-radio-item:hover {
+  background-color: var(--floatBgColor);
+}
+
+.radio-label {
+  font-weight: 500;
+  color: var(--editorColor);
+}
+
+.radio-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.radio-value {
+  color: var(--editorColor80);
+  font-size: 13px;
+  flex: 1;
+}
+
+.select-btn {
+  margin-left: auto;
+  min-width: 80px;
+}
+
+.pref-general .startup-action-ctrl .el-radio {
+  margin-right: 0;
+}
+
+.pref-general .startup-action-ctrl .el-radio__input {
+  margin-right: 8px;
+}
+
+.pref-general .startup-action-ctrl .el-radio__label {
+  display: block;
+  width: 100%;
 }
 </style>

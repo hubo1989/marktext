@@ -164,6 +164,31 @@
           :bool="wrapCodeBlocks"
           :on-change="(value) => onSelectChange('wrapCodeBlocks', value)"
         ></bool>
+        <cur-select
+          :description="t('preferences.editor.misc.dualScreenMode.title')"
+          :value="dualScreenMode"
+          :options="getDualScreenModeOptions()"
+          :on-change="(value) => onSelectChange('dualScreenMode', value)"
+        ></cur-select>
+        <cur-select
+          v-if="dualScreenMode !== 'disabled'"
+          :description="t('preferences.editor.misc.dualScreenMode.splitRatio')"
+          :value="dualScreenSplitRatio"
+          :options="getDualScreenSplitRatioOptions()"
+          :on-change="(value) => onSelectChange('dualScreenSplitRatio', value)"
+        ></cur-select>
+        <bool
+          v-if="dualScreenMode !== 'disabled'"
+          :description="t('preferences.editor.misc.dualScreenMode.syncScroll')"
+          :bool="dualScreenSyncScroll"
+          :on-change="(value) => onSelectChange('dualScreenSyncScroll', value)"
+        ></bool>
+        <bool
+          v-if="dualScreenMode !== 'disabled'"
+          :description="t('preferences.editor.misc.dualScreenMode.syncCursor')"
+          :bool="dualScreenSyncCursor"
+          :on-change="(value) => onSelectChange('dualScreenSyncCursor', value)"
+        ></bool>
       </template>
     </compound>
   </div>
@@ -184,7 +209,9 @@ import {
   getEndOfLineOptions,
   getTextDirectionOptions,
   getTrimTrailingNewlineOptions,
-  getDefaultEncodingOptions
+  getDefaultEncodingOptions,
+  getDualScreenModeOptions,
+  getDualScreenSplitRatioOptions
 } from './config'
 
 const { t } = useI18n()
@@ -213,7 +240,11 @@ const {
   editorLineWidth,
   defaultEncoding,
   autoGuessEncoding,
-  trimTrailingNewline
+  trimTrailingNewline,
+  dualScreenMode,
+  dualScreenSplitRatio,
+  dualScreenSyncScroll,
+  dualScreenSyncCursor
 } = storeToRefs(preferenceStore)
 
 const onSelectChange = (type, value) => {
