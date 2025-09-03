@@ -168,6 +168,7 @@
           class="wechat-official"
           :class="[{ error: legalNoticesErrorStates.wechatOfficial }]"
           :uploader-service="uploadServices.wechatOfficial"
+          @update:agreed="handleWechatAgreementChange"
         ></legal-notices-checkbox>
         <div class="form-group">
           <el-button size="mini" :disabled="wechatOfficialDisable" @click="save('wechatOfficial')">
@@ -254,7 +255,6 @@ const initialButtonTimer = ref(null) // 初始按钮定时器
 const showStandaloneRefreshButton = ref(true) // 是否显示独立刷新按钮
 const uploadServices = getServices()
 const legalNoticesErrorStates = reactive({
-  github: false,
   wechatOfficial: false
 })
 
@@ -855,6 +855,16 @@ const testPicgo = () => {
   })
 }
 
+// 处理微信公众号协议同意状态变化
+const handleWechatAgreementChange = (agreed) => {
+  console.log('微信公众号协议状态变化:', agreed)
+  // 更新错误状态
+  if (agreed) {
+    legalNoticesErrorStates.wechatOfficial = false
+  }
+  // 这里可以添加其他逻辑，比如更新UI状态等
+}
+
 const validate = (value) => {
   const service = getServices()[value]
   if (!service) return true
@@ -893,9 +903,9 @@ const validate = (value) => {
 .pref-image-uploader .detection-status {
   margin: 15px 0;
   padding: 15px;
-  border: 1px solid var(--editorColor30);
-  border-radius: 6px;
-  background: var(--floatBgColor);
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 .pref-image-uploader .detection-header {
@@ -922,18 +932,16 @@ const validate = (value) => {
   border-radius: 4px;
   margin-bottom: 10px;
   font-weight: 500;
+  border: none;
+  background: transparent;
 }
 
 .pref-image-uploader .status-info.success {
-  background: var(--successBgColor, #f0f9ff);
   color: var(--successColor, #059669);
-  border: 1px solid var(--successColor, #059669);
 }
 
 .pref-image-uploader .status-info.warning {
-  background: var(--warningBgColor, #fffbeb);
   color: var(--warningColor, #d97706);
-  border: 1px solid var(--warningColor, #d97706);
 }
 
 .pref-image-uploader .status-text {
@@ -1231,8 +1239,8 @@ const validate = (value) => {
 }
 
 .pref-image-uploader .debug-info pre {
-  background: var(--codeBgColor, #f8f9fa);
-  border: 1px solid var(--editorColor20);
+  background: transparent;
+  border: none;
   border-radius: 4px;
   padding: 10px;
   font-size: 12px;

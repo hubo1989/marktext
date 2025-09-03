@@ -54,9 +54,6 @@ export const getDualScreenModeOptions = () => [{
 }, {
   label: t('preferences.editor.misc.dualScreenMode.enabled'),
   value: 'enabled'
-}, {
-  label: t('preferences.editor.misc.dualScreenMode.auto'),
-  value: 'auto'
 }]
 
 export const getDualScreenSplitRatioOptions = () => [{

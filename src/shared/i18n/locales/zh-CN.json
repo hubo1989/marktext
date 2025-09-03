@@ -169,12 +169,13 @@
             "theme": "主题(&T)",
             "light": "浅色",
             "dark": "深色",
-            "auto": "自动",
-            "cadmiumLight": "Cadmium Light",
-            "graphiteLight": "Graphite Light",
-            "materialDark": "Material Dark",
+            "graphite": "石墨",
+            "materialDark": "Material 深色",
             "oneDark": "One Dark",
-            "ulyssesLight": "Ulysses Light"
+            "ulysses": "Ulysses",
+            "cadmiumLight": "Cadmium 浅色",
+            "graphiteLight": "石墨浅色",
+            "ulyssesLight": "Ulysses 浅色"
         }
     },
     "contextMenu": {
@@ -567,8 +568,8 @@
                 "dualScreenMode": {
                     "title": "双屏模式",
                     "disabled": "禁用",
-                    "enabled": "启用",
-                    "auto": "自动（源码模式时）",
+                    "enabled": "启用（仅源码模式）",
+                    "enabledDescription": "启用后在源码模式下显示左右分屏视图，左侧为源码编辑，右侧为实时预览。",
                     "splitRatio": "分割比例",
                     "syncScroll": "同步滚动",
                     "syncCursor": "同步光标"
@@ -692,8 +693,8 @@
                 "dualScreenMode": {
                     "title": "双屏模式",
                     "disabled": "禁用",
-                    "enabled": "启用",
-                    "auto": "自动（源码模式时）",
+                    "enabled": "启用（仅源码模式）",
+                    "enabledDescription": "启用后在源码模式下显示左右分屏视图，左侧为源码编辑，右侧为实时预览。",
                     "splitRatio": "分割比例",
                     "syncScroll": "同步滚动",
                     "syncCursor": "同步光标"
@@ -1359,8 +1360,8 @@
             }
         },
         "dualScreen": {
-            "sourceTitle": "源码",
-            "previewTitle": "实时预览",
+            "sourceTitle": "源码（左侧）",
+            "previewTitle": "源码（右侧）",
             "synced": "已同步",
             "enableSync": "启用同步",
             "disableSync": "禁用同步",

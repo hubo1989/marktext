@@ -169,11 +169,12 @@
             "theme": "テーマ (&T)",
             "light": "ライト",
             "dark": "ダーク",
-            "auto": "自動",
-            "cadmiumLight": "カドミウムライト",
-            "graphiteLight": "グラファイトライト",
+            "graphite": "グラファイト",
             "materialDark": "マテリアルダーク",
             "oneDark": "ワンダーク",
+            "ulysses": "ユリシーズ",
+            "cadmiumLight": "カドミウムライト",
+            "graphiteLight": "グラファイトライト",
             "ulyssesLight": "ユリシーズライト"
         }
     },
@@ -567,8 +568,8 @@
                 "dualScreenMode": {
                     "title": "デュアルスクリーンモード",
                     "disabled": "無効",
-                    "enabled": "有効",
-                    "auto": "自動（ソースコードモード時）",
+                    "enabled": "有効（ソースコードモードのみ）",
+                    "enabledDescription": "有効にするとソースコードモードで左右分割ビューを表示し、左側がソースコード編集、右側がライブプレビューになります。",
                     "splitRatio": "分割比率",
                     "syncScroll": "スクロール同期",
                     "syncCursor": "カーソル同期"
@@ -688,8 +689,8 @@
                 "dualScreenMode": {
                     "title": "デュアルスクリーンモード",
                     "disabled": "無効",
-                    "enabled": "有効",
-                    "auto": "自動（ソースコードモード時）",
+                    "enabled": "有効（ソースコードモードのみ）",
+                    "enabledDescription": "有効にするとソースコードモードで左右分割ビューを表示し、左側がソースコード編集、右側がライブプレビューになります。",
                     "splitRatio": "分割比率",
                     "syncScroll": "スクロール同期",
                     "syncCursor": "カーソル同期"
@@ -1341,8 +1342,8 @@
             }
         },
         "dualScreen": {
-            "sourceTitle": "ソースコード",
-            "previewTitle": "ライブプレビュー",
+            "sourceTitle": "ソースコード（左側）",
+            "previewTitle": "ソースコード（右側）",
             "synced": "同期済み",
             "enableSync": "同期を有効化",
             "disableSync": "同期を無効化",

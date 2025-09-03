@@ -169,11 +169,12 @@
             "theme": "Thème (&T)",
             "light": "Clair",
             "dark": "Sombre",
-            "auto": "Automatique",
-            "cadmiumLight": "Cadmium clair",
-            "graphiteLight": "Graphite clair",
+            "graphite": "Graphite",
             "materialDark": "Material sombre",
             "oneDark": "One Dark",
+            "ulysses": "Ulysses",
+            "cadmiumLight": "Cadmium clair",
+            "graphiteLight": "Graphite clair",
             "ulyssesLight": "Ulysses clair"
         }
     },

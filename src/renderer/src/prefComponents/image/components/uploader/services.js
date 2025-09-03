@@ -28,15 +28,7 @@ const getServices = () => ({
     agreedToLegalNotices: true
   },
 
-  github: {
-    name: t('preferences.image.uploader.services.github'),
-    isGdprCompliant: true,
-    privacyUrl: 'https://github.com/site/privacy',
-    tosUrl: 'https://github.com/site/terms',
 
-    // Currently a non-persistent value
-    agreedToLegalNotices: false
-  },
 
   cliScript: {
     name: t('preferences.image.uploader.services.cliScript'),

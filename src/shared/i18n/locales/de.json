@@ -169,11 +169,12 @@
             "theme": "Design (&T)",
             "light": "Hell",
             "dark": "Dunkel",
-            "auto": "Automatisch",
-            "cadmiumLight": "Cadmium Hell",
-            "graphiteLight": "Graphit Hell",
+            "graphite": "Graphit",
             "materialDark": "Material Dunkel",
             "oneDark": "One Dark",
+            "ulysses": "Ulysses",
+            "cadmiumLight": "Cadmium Hell",
+            "graphiteLight": "Graphit Hell",
             "ulyssesLight": "Ulysses Hell"
         }
     },

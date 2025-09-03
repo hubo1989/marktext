@@ -170,6 +170,9 @@
           :options="getDualScreenModeOptions()"
           :on-change="(value) => onSelectChange('dualScreenMode', value)"
         ></cur-select>
+        <div v-if="dualScreenMode === 'enabled'" class="setting-description">
+          <small class="description-text">{{ t('preferences.editor.misc.dualScreenMode.enabledDescription') }}</small>
+        </div>
         <cur-select
           v-if="dualScreenMode !== 'disabled'"
           :description="t('preferences.editor.misc.dualScreenMode.splitRatio')"
@@ -258,6 +261,18 @@ const onSelectChange = (type, value) => {
   user-select: none;
   margin: 20px 0;
   color: var(--editorColor);
+}
+
+.setting-description {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.description-text {
+  color: var(--editorColor60, rgba(0, 0, 0, 0.6));
+  font-size: 12px;
+  line-height: 1.4;
+  display: block;
 }
 
 .pref-editor .image-ctrl label {

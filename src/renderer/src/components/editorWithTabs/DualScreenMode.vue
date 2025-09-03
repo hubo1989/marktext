@@ -44,7 +44,7 @@
       :style="{ width: `${previewWidth}%` }"
     >
       <div class="panel-header">
-        <h4>{{ t('editor.dualScreen.previewTitle') || 'Live Preview' }}</h4>
+        <h4>{{ t('editor.dualScreen.previewTitle') || 'Source Code (Right)' }}</h4>
         <div class="panel-controls">
           <span class="sync-indicator" v-if="syncEnabled">
             {{ t('editor.dualScreen.synced') || 'Synced' }}

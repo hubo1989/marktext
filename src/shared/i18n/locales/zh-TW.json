@@ -169,11 +169,12 @@
             "theme": "主題(&T)",
             "light": "淺色",
             "dark": "深色",
-            "auto": "自動",
-            "cadmiumLight": "鎘淺色",
-            "graphiteLight": "石墨淺色",
+            "graphite": "石墨",
             "materialDark": "Material 深色",
             "oneDark": "One Dark",
+            "ulysses": "Ulysses",
+            "cadmiumLight": "鎘淺色",
+            "graphiteLight": "石墨淺色",
             "ulyssesLight": "Ulysses 淺色"
         }
     },

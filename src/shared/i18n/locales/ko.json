@@ -169,11 +169,12 @@
             "theme": "&테마",
             "light": "밝게",
             "dark": "어둡게",
-            "auto": "자동",
-            "cadmiumLight": "카드뮴 라이트",
-            "graphiteLight": "그래파이트 라이트",
+            "graphite": "그래파이트",
             "materialDark": "머티리얼 다크",
             "oneDark": "원 다크",
+            "ulysses": "율리시스",
+            "cadmiumLight": "카드뮴 라이트",
+            "graphiteLight": "그래파이트 라이트",
             "ulyssesLight": "율리시스 라이트"
         }
     },

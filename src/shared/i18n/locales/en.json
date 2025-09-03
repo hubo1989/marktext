@@ -169,11 +169,12 @@
             "theme": "&Theme",
             "light": "Light",
             "dark": "Dark",
-            "auto": "Auto",
-            "cadmiumLight": "Cadmium Light",
-            "graphiteLight": "Graphite Light",
+            "graphite": "Graphite",
             "materialDark": "Material Dark",
             "oneDark": "One Dark",
+            "ulysses": "Ulysses",
+            "cadmiumLight": "Cadmium Light",
+            "graphiteLight": "Graphite Light",
             "ulyssesLight": "Ulysses Light"
         }
     },
@@ -567,8 +568,8 @@
                 "dualScreenMode": {
                     "title": "Dual Screen Mode",
                     "disabled": "Disabled",
-                    "enabled": "Enabled",
-                    "auto": "Auto (when in source code mode)",
+                    "enabled": "Enabled (Source Code Mode Only)",
+                    "enabledDescription": "Enables side-by-side view with source code on the left and live preview on the right. Only available in source code mode.",
                     "splitRatio": "Split Ratio",
                     "syncScroll": "Sync Scroll",
                     "syncCursor": "Sync Cursor"
@@ -1336,8 +1337,8 @@
             }
         },
         "dualScreen": {
-            "sourceTitle": "Source Code",
-            "previewTitle": "Live Preview",
+            "sourceTitle": "Source Code (Left)",
+            "previewTitle": "Source Code (Right)",
             "synced": "Synced",
             "enableSync": "Enable Sync",
             "disableSync": "Disable Sync",

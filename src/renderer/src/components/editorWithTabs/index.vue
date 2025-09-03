@@ -25,12 +25,11 @@
           ></source-code>
         </template>
         <template #preview>
-          <editor
+          <source-code
             :markdown="markdown"
-            :cursor="cursor"
+            :muyaIndexCursor="muyaIndexCursor"
             :text-direction="textDirection"
-            :platform="platform"
-          ></editor>
+          ></source-code>
         </template>
       </dual-screen-mode>
 
@@ -111,9 +110,7 @@ const {
 
 // Computed
 const isDualScreenActive = computed(() => {
-  return props.sourceCode &&
-         (dualScreenMode.value === 'enabled' ||
-          (dualScreenMode.value === 'auto' && props.sourceCode))
+  return props.sourceCode && dualScreenMode.value === 'enabled'
 })
 
 const currentLine = ref(0)

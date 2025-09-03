@@ -169,11 +169,12 @@
             "theme": "&Tema",
             "light": "Claro",
             "dark": "Escuro",
-            "auto": "Automático",
-            "cadmiumLight": "Cádmio Claro",
-            "graphiteLight": "Grafite Claro",
+            "graphite": "Grafite",
             "materialDark": "Material Escuro",
             "oneDark": "One Dark",
+            "ulysses": "Ulysses",
+            "cadmiumLight": "Cádmio Claro",
+            "graphiteLight": "Grafite Claro",
             "ulyssesLight": "Ulysses Claro"
         }
     },
