@@ -1,14 +1,8 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode }]"
-    :style="{
-      lineHeight: lineHeight,
-      fontSize: `${fontSize}px`,
-      'font-family': editorFontFamily
-        ? `${editorFontFamily}, ${defaultFontFamily}`
-        : `${defaultFontFamily}`
-    }"
+    :class="editorClass"
+    :style="editorFontStyle"
     :dir="textDirection"
   >
     <div ref="editorRef" class="editor-component"></div>
@@ -63,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, reactive, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import log from 'electron-log'
 // import ViewImage from 'view-image'
 import Muya from 'muya/lib'
@@ -189,6 +183,53 @@ const editorRef = ref(null)
 const imageViewerRef = ref(null)
 const rowInput = ref(null)
 
+// Computed properties for performance optimization
+const editorFontStyle = computed(() => {
+  const fontFamily = editorFontFamily.value
+    ? `${editorFontFamily.value}, ${defaultFontFamily}`
+    : `${defaultFontFamily}`
+
+  return {
+    lineHeight: lineHeight.value,
+    fontSize: `${fontSize.value}px`,
+    fontFamily
+  }
+})
+
+const editorClass = computed(() => ({
+  typewriter: typewriter.value,
+  focus: focus.value,
+  source: sourceCode.value
+}))
+
+const editorOptions = computed(() => ({
+  preferLooseListItem: preferLooseListItem.value,
+  autoPairBracket: autoPairBracket.value,
+  autoPairMarkdownSyntax: autoPairMarkdownSyntax.value,
+  autoPairQuote: autoPairQuote.value,
+  bulletListMarker: bulletListMarker.value,
+  orderListDelimiter: orderListDelimiter.value,
+  tabSize: tabSize.value,
+  listIndentation: listIndentation.value,
+  frontmatterType: frontmatterType.value,
+  superSubScript: superSubScript.value,
+  footnote: footnote.value,
+  isHtmlEnabled: isHtmlEnabled.value,
+  isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value
+}))
+
+const codeBlockOptions = computed(() => ({
+  codeFontSize: codeFontSize.value,
+  codeFontFamily: codeFontFamily.value,
+  codeBlockLineNumbers: codeBlockLineNumbers.value,
+  trimUnnecessaryCodeBlockEmptyLines: trimUnnecessaryCodeBlockEmptyLines.value
+}))
+
+const themeConfig = computed(() => ({
+  theme: theme.value,
+  sequenceTheme: sequenceTheme.value
+}))
+
 // Non-reactive variables
 let printer = null
 let spellchecker = null
@@ -208,31 +249,27 @@ watch(focus, (value) => {
   }
 })
 
-watch(fontSize, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setFont({ fontSize: value })
-  }
-})
-
-watch(lineHeight, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setFont({ lineHeight: value })
-  }
-})
-
-watch(preferLooseListItem, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({
-      preferLooseListItem: value
+watch(editorFontStyle, (newStyle, oldStyle) => {
+  if (editor.value && JSON.stringify(newStyle) !== JSON.stringify(oldStyle)) {
+    editor.value.setFont({
+      fontSize: parseInt(newStyle.fontSize),
+      lineHeight: newStyle.lineHeight
     })
   }
-})
+}, { deep: true })
 
-watch(tabSize, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setTabSize(value)
+watch(editorOptions, (newOptions, oldOptions) => {
+  if (editor.value && JSON.stringify(newOptions) !== JSON.stringify(oldOptions)) {
+    editor.value.setOptions(newOptions)
   }
-})
+}, { deep: true })
+
+watch(themeConfig, (newConfig, oldConfig) => {
+  if (editor.value && JSON.stringify(newConfig) !== JSON.stringify(oldConfig)) {
+    // Handle theme changes
+    editor.value.setTheme(newConfig.theme)
+  }
+}, { deep: true })
 
 watch(theme, (value, oldValue) => {
   if (value !== oldValue && editor.value) {

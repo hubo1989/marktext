@@ -22,8 +22,34 @@ import { useLayoutStore } from './layout'
 import { useMainStore } from '.'
 import { i18n } from '../i18n'
 
+// Import refactored modules
+import tabManagement from './modules/tabManagement'
+import fileOperations from './modules/fileOperations'
+import editorState from './modules/editorState'
+import listeners from './modules/listeners'
+import exportModule from './modules/export'
+import searchModule from './modules/search'
+
+/**
+ * Auto-save timers map for managing file auto-save functionality
+ * @type {Map<string, NodeJS.Timeout>}
+ */
 const autoSaveTimers = new Map()
 
+/**
+ * Editor Store - Main store for managing editor state and operations
+ *
+ * This store handles:
+ * - Tab management (creation, closing, switching)
+ * - File operations (save, save as, rename, move)
+ * - Editor state management (content changes, selection, cursor)
+ * - Auto-save functionality
+ * - Export operations
+ * - Search functionality
+ * - Various IPC event listeners
+ *
+ * @returns {Object} Pinia store instance
+ */
 export const useEditorStore = defineStore('editor', {
   state: () => ({
     currentFile: {},
@@ -34,8 +60,22 @@ export const useEditorStore = defineStore('editor', {
 
   actions: {
     /**
+     * Initialize all modules and register their methods to the store
+     * This method is called during store creation to set up module functionality
+     */
+    initializeModules() {
+      // Mix in module methods
+      Object.assign(this, tabManagement)
+      Object.assign(this, fileOperations)
+      Object.assign(this, editorState)
+      Object.assign(this, listeners)
+      Object.assign(this, exportModule)
+      Object.assign(this, searchModule)
+    },
+
+    /**
      * Copies the specified heading's github-slug to the clipboard.
-     * @param {string} id The heading-id to copy.
+     * @param {string} key The heading-id to copy.
      */
     copyGithubSlug(key) {
       const item = this.listToc.find((i) => i.slug === key)
@@ -1089,7 +1129,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_EXPORT_SUCCESS() {
+    LISTEN_FOR_EXPORT_SUCCESS() {
       window.electron.ipcRenderer.on('mt::export-success', (_, { filePath }) => {
         notice
           .notify({
@@ -1109,13 +1149,13 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.send('mt::response-print')
     },
 
-    LINTEN_FOR_PRINT_SERVICE_CLEARUP() {
+    LISTEN_FOR_PRINT_SERVICE_CLEARUP() {
       window.electron.ipcRenderer.on('mt::print-service-clearup', () => {
         bus.emit('print-service-clearup')
       })
     },
 
-    LINTEN_FOR_SET_LINE_ENDING() {
+    LISTEN_FOR_SET_LINE_ENDING() {
       window.electron.ipcRenderer.on('mt::set-line-ending', (_, lineEnding) => {
         const { lineEnding: oldLineEnding } = this.currentFile
         if (lineEnding !== oldLineEnding) {
@@ -1127,7 +1167,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_SET_ENCODING() {
+    LISTEN_FOR_SET_ENCODING() {
       window.electron.ipcRenderer.on('mt::set-file-encoding', (_, encodingName) => {
         const { encoding } = this.currentFile.encoding
         if (encoding !== encodingName) {
@@ -1138,7 +1178,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_SET_FINAL_NEWLINE() {
+    LISTEN_FOR_SET_FINAL_NEWLINE() {
       window.electron.ipcRenderer.on('mt::set-final-newline', (_, value) => {
         const { trimTrailingNewline } = this.currentFile
         if (trimTrailingNewline !== value) {
