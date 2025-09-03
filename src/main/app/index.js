@@ -216,6 +216,16 @@ class App {
       if (info) {
         _openFilesCache.unshift(info)
       }
+    } else if (startUpAction === 'blank' || startUpAction === 'lastState') {
+      // For blank startup or lastState (which is hidden in UI but might be set as default)
+      // we need to create an empty markdown string to open
+      _openFilesCache.push({
+        isDir: false,
+        path: '',
+        markdown: '',
+        filename: 'Untitled.md',
+        pathname: 'Untitled.md'
+      })
     }
 
     // Set initial native theme for theme in preferences.

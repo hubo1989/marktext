@@ -474,7 +474,15 @@
                 "title": "Démarrage",
                 "openDefaultDirectory": "Ouvrir le répertoire par défaut",
                 "selectFolder": "Sélectionner un dossier",
-                "openBlankPage": "Ouvrir une page vierge"
+                "openBlankPage": "Ouvrir une page vierge",
+                "restoreLastSession": "Restaurer la dernière session"
+            },
+            "document": {
+                "untitled": "Sans titre"
+            },
+            "loading": {
+                "editorComponent": "Chargement du composant éditeur...",
+                "initializingEditor": "Veuillez patienter pendant l'initialisation de l'éditeur"
             },
             "sidebar": {
                 "title": "Barre latérale",

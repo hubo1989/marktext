@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import fileIcons from 'muya/lib/ui/fileIcons'
+import fileIcons from 'muya/lib/ui/fileIcons/index.js'
 
 const props = defineProps({
   name: {

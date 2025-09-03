@@ -26,9 +26,7 @@ import { i18n } from '../i18n'
 import tabManagement from './modules/tabManagement'
 import fileOperations from './modules/fileOperations'
 import editorState from './modules/editorState'
-import listeners from './modules/listeners'
-import exportModule from './modules/export'
-import searchModule from './modules/search'
+import listenerManager from './modules/listenerManager'
 
 /**
  * Auto-save timers map for managing file auto-save functionality
@@ -68,9 +66,7 @@ export const useEditorStore = defineStore('editor', {
       Object.assign(this, tabManagement)
       Object.assign(this, fileOperations)
       Object.assign(this, editorState)
-      Object.assign(this, listeners)
-      Object.assign(this, exportModule)
-      Object.assign(this, searchModule)
+      Object.assign(this, listenerManager)
     },
 
     /**

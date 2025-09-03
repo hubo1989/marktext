@@ -11,6 +11,13 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 export default defineConfig({
+  server: {
+    port: 5173,
+    strictPort: false, // Allow fallback to other ports
+    host: 'localhost',
+    // 仅在开发环境启用热更新
+    hmr: process.env.NODE_ENV === 'development'
+  },
   main: {
     // --> Bundled as CommonJS
     // externalizeDepsPlugin() basically externises all the dependencies from being bundled during build - treating them as runtime dependencies
@@ -20,6 +27,15 @@ export default defineConfig({
       externalizeDepsPlugin({
         exclude: ['electron-store']
       }),
+      {
+        name: 'enable-remote-debugging',
+        configureServer(server) {
+          // Only enable remote debugging in development
+          if (process.env.NODE_ENV === 'development') {
+            process.env.ELECTRON_ENABLE_REMOTE_DEBUGGING = 'true'
+          }
+        }
+      },
       {
         name: 'copy-i18n-files',
         writeBundle() {
@@ -112,14 +128,56 @@ export default defineConfig({
     optimizeDeps: {
       // We need to externalise fontmanager-redux as it is not a browser compatible module
       // electron-vite will throw an error during the optimisation step when it tries to optimise it
-      exclude: ['fontmanager-redux']
+      exclude: ['fontmanager-redux'],
+      // Include muya in optimization to avoid resolution issues
+      include: ['muya/lib']
     },
     build: {
       rollupOptions: {
         // This is technically not required since rollUp by default does not bundle require() calls
         // But just in case there are any changes in the future
-        external: ['fontmanager-redux']
-      }
+        external: ['fontmanager-redux', 'muya'],
+        output: {
+          // 优化chunk分割
+          manualChunks: {
+            // Vue相关
+            'vue-vendor': ['vue', 'vue-router', 'pinia'],
+            // Element Plus
+            'element-plus': ['element-plus', 'element-plus/dist/index.css'],
+            // 工具库
+            'utils': ['axios', 'dayjs', 'dompurify'],
+            // 编辑器相关
+            'editor-core': ['codemirror'],
+            // 其他第三方库
+            'vendor': ['mermaid', 'katex', 'prismjs', 'turndown']
+          }
+        },
+        // 启用Tree Shaking优化
+        treeshake: {
+          moduleSideEffects: false,
+          propertyReadSideEffects: false,
+          tryCatchDeoptimization: false
+        }
+      },
+      // 启用压缩
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: process.env.NODE_ENV === 'production',
+          drop_debugger: process.env.NODE_ENV === 'production',
+          pure_funcs: process.env.NODE_ENV === 'production' ? ['console.log', 'console.info', 'console.debug'] : []
+        }
+      },
+      // 启用source map（仅开发环境）
+      sourcemap: process.env.NODE_ENV === 'development',
+      // 生产环境优化
+      ...(process.env.NODE_ENV === 'production' && {
+        // 禁用热更新相关功能
+        watch: false,
+        // 优化生产构建
+        cssCodeSplit: false,
+        reportCompressedSize: false
+      })
     }
   }
 })

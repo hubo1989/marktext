@@ -97,10 +97,7 @@
       <template #children>
         <section class="startup-action-ctrl">
           <el-radio-group v-model="startUpAction">
-            <!--
-              Hide "lastState" for now (#2064).
-            <el-radio class="ag-underdevelop" label="lastState">Restore last editor session</el-radio>
-            -->
+            <el-radio label="lastState" style="margin-bottom: 10px">{{ t('preferences.general.startup.restoreLastSession') }}</el-radio>
             <el-radio label="folder" style="margin-bottom: 10px"
               >{{ t('preferences.general.startup.openDefaultDirectory') }}<span>: {{ defaultDirectoryToOpen }}</span></el-radio
             >

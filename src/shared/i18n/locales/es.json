@@ -474,7 +474,15 @@
                 "title": "Inicio",
                 "openDefaultDirectory": "Abrir directorio predeterminado",
                 "selectFolder": "Seleccionar Carpeta",
-                "openBlankPage": "Abrir página en blanco"
+                "openBlankPage": "Abrir página en blanco",
+                "restoreLastSession": "Restaurar última sesión"
+            },
+            "document": {
+                "untitled": "Sin título"
+            },
+            "loading": {
+                "editorComponent": "Cargando componente del editor...",
+                "initializingEditor": "Por favor espere mientras inicializamos el editor"
             },
             "sidebar": {
                 "title": "Barra Lateral",

@@ -474,7 +474,15 @@
                 "title": "启动",
                 "openDefaultDirectory": "打开默认目录",
                 "selectFolder": "选择文件夹",
-                "openBlankPage": "打开空白页"
+                "openBlankPage": "打开空白页",
+                "restoreLastSession": "恢复上次会话"
+            },
+            "document": {
+                "untitled": "未命名"
+            },
+            "loading": {
+                "editorComponent": "正在加载编辑器组件...",
+                "initializingEditor": "请稍候，我们正在初始化编辑器"
             },
             "sidebar": {
                 "title": "侧边栏",
@@ -1062,7 +1070,18 @@
         "terminatedDueToError": "由于错误而终止",
         "unexpectedErrorWithMessage": "意外错误消息",
         "unexpectedMainProcess": "意外的主进程错误",
-        "unexpectedRendererProcess": "意外的渲染进程错误"
+        "unexpectedRendererProcess": "意外的渲染进程错误",
+        "componentError": {
+            "title": "组件错误",
+            "message": "此组件出现了问题。您可以尝试刷新或报告此问题。",
+            "retry": "重试",
+            "showDetails": "显示详情",
+            "hideDetails": "隐藏详情",
+            "report": "报告错误",
+            "reportCopied": "错误报告已复制到剪贴板",
+            "reportText": "错误报告：",
+            "componentInfo": "组件信息"
+        }
     },
     "notifications": {
         "defaultMessage": "默认消息",

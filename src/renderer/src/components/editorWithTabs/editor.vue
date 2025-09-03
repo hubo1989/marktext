@@ -60,20 +60,20 @@
 import { ref, reactive, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import log from 'electron-log'
 // import ViewImage from 'view-image'
-import Muya from 'muya/lib'
-import TablePicker from 'muya/lib/ui/tablePicker'
-import QuickInsert from 'muya/lib/ui/quickInsert'
-import CodePicker from 'muya/lib/ui/codePicker'
-import EmojiPicker from 'muya/lib/ui/emojiPicker'
-import ImagePathPicker from 'muya/lib/ui/imagePicker'
-import ImageSelector from 'muya/lib/ui/imageSelector'
-import ImageToolbar from 'muya/lib/ui/imageToolbar'
-import Transformer from 'muya/lib/ui/transformer'
-import FormatPicker from 'muya/lib/ui/formatPicker'
-import LinkTools from 'muya/lib/ui/linkTools'
-import FootnoteTool from 'muya/lib/ui/footnoteTool'
-import TableBarTools from 'muya/lib/ui/tableTools'
-import FrontMenu from 'muya/lib/ui/frontMenu'
+import Muya from 'muya/lib/index.js'
+import TablePicker from 'muya/lib/ui/tablePicker/index.js'
+import QuickInsert from 'muya/lib/ui/quickInsert/index.js'
+import CodePicker from 'muya/lib/ui/codePicker/index.js'
+import EmojiPicker from 'muya/lib/ui/emojiPicker/index.js'
+import ImagePathPicker from 'muya/lib/ui/imagePicker/index.js'
+import ImageSelector from 'muya/lib/ui/imageSelector/index.js'
+import ImageToolbar from 'muya/lib/ui/imageToolbar/index.js'
+import Transformer from 'muya/lib/ui/transformer/index.js'
+import FormatPicker from 'muya/lib/ui/formatPicker/index.js'
+import LinkTools from 'muya/lib/ui/linkTools/index.js'
+import FootnoteTool from 'muya/lib/ui/footnoteTool/index.js'
+import TableBarTools from 'muya/lib/ui/tableTools/index.js'
+import FrontMenu from 'muya/lib/ui/frontMenu/index.js'
 import EditorSearch from '../search'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -984,8 +984,18 @@ const handleResetPaddingBottom = () => {
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
 onMounted(() => {
+  console.log('🎨 [EDITOR] Editor component mounted - Starting initialization')
+
   printer = new Printer()
   const ele = editorRef.value
+
+  console.log('🎨 [EDITOR] Editor element:', ele)
+  console.log('🎨 [EDITOR] Props received:', {
+    markdown: props.markdown ? `${props.markdown.length} chars` : 'none',
+    cursor: props.cursor,
+    textDirection: props.textDirection,
+    platform: props.platform
+  })
 
   // use muya UI plugins
   Muya.use(TablePicker)
@@ -1051,18 +1061,43 @@ onMounted(() => {
     })
   }
 
-  editor.value = new Muya(ele, options)
-  const { container } = editor.value
-
-  // Listen for language changes and update Muya's translation function
-  bus.on('language-changed', () => {
-    if (editor.value) {
-      editor.value.setOptions({ t })
-    }
+  console.log('🎨 [EDITOR] Creating Muya editor with options:', {
+    focusMode: focus.value,
+    markdown: props.markdown ? 'provided' : 'empty',
+    theme: theme.value,
+    fontSize: fontSize.value
   })
 
-  // Create spell check wrapper and enable spell checking if preferred.
-  spellchecker = new SpellChecker(spellcheckerEnabled.value, spellcheckerLanguage.value)
+  try {
+    editor.value = new Muya(ele, options)
+    console.log('✅ [EDITOR] Muya editor created successfully')
+
+    const { container } = editor.value
+    console.log('🎨 [EDITOR] Editor container:', container)
+
+    // Listen for language changes and update Muya's translation function
+    bus.on('language-changed', () => {
+      if (editor.value) {
+        console.log('🎨 [EDITOR] Updating translation function')
+        editor.value.setOptions({ t })
+      }
+    })
+
+    // Create spell check wrapper and enable spell checking if preferred.
+    console.log('🎨 [EDITOR] Initializing spell checker')
+    spellchecker = new SpellChecker(spellcheckerEnabled.value, spellcheckerLanguage.value)
+    console.log('✅ [EDITOR] Spell checker initialized')
+
+  } catch (error) {
+    console.error('❌ [EDITOR] Failed to initialize Muya editor:', error)
+    console.error('❌ [EDITOR] Error details:', {
+      message: error.message,
+      stack: error.stack,
+      options: options,
+      element: ele
+    })
+    throw error // Re-throw to trigger error handling
+  }
 
   // Register command palette entry for switching spellchecker language.
   switchLanguageCommand = new SpellcheckerLanguageCommand(spellchecker)
@@ -1153,6 +1188,8 @@ onMounted(() => {
 
   editor.value.on('selectionChange', (changes) => {
     const { y } = changes.cursorCoords
+    const { container } = editor.value // Get container from editor instance
+
     if (typewriter.value) {
       const startPosition = container.scrollTop
       const toPosition = startPosition + y - STANDAR_Y
@@ -1182,6 +1219,13 @@ onMounted(() => {
 
   setWrapCodeBlocks(wrapCodeBlocks.value)
   setEditorWidth(editorLineWidth.value)
+
+  console.log('✅ [EDITOR] Editor component initialization completed successfully!')
+  console.log('🎨 [EDITOR] Editor instance:', editor.value)
+  if (editor.value) {
+    const { container } = editor.value
+    console.log('🎨 [EDITOR] Editor container:', container)
+  }
 })
 
 onBeforeUnmount(() => {

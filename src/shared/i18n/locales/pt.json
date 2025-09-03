@@ -474,7 +474,15 @@
                 "title": "Inicialização",
                 "openDefaultDirectory": "Abrir diretório padrão",
                 "selectFolder": "Selecionar Pasta",
-                "openBlankPage": "Abrir página em branco"
+                "openBlankPage": "Abrir página em branco",
+                "restoreLastSession": "Restaurar última sessão"
+            },
+            "document": {
+                "untitled": "Sem título"
+            },
+            "loading": {
+                "editorComponent": "Carregando componente do editor...",
+                "initializingEditor": "Por favor aguarde enquanto inicializamos o editor"
             },
             "sidebar": {
                 "title": "Barra Lateral",

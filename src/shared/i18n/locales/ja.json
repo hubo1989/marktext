@@ -474,7 +474,15 @@
                 "title": "起動",
                 "openDefaultDirectory": "デフォルトディレクトリを開く",
                 "selectFolder": "フォルダを選択",
-                "openBlankPage": "空白ページを開く"
+                "openBlankPage": "空白ページを開く",
+                "restoreLastSession": "前回のセッションを復元"
+            },
+            "document": {
+                "untitled": "無題"
+            },
+            "loading": {
+                "editorComponent": "エディターコンポーネントを読み込み中...",
+                "initializingEditor": "エディターを初期化している間、しばらくお待ちください"
             },
             "sidebar": {
                 "title": "サイドバー",

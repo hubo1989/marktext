@@ -1,0 +1,59 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "types/**/*"
+  ],
+  "exclude": [
+    "src/muya/**/*",
+    "node_modules",
+    "dist",
+    "build",
+    "out"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/renderer/src/*"],
+      "common/*": ["src/common/*"],
+      "muya/*": ["src/muya/*"],
+      "main_renderer/*": ["src/main/*"]
+    },
+    "types": ["node", "electron", "vitest/globals"],
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleResolution": "bundler",
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "preserve"
+  },
+  "vueCompilerOptions": {
+    "target": 3,
+    "strictTemplates": false
+  },
+  "ts-node": {
+    "esm": true,
+    "compilerOptions": {
+      "module": "ESNext"
+    }
+  }
+}
+

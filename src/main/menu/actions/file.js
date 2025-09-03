@@ -86,15 +86,27 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
         }
         await writeFile(filePath, content, extension, 'utf8')
       }
-      win.webContents.send('mt::export-success', { type, filePath })
+      if (win && !win.isDestroyed()) {
+        try {
+          win.webContents.send('mt::export-success', { type, filePath })
+        } catch (error) {
+          console.error('Error sending export success:', error)
+        }
+      }
     } catch (err) {
       log.error('Error while exporting:', err)
       const ERROR_MSG = err.message || `Error happened when export ${filePath}`
-      win.webContents.send('mt::show-notification', {
-        title: 'Export failure',
-        type: 'error',
-        message: ERROR_MSG
-      })
+      if (win && !win.isDestroyed()) {
+        try {
+          win.webContents.send('mt::show-notification', {
+            title: 'Export failure',
+            type: 'error',
+            message: ERROR_MSG
+          })
+        } catch (error) {
+          console.error('Error sending export error notification:', error)
+        }
+      }
     }
   } else {
     // User canceled save dialog
@@ -150,7 +162,13 @@ const handleResponseForSave = async (e, id, filename, pathname, markdown, option
         ipcMain.emit('menu-add-recently-used', filePath)
 
         const filename = path.basename(filePath)
-        win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+        if (win && !win.isDestroyed()) {
+          try {
+            win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+          } catch (error) {
+            console.error('Error sending set-pathname:', error)
+          }
+        }
       } else {
         ipcMain.emit('window-file-saved', win.id, filePath)
         win.webContents.send('mt::tab-saved', id)
@@ -269,13 +287,25 @@ ipcMain.on(
             ipcMain.emit('menu-add-recently-used', filePath)
 
             const filename = path.basename(filePath)
-            win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+            if (win && !win.isDestroyed()) {
+              try {
+                win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+              } catch (error) {
+                console.error('Error sending set-pathname:', error)
+              }
+            }
           } else if (pathname !== filePath) {
             // Update window file list and watcher.
             ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
 
             const filename = path.basename(filePath)
-            win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+            if (win && !win.isDestroyed()) {
+              try {
+                win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+              } catch (error) {
+                console.error('Error sending set-pathname:', error)
+              }
+            }
           } else {
             ipcMain.emit('window-file-saved', win.id, filePath)
             win.webContents.send('mt::tab-saved', id)

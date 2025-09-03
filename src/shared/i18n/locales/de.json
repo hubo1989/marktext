@@ -474,7 +474,15 @@
                 "title": "Start",
                 "openDefaultDirectory": "Standardverzeichnis öffnen",
                 "selectFolder": "Ordner auswählen",
-                "openBlankPage": "Leere Seite öffnen"
+                "openBlankPage": "Leere Seite öffnen",
+                "restoreLastSession": "Letzte Sitzung wiederherstellen"
+            },
+            "document": {
+                "untitled": "Unbenannt"
+            },
+            "loading": {
+                "editorComponent": "Editor-Komponente wird geladen...",
+                "initializingEditor": "Bitte warten Sie, während wir den Editor initialisieren"
             },
             "sidebar": {
                 "title": "Seitenleiste",

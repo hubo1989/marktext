@@ -474,7 +474,15 @@
                 "title": "啟動",
                 "openDefaultDirectory": "開啟預設目錄",
                 "selectFolder": "選擇資料夾",
-                "openBlankPage": "開啟空白頁面"
+                "openBlankPage": "開啟空白頁面",
+                "restoreLastSession": "恢復上次會話"
+            },
+            "document": {
+                "untitled": "未命名"
+            },
+            "loading": {
+                "editorComponent": "正在載入編輯器元件...",
+                "initializingEditor": "請稍候，我們正在初始化編輯器"
             },
             "sidebar": {
                 "title": "側邊欄",

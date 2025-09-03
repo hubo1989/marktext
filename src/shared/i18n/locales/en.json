@@ -474,7 +474,15 @@
                 "title": "Startup",
                 "openDefaultDirectory": "Open default directory",
                 "selectFolder": "Select Folder",
-                "openBlankPage": "Open blank page"
+                "openBlankPage": "Open blank page",
+                "restoreLastSession": "Restore last session"
+            },
+            "document": {
+                "untitled": "Untitled"
+            },
+            "loading": {
+                "editorComponent": "Loading Editor Component...",
+                "initializingEditor": "Please wait while we initialize the editor"
             },
             "sidebar": {
                 "title": "Sidebar",
@@ -1062,7 +1070,18 @@
         "terminatedDueToError": "Terminated due to error",
         "unexpectedErrorWithMessage": "Unexpected error with message",
         "unexpectedMainProcess": "Unexpected main process error",
-        "unexpectedRendererProcess": "Unexpected renderer process error"
+        "unexpectedRendererProcess": "Unexpected renderer process error",
+        "componentError": {
+            "title": "Component Error",
+            "message": "Something went wrong with this component. You can try refreshing or report this issue.",
+            "retry": "Retry",
+            "showDetails": "Show Details",
+            "hideDetails": "Hide Details",
+            "report": "Report Error",
+            "reportCopied": "Error report copied to clipboard",
+            "reportText": "Error Report:",
+            "componentInfo": "Component Information"
+        }
     },
     "notifications": {
         "defaultMessage": "Default message",

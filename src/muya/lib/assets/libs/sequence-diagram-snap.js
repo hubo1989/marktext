@@ -3,8 +3,9 @@
  *  (c) 2012-2017 Andrew Brampton (bramp.net)
  *  @license Simplified BSD license.
  */
-import _ from 'underscore'
-import Snap from 'snapsvg-cjs'
+// Use lodash as replacement for underscore
+import _ from 'lodash'
+import Snap from 'snapsvg'
 import WebFont from 'webfontloader'
 
 function Diagram() {

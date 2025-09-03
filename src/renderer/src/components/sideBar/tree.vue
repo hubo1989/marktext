@@ -68,7 +68,26 @@
           :style="{ 'margin-left': `${depth * 5 + 15}px` }"
           @keypress.enter="handleInputEnter"
         />
+        <!-- 使用虚拟滚动处理大量文件 -->
+        <virtual-scroller
+          v-if="projectTree.files.length > 50"
+          :items="projectTree.files"
+          :item-height="32"
+          :container-height="400"
+          :item-key="'pathname'"
+          class="files-virtual-scroller"
+        >
+          <template #default="{ item: file }">
+            <file
+              :file="file"
+              :depth="depth"
+            />
+          </template>
+        </virtual-scroller>
+
+        <!-- 小文件列表直接渲染 -->
         <file
+          v-else
           v-for="(file, index) of projectTree.files"
           :key="index + 'file'"
           :file="file"
@@ -106,7 +125,9 @@ import { useEditorStore } from '@/store/editor'
 import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
+
 import bus from '../../bus'
+import { sidebarCommunication, SIDEBAR_EVENTS, SIDEBAR_ACTIONS } from '@/utils/sidebarCommunication'
 
 // 确保翻译函数在模板中可用
 const translate = t
@@ -145,7 +166,13 @@ const saveAll = (isClose) => {
 
 const createFile = () => {
   projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
-  bus.emit('SIDEBAR::new', 'file')
+  // 使用新的侧边栏通信方案替代事件总线
+  sidebarCommunication.emitAction(SIDEBAR_ACTIONS.CREATE_FILE, {
+    type: 'file',
+    parentPath: props.projectTree.pathname
+  })
+  // 发送输入框聚焦事件
+  sidebarCommunication.emitEvent(SIDEBAR_EVENTS.INPUT_FOCUS_REQUESTED)
 }
 
 const toggleOpenedFiles = () => {
@@ -170,7 +197,15 @@ const handleInputEnter = () => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
+// 监听侧边栏通信事件
+const unsubscribeInputFocus = sidebarCommunication.onEvent(
+  SIDEBAR_EVENTS.INPUT_FOCUS_REQUESTED,
+  handleInputFocus,
+  'TreeComponent'
+)
+
 onMounted(() => {
+  // 保留原有的全局事件监听作为后备
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
 
   // hide rename or create input if needed
@@ -389,5 +424,16 @@ onMounted(() => {
 }
 .bold {
   font-weight: 600;
+}
+
+/* 虚拟滚动样式 */
+.files-virtual-scroller {
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.files-virtual-scroller :deep(.virtual-scroller__item) {
+  padding: 0;
+  margin: 0;
 }
 </style>

@@ -1,5 +1,5 @@
 import { getUniqueId, deepClone } from '../util'
-import { i18n } from '../i18n'
+import { t } from '../i18n'
 
 /**
  * Default internel markdown document with editor options.
@@ -102,7 +102,7 @@ export const getBlankFileState = (
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
     id,
-    filename: `Untitled-${++untitleId}`,
+    filename: `${t('preferences.general.document.untitled')}-${++untitleId}`,
     markdown
   })
 }

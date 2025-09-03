@@ -49,13 +49,29 @@ initializeLogger(appEnvironment)
 // Setup i18n error handling and validation
 setupI18nErrorHandling()
 
-// Handles native level crashes
-crashReporter.start({
-  companyName: '',
-  productName: 'marktextv2',
-  uploadToServer: false, // collect locally
-  compress: true
-})
+// Enable remote debugging for development
+if (process.env.NODE_ENV === 'development') {
+  // Use a random high port to avoid conflicts
+  const devToolsPort = Math.floor(Math.random() * 1000) + 19222 // Random port between 19222-20222
+  app.commandLine.appendSwitch('--remote-debugging-port', devToolsPort.toString())
+  console.log(`DevTools will be available on port ${devToolsPort}`)
+  app.commandLine.appendSwitch('--enable-logging')
+
+  // Add stability flags for development
+  app.commandLine.appendSwitch('--disable-background-timer-throttling')
+  app.commandLine.appendSwitch('--disable-renderer-backgrounding')
+  app.commandLine.appendSwitch('--disable-backgrounding-occluded-windows')
+}
+
+// Handles native level crashes - only in production
+if (process.env.NODE_ENV === 'production') {
+  crashReporter.start({
+    companyName: '',
+    productName: 'marktextv2',
+    uploadToServer: false, // collect locally
+    compress: true
+  })
+}
 process.on('uncaughtException', (err) => {
   log.error('Main uncaughtException:', err.stack)
 })
@@ -73,7 +89,14 @@ if (args['--disable-gpu']) {
 if (!process.mas && process.env.NODE_ENV !== 'development') {
   const gotLock = app.requestSingleInstanceLock()
   if (!gotLock) {
-    process.stdout.write(t('error.otherInstanceDetected'))
+    try {
+      process.stdout.write(t('error.otherInstanceDetected'))
+    } catch (error) {
+      // Ignore EPIPE errors when stdout is closed
+      if (error.code !== 'EPIPE') {
+        console.error('Error writing to stdout:', error)
+      }
+    }
     process.exit(0)
   }
 }

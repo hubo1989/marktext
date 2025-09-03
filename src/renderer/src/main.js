@@ -16,6 +16,7 @@ import i18nPlugin from './i18n'
 // something is wrong here! \/
 import services from './services/index'
 import routes from './router'
+import { setupRoutePreloading } from './utils/routePreloader'
 import Main from './Main.vue'
 
 import './assets/styles/index.css'
@@ -43,6 +44,9 @@ const router = createRouter({
   // links like /editor if we use the old createWebHistory()
   routes: routes(global.marktext.env.type)
 })
+
+// 设置路由预加载
+setupRoutePreloading(router)
 
 app.use(router)
 app.use(pinia)

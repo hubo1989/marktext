@@ -14,7 +14,11 @@ export const editorWinOptions = Object.freeze({
     spellcheck: true,
     nodeIntegration: true,
     webSecurity: false,
-    preload: path.join(__dirname, '../preload/index.js')
+    preload: path.join(__dirname, '../preload/index.js'),
+    // Enable remote debugging for development
+    ...(process.env.NODE_ENV === 'development' && {
+      devTools: true
+    })
   },
   useContentSize: true,
   show: true,
