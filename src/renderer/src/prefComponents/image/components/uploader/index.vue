@@ -1119,7 +1119,7 @@ const validate = (value) => {
 .pref-image-uploader .install-commands {
   margin-top: 12px;
   padding: 12px;
-  background-color: #f8f9fa;
+  background-color: var(--floatBgColor, #f8f9fa);
   border-radius: 6px;
   border-left: 4px solid #ffc107;
 }
@@ -1149,7 +1149,7 @@ const validate = (value) => {
 }
 
 .pref-image-uploader .install-command {
-  background-color: #e9ecef;
+  background-color: var(--infoBgColor, #e9ecef);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -1167,7 +1167,7 @@ const validate = (value) => {
 .pref-image-uploader .usage-guide {
   margin-top: 15px;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: var(--floatBgColor, #f8f9fa);
   border-radius: 6px;
   border-left: 4px solid #17a2b8;
 }
@@ -1203,7 +1203,7 @@ const validate = (value) => {
 }
 
 .pref-image-uploader .usage-command {
-  background-color: #e9ecef;
+  background-color: var(--infoBgColor, #e9ecef);
   padding: 4px 8px;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -1284,7 +1284,7 @@ const validate = (value) => {
   padding: 12px;
   background-color: var(--floatBgColor);
   border-radius: 6px;
-  border-left: 4px solid #07C160;
+  border-left: 4px solid var(--successColor, #07C160);
   color: var(--editorColor);
   font-size: 14px;
   line-height: 1.5;

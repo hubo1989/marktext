@@ -563,7 +563,16 @@
                 "hideQuickInsertHint": "クイック挿入ヒントを隠す",
                 "hideLinkPopup": "リンクポップアップを隠す",
                 "autoCheck": "自動チェック",
-                "wrapCodeBlocks": "コードブロックを折り返し"
+                "wrapCodeBlocks": "コードブロックを折り返し",
+                "dualScreenMode": {
+                    "title": "デュアルスクリーンモード",
+                    "disabled": "無効",
+                    "enabled": "有効",
+                    "auto": "自動（ソースコードモード時）",
+                    "splitRatio": "分割比率",
+                    "syncScroll": "スクロール同期",
+                    "syncCursor": "カーソル同期"
+                }
             }
         },
         "image": {
@@ -660,6 +669,31 @@
                 "saveConfig": "設定を保存",
                 "githubConfigSaved": "GitHub設定が保存されました",
                 "scriptConfigSaved": "スクリプト設定が保存されました",
+                "wechatOfficial": "WeChat公式アカウント",
+                "wechatOfficialDescription": "WeChat公式アカウントのメディアリソースに画像をアップロードします。AppIDとAppSecretを設定してこの機能を有効にします。",
+                "wechatAppId": "AppID",
+                "wechatAppIdTooltip": "WeChat公式アカウントのAppID、WeChat公式プラットフォームから取得",
+                "inputAppId": "AppIDを入力...",
+                "wechatAppSecret": "AppSecret",
+                "wechatAppSecretTooltip": "WeChat公式アカウントのAppSecret、WeChat公式プラットフォームから取得",
+                "inputAppSecret": "AppSecretを入力...",
+                "wechatDefaultPath": "デフォルトパス",
+                "inputDefaultPath": "デフォルトパスを入力...",
+                "testConnection": "接続テスト",
+                "wechatTestIncomplete": "AppIDとAppSecretを入力してください",
+                "wechatTestSuccess": "接続テスト成功",
+                "wechatTestFailed": "接続テスト失敗",
+                "wechatTestError": "接続テストエラー",
+                "wechatConfigSaved": "WeChat設定が保存されました",
+                "dualScreenMode": {
+                    "title": "デュアルスクリーンモード",
+                    "disabled": "無効",
+                    "enabled": "有効",
+                    "auto": "自動（ソースコードモード時）",
+                    "splitRatio": "分割比率",
+                    "syncScroll": "スクロール同期",
+                    "syncCursor": "カーソル同期"
+                },
                 "legalNotices": {
                     "title": "法的通知",
                     "description": "対応する利用規約を読み、同意しました",
@@ -1305,6 +1339,14 @@
                 "alignRight": "右揃え",
                 "delete": "画像を削除"
             }
+        },
+        "dualScreen": {
+            "sourceTitle": "ソースコード",
+            "previewTitle": "ライブプレビュー",
+            "synced": "同期済み",
+            "enableSync": "同期を有効化",
+            "disableSync": "同期を無効化",
+            "resetSplit": "分割をリセット"
         },
         "placeholders": {
             "frontMatter": "YAML フロントマターを入力...",

@@ -469,6 +469,8 @@ const loadThemesFromDisk = () => {
 <style scoped>
 .print-settings-dialog {
   user-select: none;
+  color: var(--editorColor);
+  background: var(--editorBgColor);
 }
 .row {
   margin-bottom: 8px;

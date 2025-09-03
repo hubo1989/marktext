@@ -47,7 +47,7 @@ const getServices = () => ({
   },
 
   wechatOfficial: {
-    name: t('preferences.image.uploader.services.wechatOfficial'),
+    name: t('preferences.image.uploader.wechatOfficial'),
     isGdprCompliant: true,
     privacyUrl: 'https://mp.weixin.qq.com/cgi-bin/privacy',
     tosUrl: 'https://mp.weixin.qq.com/cgi-bin/notice',

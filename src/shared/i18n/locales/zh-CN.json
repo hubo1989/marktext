@@ -563,7 +563,16 @@
                 "hideQuickInsertHint": "隐藏快速插入提示",
                 "hideLinkPopup": "隐藏链接弹出窗口",
                 "autoCheck": "自动检查",
-                "wrapCodeBlocks": "换行代码块"
+                "wrapCodeBlocks": "换行代码块",
+                "dualScreenMode": {
+                    "title": "双屏模式",
+                    "disabled": "禁用",
+                    "enabled": "启用",
+                    "auto": "自动（源码模式时）",
+                    "splitRatio": "分割比例",
+                    "syncScroll": "同步滚动",
+                    "syncCursor": "同步光标"
+                }
             }
         },
         "image": {
@@ -664,6 +673,31 @@
                 "saveConfig": "保存配置",
                 "githubConfigSaved": "GitHub 配置已保存",
                 "scriptConfigSaved": "脚本配置已保存",
+                "wechatOfficial": "微信公众号",
+                "wechatOfficialDescription": "将图片上传到微信公众号媒体资源。配置您的AppID和AppSecret以启用此功能。",
+                "wechatAppId": "AppID",
+                "wechatAppIdTooltip": "微信公众号AppID，从微信公众平台获取",
+                "inputAppId": "输入AppID...",
+                "wechatAppSecret": "AppSecret",
+                "wechatAppSecretTooltip": "微信公众号AppSecret，从微信公众平台获取",
+                "inputAppSecret": "输入AppSecret...",
+                "wechatDefaultPath": "默认路径",
+                "inputDefaultPath": "输入默认路径...",
+                "testConnection": "测试连接",
+                "wechatTestIncomplete": "请填写AppID和AppSecret",
+                "wechatTestSuccess": "连接测试成功",
+                "wechatTestFailed": "连接测试失败",
+                "wechatTestError": "连接测试出错",
+                "wechatConfigSaved": "微信配置已保存",
+                "dualScreenMode": {
+                    "title": "双屏模式",
+                    "disabled": "禁用",
+                    "enabled": "启用",
+                    "auto": "自动（源码模式时）",
+                    "splitRatio": "分割比例",
+                    "syncScroll": "同步滚动",
+                    "syncCursor": "同步光标"
+                },
                 "legalNotices": {
                     "title": "法律声明",
                     "description": "我已阅读并同意相关服务条款",
@@ -1323,6 +1357,14 @@
                 "alignRight": "右对齐",
                 "delete": "删除图片"
             }
+        },
+        "dualScreen": {
+            "sourceTitle": "源码",
+            "previewTitle": "实时预览",
+            "synced": "已同步",
+            "enableSync": "启用同步",
+            "disableSync": "禁用同步",
+            "resetSplit": "重置分割"
         },
         "placeholders": {
             "frontMatter": "输入 YAML 前置信息",

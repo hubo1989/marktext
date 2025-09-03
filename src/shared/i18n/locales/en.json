@@ -563,7 +563,16 @@
                 "hideQuickInsertHint": "Hide quick insert hint",
                 "hideLinkPopup": "Hide link popup",
                 "autoCheck": "Auto check",
-                "wrapCodeBlocks": "Wrap code blocks"
+                "wrapCodeBlocks": "Wrap code blocks",
+                "dualScreenMode": {
+                    "title": "Dual Screen Mode",
+                    "disabled": "Disabled",
+                    "enabled": "Enabled",
+                    "auto": "Auto (when in source code mode)",
+                    "splitRatio": "Split Ratio",
+                    "syncScroll": "Sync Scroll",
+                    "syncCursor": "Sync Cursor"
+                }
             }
         },
         "image": {
@@ -664,6 +673,22 @@
                 "saveConfig": "Save Configuration",
                 "githubConfigSaved": "GitHub configuration saved",
                 "scriptConfigSaved": "Script configuration saved",
+                "wechatOfficial": "WeChat Official Account",
+                "wechatOfficialDescription": "Upload images to WeChat Official Account media resources. Configure your AppID and AppSecret to enable this feature.",
+                "wechatAppId": "AppID",
+                "wechatAppIdTooltip": "WeChat Official Account AppID, obtained from the WeChat Official Platform",
+                "inputAppId": "Enter AppID...",
+                "wechatAppSecret": "AppSecret",
+                "wechatAppSecretTooltip": "WeChat Official Account AppSecret, obtained from the WeChat Official Platform",
+                "inputAppSecret": "Enter AppSecret...",
+                "wechatDefaultPath": "Default Path",
+                "inputDefaultPath": "Enter default path...",
+                "testConnection": "Test Connection",
+                "wechatTestIncomplete": "Please fill in AppID and AppSecret",
+                "wechatTestSuccess": "Connection test successful",
+                "wechatTestFailed": "Connection test failed",
+                "wechatTestError": "Connection test error",
+                "wechatConfigSaved": "WeChat configuration saved",
                 "legalNotices": {
                     "title": "Legal Notices",
                     "description": "I have read and agree to the relevant terms of service",
@@ -1309,6 +1334,14 @@
                 "alignRight": "Align Right",
                 "delete": "Remove Image"
             }
+        },
+        "dualScreen": {
+            "sourceTitle": "Source Code",
+            "previewTitle": "Live Preview",
+            "synced": "Synced",
+            "enableSync": "Enable Sync",
+            "disableSync": "Disable Sync",
+            "resetSplit": "Reset Split"
         },
         "placeholders": {
             "frontMatter": "Input YAML Front Matter",

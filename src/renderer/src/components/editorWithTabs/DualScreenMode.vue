@@ -7,18 +7,18 @@
       ref="sourcePanel"
     >
       <div class="panel-header">
-        <h4>{{ t('editor.dualScreen.sourceTitle') }}</h4>
+        <h4>{{ t('editor.dualScreen.sourceTitle') || 'Source Code' }}</h4>
         <div class="panel-controls">
           <button
             @click="toggleSync"
             :class="{ active: syncEnabled }"
-            title="Toggle Sync"
+            :title="syncEnabled ? t('editor.dualScreen.disableSync') || 'Disable Sync' : t('editor.dualScreen.enableSync') || 'Enable Sync'"
           >
             🔄
           </button>
           <button
             @click="resetSplit"
-            title="Reset Split"
+            :title="t('editor.dualScreen.resetSplit') || 'Reset Split'"
           >
             ↔️
           </button>
@@ -44,10 +44,10 @@
       :style="{ width: `${previewWidth}%` }"
     >
       <div class="panel-header">
-        <h4>{{ t('editor.dualScreen.previewTitle') }}</h4>
+        <h4>{{ t('editor.dualScreen.previewTitle') || 'Live Preview' }}</h4>
         <div class="panel-controls">
           <span class="sync-indicator" v-if="syncEnabled">
-            {{ t('editor.dualScreen.synced') }}
+            {{ t('editor.dualScreen.synced') || 'Synced' }}
           </span>
         </div>
       </div>
@@ -139,35 +139,52 @@ const resetSplit = () => {
   emit('split-change', 0.5)
 }
 
-// Sync scroll functionality
+// Enhanced sync scroll functionality
 const syncScroll = (sourceElement, targetElement) => {
   if (!props.syncScroll || !syncEnabled.value) return
 
+  let isSyncing = false
+  let scrollTimeout
+
   const syncTargetScroll = () => {
-    if (targetElement && sourceElement) {
+    if (isSyncing || !targetElement || !sourceElement) return
+
+    isSyncing = true
+
+    try {
       const sourceScrollTop = sourceElement.scrollTop
       const sourceScrollHeight = sourceElement.scrollHeight - sourceElement.clientHeight
       const targetScrollHeight = targetElement.scrollHeight - targetElement.clientHeight
 
-      if (sourceScrollHeight > 0) {
+      if (sourceScrollHeight > 0 && targetScrollHeight > 0) {
         const scrollRatio = sourceScrollTop / sourceScrollHeight
-        targetElement.scrollTop = scrollRatio * targetScrollHeight
+        const targetScrollTop = scrollRatio * targetScrollHeight
+
+        // Smooth scroll animation
+        targetElement.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        })
       }
+    } finally {
+      // Reset syncing flag after a short delay
+      setTimeout(() => {
+        isSyncing = false
+      }, 50)
     }
   }
 
-  // Debounce scroll events
-  let scrollTimeout
-  const debouncedSync = () => {
+  // Throttled scroll handler for better performance
+  const throttledSync = () => {
     clearTimeout(scrollTimeout)
-    scrollTimeout = setTimeout(syncTargetScroll, 10)
+    scrollTimeout = setTimeout(syncTargetScroll, 16) // ~60fps
   }
 
-  sourceElement.addEventListener('scroll', debouncedSync)
+  sourceElement.addEventListener('scroll', throttledSync, { passive: true })
 
   return () => {
-    sourceElement.removeEventListener('scroll', debouncedSync)
-    if (scrollTimeout) clearTimeout(scrollTimeout)
+    sourceElement.removeEventListener('scroll', throttledSync)
+    clearTimeout(scrollTimeout)
   }
 }
 
@@ -178,23 +195,46 @@ watch(() => props.currentLine, (newLine) => {
   }
 })
 
-// Lifecycle
+// Refs for cleanup functions
+let cleanupSourceScroll = null
+let cleanupPreviewScroll = null
+
+// Enhanced lifecycle management
 onMounted(() => {
   // Initialize sync functionality if elements are available
   if (sourcePanel.value && previewContent.value) {
-    const cleanupSource = syncScroll(sourcePanel.value, previewContent.value)
-    const cleanupPreview = syncScroll(previewContent.value, sourcePanel.value)
-
-    onUnmounted(() => {
-      cleanupSource()
-      cleanupPreview()
-    })
+    try {
+      cleanupSourceScroll = syncScroll(sourcePanel.value, previewContent.value)
+      cleanupPreviewScroll = syncScroll(previewContent.value, sourcePanel.value)
+    } catch (error) {
+      console.error('Failed to initialize dual screen sync:', error)
+    }
   }
 })
 
-onUnmounted(() => {
-  document.removeEventListener('mousemove', handleResize)
-  document.removeEventListener('mouseup', stopResize)
+onBeforeUnmount(() => {
+  // Clean up scroll sync listeners
+  try {
+    if (cleanupSourceScroll) cleanupSourceScroll()
+    if (cleanupPreviewScroll) cleanupPreviewScroll()
+  } catch (error) {
+    console.error('Error cleaning up dual screen sync:', error)
+  }
+
+  // Clean up resize listeners
+  try {
+    document.removeEventListener('mousemove', handleResize)
+    document.removeEventListener('mouseup', stopResize)
+  } catch (error) {
+    console.error('Error cleaning up resize listeners:', error)
+  }
+
+  // Clean up any remaining timeouts
+  try {
+    if (scrollTimeout) clearTimeout(scrollTimeout)
+  } catch (error) {
+    console.error('Error cleaning up timeouts:', error)
+  }
 })
 </script>
 
@@ -252,25 +292,36 @@ onUnmounted(() => {
 }
 
 .panel-controls button {
-  background: none;
-  border: 1px solid var(--itemBgColor);
-  border-radius: var(--radius-sm);
-  padding: 4px 8px;
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
   cursor: pointer;
   color: var(--editorColor);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .panel-controls button:hover {
-  background: var(--floatHoverColor);
-  border-color: var(--themeColor);
+  background: rgba(128, 128, 128, 0.2);
+  border-color: rgba(128, 128, 128, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.panel-controls button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .panel-controls button.active {
-  background: var(--themeColor);
-  color: white;
+  background: rgba(64, 158, 255, 0.15);
   border-color: var(--themeColor);
+  color: var(--themeColor);
+  font-weight: 600;
 }
 
 .sync-indicator {

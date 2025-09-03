@@ -266,8 +266,9 @@ watch(editorOptions, (newOptions, oldOptions) => {
 
 watch(themeConfig, (newConfig, oldConfig) => {
   if (editor.value && JSON.stringify(newConfig) !== JSON.stringify(oldConfig)) {
-    // Handle theme changes
-    editor.value.setTheme(newConfig.theme)
+    // Handle theme changes - theme is applied globally via CSS, not through editor API
+    console.log('Theme changed to:', newConfig.theme)
+    // The theme change is handled globally by the theme utility
   }
 }, { deep: true })
 
