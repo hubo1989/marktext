@@ -19,7 +19,7 @@ global.window.electron = {
   process: {
     platform: 'darwin',
     env: {
-      MARKTEXT_VERSION_STRING: 'v0.18.3'
+      MARKTEXT_VERSION_STRING: 'v0.1'
     }
   },
   clipboard: {

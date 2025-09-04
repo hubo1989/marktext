@@ -1,6 +1,6 @@
 {
   "name": "marktext-next",
-  "version": "0.18.3",
+  "version": "0.1",
   "description": "MarkText Next - Next Generation Markdown Editor",
   "main": "./out/main/index.js",
   "author": "Marktext Contributors (Tkaixiang fork)",

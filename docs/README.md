@@ -24,11 +24,11 @@
 ### 安装
 
 #### Windows
-- 请查看 [发布页面](https://github.com/hubo1989/marktext/releases/tag/v0.18.3-multiL)！
+- 请查看 [发布页面](https://github.com/hubo1989/marktext/releases/tag/v0.1)！
 - 测试环境：Windows 11
 
 #### Linux
-- 请查看 [发布页面](https://github.com/hubo1989/marktext/releases/tag/v0.18.3-multiL)！
+- 请查看 [发布页面](https://github.com/hubo1989/marktext/releases/tag/v0.1)！
 
 ### 特性
 - 实时预览（所见即所得）和简洁的界面，提供无干扰的写作体验。
