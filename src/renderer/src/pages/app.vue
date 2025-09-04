@@ -80,25 +80,23 @@
 import { computed, watch, nextTick, onMounted, onBeforeMount, ref, defineAsyncComponent, Suspense } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// 环境检测工具函数
-const isDevelopment = () => {
-  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
-}
+// StartupChoice 组件已预加载，直接使用
+
+// Development mode flag
+const isDevelopment = ref(process.env.NODE_ENV === 'development')
 
 // 开发环境专用日志函数
 const devLog = (...args) => {
-  if (isDevelopment()) {
-    devLog(...args)
+  if (isDevelopment.value) {
+    console.log(...args)
   }
 }
 
 const devWarn = (...args) => {
-  if (isDevelopment()) {
+  if (isDevelopment.value) {
     console.warn(...args)
   }
 }
-
-// StartupChoice 组件已预加载，直接使用
 
 // Set up IPC listeners as early as possible
 onBeforeMount(() => {
@@ -277,9 +275,6 @@ const isAppLoading = computed(() => {
 
 // 跟踪编辑器组件是否已加载完成
 const editorLoaded = ref(false)
-
-// Development mode flag
-const isDevelopment = ref(process.env.NODE_ENV === 'development')
 
 // 动态加载标题
 const loadingTitle = computed(() => {
