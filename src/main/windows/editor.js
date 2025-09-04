@@ -9,7 +9,7 @@ const isDevelopment = () => {
 // 开发环境专用日志函数
 const devLog = (...args) => {
   if (isDevelopment()) {
-    devLog(...args)
+    console.log(...args)
   }
 }
 import { enable as remoteEnable } from '@electron/remote/main'

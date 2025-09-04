@@ -19,6 +19,24 @@ import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
 
+// 环境检测工具函数 - 移到文件顶部，确保在任何使用之前就被定义
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development'
+}
+
+// 开发环境专用日志函数 - 移到文件顶部，确保在任何使用之前就被定义
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    console.log(...args)
+  }
+}
+
+const devWarn = (...args) => {
+  if (isDevelopment()) {
+    console.warn(...args)
+  }
+}
+
 class App {
   /**
    * @param {Accessor} accessor The application accessor for application instances.
@@ -214,19 +232,7 @@ class App {
       }
     }
 
-    // 环境检测工具函数
-const isDevelopment = () => {
-  return process.env.NODE_ENV === 'development'
-}
-
-// 开发环境专用日志函数
-const devLog = (...args) => {
-  if (isDevelopment()) {
-    console.log(...args)
-  }
-}
-
-const { startUpAction, defaultDirectoryToOpen, autoSwitchTheme, theme } = preferences.getAll()
+    const { startUpAction, defaultDirectoryToOpen, autoSwitchTheme, theme } = preferences.getAll()
 
 // Debug: Log startup preferences (development only)
 devLog('🎯 [APP] Startup preferences:', {
