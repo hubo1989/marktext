@@ -1,8 +1,8 @@
-# MarkText Next v0.1 Release Notes
+# MarkText Next v0.1.0 Release Notes
 
 ## 🚀 Overview
 
-MarkText Next v0.1 is a major modernization of the MarkText editor, featuring Vue 3, enhanced performance, and comprehensive new features. This release represents a complete rewrite with modern technologies and improved user experience.
+MarkText Next v0.1.0 is a major modernization of the MarkText editor, featuring Vue 3, enhanced performance, and comprehensive new features. This release represents a complete rewrite with modern technologies and improved user experience.
 
 ## ✨ Key Features
 
@@ -96,7 +96,7 @@ MarkText Next v0.1 is a major modernization of the MarkText editor, featuring Vu
 - **Storage**: 500MB available space
 - **Display**: 1920x1080 resolution
 
-## 🆕 What's New in v0.1
+## 🆕 What's New in v0.1.0
 
 ### Major Features
 1. **Complete Vue 3 Migration**: Full rewrite using Vue 3 Composition API
@@ -117,22 +117,22 @@ MarkText Next v0.1 is a major modernization of the MarkText editor, featuring Vu
 ### Windows
 ```bash
 # Download from releases
-marktext-next-win-x64-0.1-setup.exe
+marktext-next-win-x64-0.1.0-setup.exe
 ```
 
 ### macOS
 ```bash
 # Download from releases
-marktext-next-mac-arm64-0.1.dmg  # Apple Silicon
-marktext-next-mac-x64-0.1.dmg    # Intel
+marktext-next-mac-arm64-0.1.0.dmg  # Apple Silicon
+marktext-next-mac-x64-0.1.0.dmg    # Intel
 ```
 
 ### Linux
 ```bash
 # Download from releases
-marktext-next-linux-0.1.AppImage  # Universal
-marktext-next-linux-0.1.deb       # Debian/Ubuntu
-marktext-next-linux-0.1.rpm       # Red Hat/Fedora
+marktext-next-linux-0.1.0.AppImage  # Universal
+marktext-next-linux-0.1.0.deb       # Debian/Ubuntu
+marktext-next-linux-0.1.0.rpm       # Red Hat/Fedora
 ```
 
 ## 📚 Documentation

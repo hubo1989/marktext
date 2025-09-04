@@ -17,7 +17,7 @@
 
 ### 安装
 
-- 请查看 [发布页面](https://github.com/hubo1989/marktext/releases/tag/v0.1)！
+- 请查看 [发布页面](https://github.com/hubo1989/marktext/releases/tag/v0.1.0)！
 - 测试环境：Mac OS Sequoia arm64 
 
 
