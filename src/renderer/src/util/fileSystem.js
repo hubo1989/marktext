@@ -94,7 +94,7 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
  * @jocs todo, rewrite it use class
  */
 export const uploadImage = async (pathname, image, preferences) => {
-  const { currentUploader, imageBed, githubToken: auth, cliScript } = preferences
+  const { currentUploader, imageBed, githubToken: auth, cliScript, weChatConfig } = preferences
   const { owner, repo, branch } = imageBed.github
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
@@ -118,6 +118,55 @@ export const uploadImage = async (pathname, image, preferences) => {
       .createOrUpdateFileContents(payload)
       .then((result) => resolvePromise(result.data.content.download_url))
       .catch(() => rejectPromise('Upload failed, the image will be copied to the image folder'))
+  }
+
+  const uploadByWeChat = async (imageFile, imageBuffer = null) => {
+    try {
+      // Dynamic import to avoid loading WeChat uploader unless needed
+      const { default: WeChatImageUploader } = await import('../services/weChatImageUploader')
+
+      // Initialize uploader with config
+      if (weChatConfig && weChatConfig.enabled) {
+        WeChatImageUploader.initialize(weChatConfig)
+      } else {
+        rejectPromise('WeChat uploader is not configured or disabled')
+        return
+      }
+
+      let file, buffer
+      if (typeof imageFile === 'string') {
+        // imageFile is a path
+        const fileBuffer = await window.fileUtils.readFile(imageFile)
+        buffer = fileBuffer
+        file = {
+          name: window.path.basename(imageFile),
+          size: fileBuffer.length,
+          type: window.fileUtils.getMimeType(imageFile) || 'image/jpeg'
+        }
+      } else {
+        // imageFile is a File object, imageBuffer contains the data
+        file = imageFile
+        buffer = imageBuffer
+      }
+
+      // Create a blob from buffer for WeChat uploader
+      const blob = new Blob([buffer], { type: file.type })
+
+      const result = await WeChatImageUploader.uploadImage(blob, {
+        onProgress: (progress) => {
+          console.log('WeChat upload progress:', progress.percentage + '%')
+        }
+      })
+
+      if (result.success && result.url) {
+        resolvePromise(result.url)
+      } else {
+        rejectPromise(result.error || 'WeChat upload failed')
+      }
+    } catch (error) {
+      console.error('WeChat upload error:', error)
+      rejectPromise('WeChat upload failed: ' + error.message)
+    }
   }
 
   // Build a robust PATH for spawned processes (Electron packaged apps often miss Homebrew paths)
@@ -240,6 +289,10 @@ export const uploadImage = async (pathname, image, preferences) => {
             uploadByGithub(base64, window.path.basename(imagePath))
             break
           }
+          case 'wechatOfficial': {
+            uploadByWeChat(imagePath)
+            break
+          }
         }
       }
     } else {
@@ -255,6 +308,9 @@ export const uploadImage = async (pathname, image, preferences) => {
           case 'picgo':
           case 'cliScript':
             uploadByCommand(currentUploader, reader.result, window.path.extname(image.name))
+            break
+          case 'wechatOfficial':
+            uploadByWeChat(image, reader.result)
             break
           default:
             uploadByGithub(Buffer.from(reader.result).toString('base64'), image.name)

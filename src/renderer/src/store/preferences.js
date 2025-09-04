@@ -104,6 +104,12 @@ export const usePreferencesStore = defineStore('preferences', {
         branch: ''
       }
     },
+    weChatConfig: {
+      enabled: false,
+      appId: '',
+      appSecret: '',
+      defaultPath: '/marktext'
+    },
     cliScript: ''
   }),
 
