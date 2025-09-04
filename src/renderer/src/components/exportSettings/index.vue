@@ -144,7 +144,7 @@
           </div>
           <cur-select
             :description="t('exportSettings.theme.theme')"
-            more="https://github.com/marktext/marktext/blob/develop/docs/EXPORT_THEMES.md"
+            more="https://github.com/hubo1989/marktext-next/blob/main/docs/EXPORT_THEMES.md"
             :value="theme"
             :options="themeList"
             :on-change="(value) => onSelectChange('theme', value)"

@@ -11,22 +11,22 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/hubo1989/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/hubo1989/marktext">
+  <a href="https://github.com/hubo1989/marktext-next/releases/latest">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/hubo1989/marktext-next">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/hubo1989/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/hubo1989/marktext/total">
+  <a href="https://github.com/hubo1989/marktext-next/releases">
+    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/hubo1989/marktext-next/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/hubo1989/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/hubo1989/marktext/latest/total">
+  <a href="https://github.com/hubo1989/marktext-next/releases/latest">
+    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/hubo1989/marktext-next/latest/total">
   </a>
 </div>
 
 - [MarkText](https://github.com/marktext/marktext) 是一个免费的开源 Markdown 编辑器，最初由 [Jocs](https://github.com/Jocs) 和 [贡献者](https://github.com/marktext/marktext/graphs/contributors) 编写。
 
-- **增强版分支**: 本仓库 [hubo1989/marktext](https://github.com/hubo1989/marktext) 为原始 MarkText 编辑器提供了全面的改进和现代化。
+- **增强版分支**: 本仓库 [hubo1989/marktext-next](https://github.com/hubo1989/marktext-next) 为原始 MarkText 编辑器提供了全面的改进和现代化。
 
 - **主要特性:**
   - 🚀 **现代化技术栈**: Vue 3, Pinia, Vite, TypeScript 支持
@@ -42,11 +42,11 @@
 
 # 1. 安装
 
-> ⚠️ 这些版本仍然是 **beta 版**（因为我不知道迁移过程中破坏了什么）。请在 [issue tracker](https://github.com/hubo1989/marktext/issues) 中报告任何 bug
+> ⚠️ 这些版本仍然是 **beta 版**（因为我不知道迁移过程中破坏了什么）。请在 [issue tracker](https://github.com/hubo1989/marktext-next/issues) 中报告任何 bug
 
 ## Windows
 
-- 只需查看 [Releases Page](https://github.com/hubo1989/marktext/releases)！
+- 只需查看 [Releases Page](https://github.com/hubo1989/marktext-next/releases)！
 
 - 测试环境:
 
@@ -54,7 +54,7 @@
 
 ## Linux
 
-- 只需查看 [Releases Page](https://github.com/hubo1989/marktext/releases)
+- 只需查看 [Releases Page](https://github.com/hubo1989/marktext-next/releases)
 - 测试环境:
   - `Ubuntu 24.0.2` (`AppImage` 和 `.deb` 包)
   - _希望有人帮助测试其他 Linux 包！_
@@ -68,9 +68,9 @@
 ## MacOS
 
 > ⚠️ MacOS 版本会显示 "`MarkText 已损坏且无法打开`" 这是由于 **缺少公证** 的原因。
-> 请查看 [此修复方法](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300)（这也适用于任何缺少开发者账户签名的应用）
+> 请查看 [此修复方法](https://github.com/hubo1989/marktext-next/issues/3004#issuecomment-1038207300)（这也适用于任何缺少开发者账户签名的应用）
 
-- 可在 [Releases Page](https://github.com/hubo1989/marktext/releases) 获取
+- 可在 [Releases Page](https://github.com/hubo1989/marktext-next/releases) 获取
 
 # 2. 截图
 

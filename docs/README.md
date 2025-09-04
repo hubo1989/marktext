@@ -15,7 +15,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext) 是一个免费开源的 Markdown 编辑器，最初由 [Jocs](https://github.com/Jocs) 和 [贡献者们](https://github.com/marktext/marktext/graphs/contributors) 编写。
+- [MarkText Next](https://github.com/hubo1989/marktext-next) 是一个免费开源的 Markdown 编辑器，最初由 [Jocs](https://github.com/Jocs) 和 [贡献者们](https://github.com/marktext/marktext/graphs/contributors) 编写。
 - 遗憾的是，核心仓库在大约 3 年前就停止维护了，但在我日常使用中仍然存在各种生活质量问题。
 - 这个仓库是对我最喜欢的 Markdown 编辑器进行现代化改造的尝试，基于 [Jacob Whall 的分支](https://github.com/jacobwhall/marktext) 进行开发。
 - 由 Trae AI Claude 4.0 提供多语言支持
@@ -79,7 +79,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext) 是一個免費開源的 Markdown 編輯器，最初由 [Jocs](https://github.com/Jocs) 和 [貢獻者們](https://github.com/marktext/marktext/graphs/contributors) 編寫。
+- [MarkText Next](https://github.com/hubo1989/marktext-next) 是一個免費開源的 Markdown 編輯器，最初由 [Jocs](https://github.com/Jocs) 和 [貢獻者們](https://github.com/marktext/marktext/graphs/contributors) 編寫。
 - 遺憾的是，核心倉庫在大約 3 年前就停止維護了，但在我日常使用中仍然存在各種生活品質問題。
 - 這個倉庫是對我最喜歡的 Markdown 編輯器進行現代化改造的嘗試，基於 [Jacob Whall 的分支](https://github.com/jacobwhall/marktext) 進行開發。
 - 由 Trae AI Claude 4.0 提供多語言支援
@@ -142,7 +142,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext)는 [Jocs](https://github.com/Jocs)와 [기여자들](https://github.com/marktext/marktext/graphs/contributors)이 처음 작성한 무료 오픈소스 마크다운 에디터입니다.
+- [MarkText Next](https://github.com/hubo1989/marktext-next)는 [Jocs](https://github.com/Jocs)와 [기여자들](https://github.com/marktext/marktext/graphs/contributors)이 처음 작성한 무료 오픈소스 마크다운 에디터입니다.
 - 안타깝게도 핵심 저장소는 약 3년 전부터 유지보수가 중단되었지만, 일상적인 사용에서 여전히 다양한 품질 문제가 남아있었습니다.
 - 이 저장소는 제가 가장 좋아하는 마크다운 에디터를 현대화하려는 시도이며, [Jacob Whall의 포크](https://github.com/jacobwhall/marktext)를 기반으로 개발되었습니다.
 - Trae AI Claude 4.0에서 제공하는 다국어 지원
@@ -187,7 +187,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext)は、[Jocs](https://github.com/Jocs)と[貢献者たち](https://github.com/marktext/marktext/graphs/contributors)によって最初に書かれた無料のオープンソースマークダウンエディタです。
+- [MarkText Next](https://github.com/hubo1989/marktext-next)は、[Jocs](https://github.com/Jocs)と[貢献者たち](https://github.com/marktext/marktext/graphs/contributors)によって最初に書かれた無料のオープンソースマークダウンエディタです。
 - 残念ながら、コアリポジトリは約3年前からメンテナンスされなくなりましたが、日常的な使用で気づいた様々な品質の問題が残っていました。
 - このリポジトリは、私のお気に入りのマークダウンエディタを現代化する試みであり、[Jacob Whallのフォーク](https://github.com/jacobwhall/marktext)をベースに開発されています。
 - Trae AI Claude 4.0による多言語サポート
@@ -232,7 +232,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext) es un editor de markdown gratuito y de código abierto escrito originalmente por [Jocs](https://github.com/Jocs) y [colaboradores](https://github.com/marktext/marktext/graphs/contributors).
+- [MarkText Next](https://github.com/hubo1989/marktext-next) es un editor de markdown gratuito y de código abierto escrito originalmente por [Jocs](https://github.com/Jocs) y [colaboradores](https://github.com/marktext/marktext/graphs/contributors).
 - Lamentablemente, el repositorio principal dejó de mantenerse hace aproximadamente 3 años, pero varios problemas de calidad de vida permanecieron que noté en mi uso diario.
 - Este repositorio sirve como un intento de modernizar mi editor de Markdown favorito, y es un fork basado en [el Fork de Jacob Whall](https://github.com/jacobwhall/marktext).
 - Soporte multiidioma proporcionado por Trae AI Claude 4.0
@@ -277,7 +277,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext) est un éditeur markdown gratuit et open source écrit à l'origine par [Jocs](https://github.com/Jocs) et [les contributeurs](https://github.com/marktext/marktext/graphs/contributors).
+- [MarkText Next](https://github.com/hubo1989/marktext-next) est un éditeur markdown gratuit et open source écrit à l'origine par [Jocs](https://github.com/Jocs) et [les contributeurs](https://github.com/marktext/marktext/graphs/contributors).
 - Malheureusement, le dépôt principal n'est plus maintenu depuis environ 3 ans, mais divers problèmes de qualité de vie sont restés que j'ai remarqués dans mon usage quotidien.
 - Ce dépôt sert de tentative de modernisation de mon éditeur Markdown préféré, et est un fork basé sur [le Fork de Jacob Whall](https://github.com/jacobwhall/marktext).
 - Support multilingue fourni par Trae AI Claude 4.0
@@ -322,7 +322,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext) é um editor de markdown gratuito e open source escrito originalmente por [Jocs](https://github.com/Jocs) e [colaboradores](https://github.com/marktext/marktext/graphs/contributors).
+- [MarkText Next](https://github.com/hubo1989/marktext-next) é um editor de markdown gratuito e open source escrito originalmente por [Jocs](https://github.com/Jocs) e [colaboradores](https://github.com/marktext/marktext/graphs/contributors).
 - Infelizmente, o repositório principal não é mais mantido há cerca de 3 anos, mas vários problemas de qualidade de vida permaneceram que notei no meu uso diário.
 - Este repositório serve como uma tentativa de modernizar meu editor Markdown favorito, e é um fork baseado no [Fork do Jacob Whall](https://github.com/jacobwhall/marktext).
 - Suporte multilíngue fornecido pelo Trae AI Claude 4.0
@@ -367,7 +367,7 @@
 
 ---
 
-- [MarkText](https://github.com/marktext/marktext) ist ein kostenloser und Open-Source-Markdown-Editor, der ursprünglich von [Jocs](https://github.com/Jocs) und [Mitwirkenden](https://github.com/marktext/marktext/graphs/contributors) geschrieben wurde.
+- [MarkText Next](https://github.com/hubo1989/marktext-next) ist ein kostenloser und Open-Source-Markdown-Editor, der ursprünglich von [Jocs](https://github.com/Jocs) und [Mitwirkenden](https://github.com/marktext/marktext/graphs/contributors) geschrieben wurde.
 - Leider wird das Kern-Repository seit etwa 3 Jahren nicht mehr gepflegt, aber verschiedene Lebensqualitätsprobleme blieben bestehen, die mir bei meiner täglichen Nutzung auffielen.
 - Dieses Repository dient als Versuch, meinen Lieblings-Markdown-Editor zu modernisieren, und ist ein Fork basierend auf [Jacob Whalls Fork](https://github.com/jacobwhall/marktext).
 - Mehrsprachige Unterstützung bereitgestellt von Trae AI Claude 4.0

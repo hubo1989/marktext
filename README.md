@@ -11,16 +11,16 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/hubo1989/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/hubo1989/marktext">
+  <a href="https://github.com/hubo1989/marktext-next/releases/latest">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/hubo1989/marktext-next">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/hubo1989/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/hubo1989/marktext/total">
+  <a href="https://github.com/hubo1989/marktext-next/releases">
+    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/hubo1989/marktext-next/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/hubo1989/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/hubo1989/marktext/latest/total">
+  <a href="https://github.com/hubo1989/marktext-next/releases/latest">
+    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/hubo1989/marktext-next/latest/total">
   </a>
 </div>
 
@@ -42,7 +42,7 @@
 
 # 1. Installing
 
-> ⚠️ These releases are still in **beta** (since I do not know how much stuff I might have broken during the migration). Please report any bugs in the [issue tracker](https://github.com/hubo1989/marktext/issues)
+> ⚠️ These releases are still in **beta** (since I do not know how much stuff I might have broken during the migration). Please report any bugs in the [issue tracker](https://github.com/hubo1989/marktext-next/issues)
 
 ## Windows
 
