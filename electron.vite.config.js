@@ -138,7 +138,7 @@ export default defineConfig({
         // But just in case there are any changes in the future
         external: ['fontmanager-redux', 'muya'],
         output: {
-          // 优化chunk分割 - Enhanced for performance
+          // 简化chunk分割以避免变量冲突
           manualChunks: (id) => {
             // Vue生态系统
             if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
@@ -165,13 +165,8 @@ export default defineConfig({
               return 'vendor'
             }
           },
-          // 优化chunk命名
-          chunkFileNames: (chunkInfo) => {
-            const facadeModuleId = chunkInfo.facadeModuleId
-              ? chunkInfo.facadeModuleId.split('/').pop().replace('.js', '')
-              : 'chunk'
-            return `js/${facadeModuleId}-[hash].js`
-          },
+          // 简化chunk命名以避免冲突
+          chunkFileNames: 'js/chunk-[hash].js',
           assetFileNames: (assetInfo) => {
             if (assetInfo.name && assetInfo.name.endsWith('.css')) {
               return 'css/[name]-[hash][extname]'
@@ -179,13 +174,13 @@ export default defineConfig({
             return 'assets/[name]-[hash][extname]'
           }
         },
-        // 启用Tree Shaking优化
+        // 调整Tree Shaking配置
         treeshake: {
           moduleSideEffects: false,
           propertyReadSideEffects: false,
           tryCatchDeoptimization: false,
-          // 更激进的tree shaking
-          annotations: true,
+          // 减少激进优化
+          annotations: false,
           unknownGlobalSideEffects: false
         }
       },
