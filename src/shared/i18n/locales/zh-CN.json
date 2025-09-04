@@ -105,17 +105,17 @@
             "checkUpdates": "检查更新"
         },
         "marktext": {
-            "title": "MarkText",
-            "marktext": "MarkText",
-            "about": "关于 MarkText",
+            "title": "MarkText Next",
+            "marktext": "MarkText Next",
+            "about": "关于 MarkText Next",
             "checkUpdates": "检查更新…",
             "preferences": "偏好设置",
             "services": "服务",
-            "hide": "隐藏 MarkText",
-            "hideMarkText": "隐藏 MarkText",
+            "hide": "隐藏 MarkText Next",
+            "hideMarkText": "隐藏 MarkText Next",
             "hideOthers": "隐藏其他",
             "showAll": "显示全部",
-            "quit": "退出 MarkText"
+            "quit": "退出 MarkText Next"
         },
         "view": {
             "view": "视图",
@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "正在加载编辑器组件...",
-                "initializingEditor": "请稍候，我们正在初始化编辑器"
+                "initializingEditor": "请稍候，我们正在初始化编辑器",
+                "initializingApplication": "MarkText 正在启动",
+                "startingApplication": "正在初始化应用程序，请稍候...",
+                "loadingComponents": "正在加载组件...",
+                "preparingInterface": "正在准备界面，请稍候"
             },
             "sidebar": {
                 "title": "侧边栏",

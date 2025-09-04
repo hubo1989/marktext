@@ -1,15 +1,42 @@
-// 动态导入主要页面组件（代码分割）
-const App = () => import(/* webpackChunkName: "app" */ '@/pages/app')
-const Preference = () => import(/* webpackChunkName: "preference" */ '@/pages/preference')
+// 直接使用 Vue 的 defineAsyncComponent
+import { defineAsyncComponent } from 'vue'
 
-// 动态导入偏好设置组件（按功能分组）
-const General = () => import(/* webpackChunkName: "pref-general" */ '@/prefComponents/general')
-const Editor = () => import(/* webpackChunkName: "pref-editor" */ '@/prefComponents/editor')
-const Markdown = () => import(/* webpackChunkName: "pref-markdown" */ '@/prefComponents/markdown')
-const SpellChecker = () => import(/* webpackChunkName: "pref-spellchecker" */ '@/prefComponents/spellchecker')
-const Theme = () => import(/* webpackChunkName: "pref-theme" */ '@/prefComponents/theme')
-const Image = () => import(/* webpackChunkName: "pref-image" */ '@/prefComponents/image')
-const Keybindings = () => import(/* webpackChunkName: "pref-keybindings" */ '@/prefComponents/keybindings')
+// 创建异步组件包装器
+const App = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "app" */ '@/pages/app')
+)
+
+const Preference = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "preference" */ '@/pages/preference')
+)
+
+const General = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-general" */ '@/prefComponents/general')
+)
+
+const Editor = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-editor" */ '@/prefComponents/editor')
+)
+
+const Markdown = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-markdown" */ '@/prefComponents/markdown')
+)
+
+const SpellChecker = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-spellchecker" */ '@/prefComponents/spellchecker')
+)
+
+const Theme = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-theme" */ '@/prefComponents/theme')
+)
+
+const Image = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-image" */ '@/prefComponents/image')
+)
+
+const Keybindings = defineAsyncComponent(() =>
+  import(/* webpackChunkName: "pref-keybindings" */ '@/prefComponents/keybindings')
+)
 
 const parseSettingsPage = (type) => {
   let pageUrl = '/preference'

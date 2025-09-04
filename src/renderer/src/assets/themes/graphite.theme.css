@@ -71,6 +71,12 @@
   --editorAreaWidth: 750px;
 }
 
+/* Editor container background */
+.editor-container {
+  background-color: var(--editorBgColor);
+  color: var(--editorColor);
+}
+
 .editor-tabs {
   background: #f3f3f3 !important;
   box-shadow: none !important;

@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: marktext
+appId: com.electron.marktext-next
+productName: marktext-next
 directories:
   buildResources: build
 files:
@@ -49,8 +49,8 @@ npmRebuild: false
 asarUnpack:
   - resources/**
 win:
-  executableName: marktext
-  artifactName: 'marktext-win-${arch}-${version}.${ext}'
+  executableName: marktext-next
+  artifactName: 'marktext-next-win-${arch}-${version}.${ext}'
   target:
     - target: 'nsis'
       arch: [x64]
@@ -58,7 +58,7 @@ win:
       arch: [x64]
   icon: static/icon.ico
 nsis:
-  artifactName: 'marktext-win-${arch}-${version}-setup.${ext}'
+  artifactName: 'marktext-next-win-${arch}-${version}-setup.${ext}'
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: true
@@ -68,7 +68,7 @@ nsis:
   perMachine: false
   include: windows/installer.nsh
 mac:
-  artifactName: 'marktext-mac-${arch}-${version}.${ext}'
+  artifactName: 'marktext-next-mac-${arch}-${version}.${ext}'
   entitlementsInherit: build/mac/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -82,7 +82,7 @@ mac:
     - target: zip
       arch: [x64, arm64]
 dmg:
-  artifactName: 'marktext-mac-${arch}-${version}.${ext}'
+  artifactName: 'marktext-next-mac-${arch}-${version}.${ext}'
   contents:
     - x: 410
       y: 240
@@ -92,8 +92,8 @@ dmg:
       y: 240
       type: 'file'
 linux:
-  artifactName: 'marktext-linux-${version}.${ext}'
-  executableName: 'marktext'
+  artifactName: 'marktext-next-linux-${version}.${ext}'
+  executableName: 'marktext-next'
   description: 'A simple and elegant open-source markdown editor that focused on speed and usability.'
   maintainer: 'MarkText Contributors'
   category: 'Office;TextEditor;Utility'
@@ -102,8 +102,8 @@ linux:
   icon: 'static/icon.png'
   desktop:
     entry:
-      StartupWMClass: 'marktext'
-      Keywords: 'marktext;'
+      StartupWMClass: 'marktext-next'
+      Keywords: 'marktext-next;'
   target:
     - AppImage
   fileAssociations:
@@ -126,7 +126,7 @@ linux:
       name: 'Markdown'
       description: 'Markdown document'
 appImage:
-  artifactName: 'marktext-linux-${version}.${ext}'
+  artifactName: 'marktext-next-linux-${version}.${ext}'
 deb:
   # Custom dependencies:
   depends:

@@ -674,7 +674,7 @@ const handleSelectAll = () => {
     return
   }
 
-  if (editor.value && (editor.value.hasFocus() || editor.value.contentState.selectedTableCells)) {
+  if (editor.value && (editor.value.hasFocus() || (editor.value.contentState && editor.value.contentState.selectedTableCells))) {
     editor.value.selectAll()
   } else {
     const activeElement = document.activeElement
@@ -1076,6 +1076,21 @@ onMounted(() => {
     const { container } = editor.value
     console.log('🎨 [EDITOR] Editor container:', container)
 
+    // Ensure contentState is properly initialized
+    if (!editor.value.contentState) {
+      console.warn('⚠️ [EDITOR] contentState not initialized, waiting...')
+      // Wait a bit for contentState to be ready
+      setTimeout(() => {
+        if (editor.value.contentState) {
+          console.log('✅ [EDITOR] contentState initialized successfully')
+        } else {
+          console.warn('⚠️ [EDITOR] contentState still null after initialization')
+        }
+      }, 100)
+    } else {
+      console.log('✅ [EDITOR] contentState initialized successfully')
+    }
+
     // Listen for language changes and update Muya's translation function
     bus.on('language-changed', () => {
       if (editor.value) {
@@ -1141,8 +1156,9 @@ onMounted(() => {
 
   editor.value.on('change', (changes) => {
     // WORKAROUND: "id: 'muya',
+    const blocks = editor.value.contentState ? editor.value.contentState.getBlocks() : []
     editorStore.LISTEN_FOR_CONTENT_CHANGE(
-      Object.assign(changes, { id: 'muya', blocks: editor.value.contentState.getBlocks() })
+      Object.assign(changes, { id: 'muya', blocks })
     )
   })
 

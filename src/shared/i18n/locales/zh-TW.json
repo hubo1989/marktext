@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "正在載入編輯器元件...",
-                "initializingEditor": "請稍候，我們正在初始化編輯器"
+                "initializingEditor": "請稍候，我們正在初始化編輯器",
+                "initializingApplication": "MarkText 正在啟動",
+                "startingApplication": "正在初始化應用程式，請稍候...",
+                "loadingComponents": "正在載入元件...",
+                "preparingInterface": "正在準備介面，請稍候"
             },
             "sidebar": {
                 "title": "側邊欄",

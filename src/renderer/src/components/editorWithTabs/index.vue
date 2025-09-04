@@ -19,6 +19,7 @@
       >
         <template #source>
           <source-code
+            key="source-panel"
             :markdown="markdown"
             :muyaIndexCursor="muyaIndexCursor"
             :text-direction="textDirection"
@@ -26,6 +27,7 @@
         </template>
         <template #preview>
           <source-code
+            key="preview-panel"
             :markdown="markdown"
             :muyaIndexCursor="muyaIndexCursor"
             :text-direction="textDirection"
@@ -55,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
@@ -138,6 +140,43 @@ const handleLineFocus = (lineNumber) => {
   currentLine.value = lineNumber
   // 这里可以添加聚焦到特定行的逻辑
 }
+
+// Keyboard shortcuts for dual screen mode
+const handleKeydown = (event) => {
+  // Toggle dual screen mode: Ctrl/Cmd + Shift + D
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'D') {
+    event.preventDefault()
+    toggleDualScreenMode()
+  }
+
+  // Reset split ratio: Ctrl/Cmd + Shift + R
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'R' && isDualScreenActive.value) {
+    event.preventDefault()
+    handleSplitChange(0.5)
+  }
+
+  // Toggle sync: Ctrl/Cmd + Shift + S
+  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'S' && isDualScreenActive.value) {
+    event.preventDefault()
+    handleSyncToggle(!dualScreenSyncScroll.value)
+  }
+}
+
+const toggleDualScreenMode = () => {
+  const newMode = dualScreenMode.value === 'enabled' ? 'disabled' : 'enabled'
+  preferencesStore.SET_SINGLE_PREFERENCE({
+    type: 'dualScreenMode',
+    value: newMode
+  })
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped>

@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "Carregando componente do editor...",
-                "initializingEditor": "Por favor aguarde enquanto inicializamos o editor"
+                "initializingEditor": "Por favor aguarde enquanto inicializamos o editor",
+                "initializingApplication": "MarkText está iniciando",
+                "startingApplication": "Inicializando aplicação, por favor aguarde...",
+                "loadingComponents": "Carregando componentes...",
+                "preparingInterface": "Preparando interface, por favor aguarde"
             },
             "sidebar": {
                 "title": "Barra Lateral",

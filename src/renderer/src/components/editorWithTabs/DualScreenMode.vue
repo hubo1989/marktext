@@ -1,10 +1,19 @@
 <template>
-  <div class="dual-screen-container" :class="{ 'dual-screen-active': isActive }">
+  <div
+    class="dual-screen-container"
+    :class="{ 'dual-screen-active': isActive }"
+    role="region"
+    aria-label="Dual screen editing mode"
+    aria-live="polite"
+  >
     <!-- Source Panel (Left) -->
     <div
       class="source-panel"
       :style="{ width: `${sourceWidth}%` }"
       ref="sourcePanel"
+      role="region"
+      aria-label="Source code panel"
+      tabindex="0"
     >
       <div class="panel-header">
         <h4>{{ t('editor.dualScreen.sourceTitle') || 'Source Code' }}</h4>
@@ -13,12 +22,19 @@
             @click="toggleSync"
             :class="{ active: syncEnabled }"
             :title="syncEnabled ? t('editor.dualScreen.disableSync') || 'Disable Sync' : t('editor.dualScreen.enableSync') || 'Enable Sync'"
+            :aria-label="syncEnabled ? 'Disable synchronization' : 'Enable synchronization'"
+            aria-pressed="syncEnabled"
+            @keydown.enter="toggleSync"
+            @keydown.space.prevent="toggleSync"
           >
             🔄
           </button>
           <button
             @click="resetSplit"
             :title="t('editor.dualScreen.resetSplit') || 'Reset Split'"
+            aria-label="Reset panel split ratio"
+            @keydown.enter="resetSplit"
+            @keydown.space.prevent="resetSplit"
           >
             ↔️
           </button>
@@ -34,19 +50,37 @@
       class="splitter"
       ref="splitter"
       @mousedown="startResize"
+      @keydown="handleSplitterKeydown"
+      role="separator"
+      aria-label="Panel splitter"
+      aria-orientation="vertical"
+      :aria-valuenow="Math.round(splitRatio * 100)"
+      aria-valuemin="20"
+      aria-valuemax="80"
+      tabindex="0"
+      @focus="onSplitterFocus"
+      @blur="onSplitterBlur"
     >
-      <div class="splitter-handle"></div>
+      <div class="splitter-handle" aria-hidden="true"></div>
     </div>
 
     <!-- Preview Panel (Right) -->
     <div
       class="preview-panel"
       :style="{ width: `${previewWidth}%` }"
+      role="region"
+      aria-label="Preview panel"
+      tabindex="0"
     >
       <div class="panel-header">
-        <h4>{{ t('editor.dualScreen.previewTitle') || 'Source Code (Right)' }}</h4>
+        <h4>{{ t('editor.dualScreen.previewTitle') || 'Preview' }}</h4>
         <div class="panel-controls">
-          <span class="sync-indicator" v-if="syncEnabled">
+          <span
+            class="sync-indicator"
+            v-if="isSyncActive"
+            role="status"
+            aria-live="polite"
+          >
             {{ t('editor.dualScreen.synced') || 'Synced' }}
           </span>
         </div>
@@ -59,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, onBeforeUnmount, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // Props
@@ -87,7 +121,11 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['split-change', 'sync-toggle', 'line-focus'])
+const emit = defineEmits({
+  'split-change': (ratio) => typeof ratio === 'number',
+  'sync-toggle': (enabled) => typeof enabled === 'boolean',
+  'line-focus': (line) => typeof line === 'number'
+})
 
 // Composables
 const { t } = useI18n()
@@ -98,6 +136,11 @@ const previewContent = ref(null)
 const splitter = ref(null)
 const isResizing = ref(false)
 const syncEnabled = ref(true)
+
+// Computed properties for sync state
+const isSyncActive = computed(() => {
+  return props.syncScroll && props.syncCursor && syncEnabled.value
+})
 
 // Computed
 const sourceWidth = computed(() => props.splitRatio * 100)
@@ -190,29 +233,130 @@ const syncScroll = (sourceElement, targetElement) => {
 
 // Watch for line changes to sync cursor
 watch(() => props.currentLine, (newLine) => {
-  if (props.syncCursor && syncEnabled.value) {
-    emit('line-focus', newLine)
+  if (props.syncCursor && syncEnabled.value && emit) {
+    try {
+      emit('line-focus', newLine)
+    } catch (error) {
+      console.error('Error emitting line-focus:', error)
+    }
   }
+})
+
+// Accessibility and keyboard navigation methods
+const handleSplitterKeydown = (event) => {
+  const step = 0.05 // 5% step
+
+  switch (event.key) {
+    case 'ArrowLeft':
+      event.preventDefault()
+      emit('split-change', Math.max(0.2, props.splitRatio - step))
+      break
+    case 'ArrowRight':
+      event.preventDefault()
+      emit('split-change', Math.min(0.8, props.splitRatio + step))
+      break
+    case 'Home':
+      event.preventDefault()
+      emit('split-change', 0.5) // Reset to center
+      break
+    case 'End':
+      event.preventDefault()
+      emit('split-change', props.splitRatio === 0.2 ? 0.8 : 0.2) // Toggle between extremes
+      break
+  }
+}
+
+const onSplitterFocus = () => {
+  // Add visual focus indicator
+  if (splitter.value) {
+    splitter.value.classList.add('splitter-focused')
+  }
+}
+
+const onSplitterBlur = () => {
+  // Remove visual focus indicator
+  if (splitter.value) {
+    splitter.value.classList.remove('splitter-focused')
+  }
+}
+
+// Keyboard navigation between panels
+const handlePanelKeydown = (event) => {
+  if (event.key === 'Tab' && !event.shiftKey) {
+    // Handle tab navigation within dual screen mode
+    const focusableElements = [
+      sourcePanel.value,
+      splitter.value,
+      previewContent.value?.querySelector('[tabindex]') || previewContent.value
+    ].filter(Boolean)
+
+    const currentIndex = focusableElements.indexOf(document.activeElement)
+
+    if (currentIndex >= 0 && currentIndex < focusableElements.length - 1) {
+      event.preventDefault()
+      focusableElements[currentIndex + 1].focus()
+    }
+  }
+}
+
+// Watch for props changes to ensure component stability
+watch(() => props.isActive, (newActive) => {
+  console.log('DualScreenMode isActive changed:', newActive)
+})
+
+// Watch for sync settings changes
+watch(() => props.syncScroll, (newSync) => {
+  console.log('DualScreenMode syncScroll changed:', newSync)
+})
+
+watch(() => props.syncCursor, (newSync) => {
+  console.log('DualScreenMode syncCursor changed:', newSync)
 })
 
 // Refs for cleanup functions
 let cleanupSourceScroll = null
 let cleanupPreviewScroll = null
+let scrollTimeout = null
 
 // Enhanced lifecycle management
 onMounted(() => {
-  // Initialize sync functionality if elements are available
-  if (sourcePanel.value && previewContent.value) {
-    try {
-      cleanupSourceScroll = syncScroll(sourcePanel.value, previewContent.value)
-      cleanupPreviewScroll = syncScroll(previewContent.value, sourcePanel.value)
-    } catch (error) {
-      console.error('Failed to initialize dual screen sync:', error)
+  console.log('DualScreenMode mounted, initializing sync...')
+  // Delay initialization to ensure DOM is ready
+  setTimeout(() => {
+    // Initialize sync functionality if elements are available
+    if (sourcePanel.value && previewContent.value) {
+      try {
+        cleanupSourceScroll = syncScroll(sourcePanel.value, previewContent.value)
+        cleanupPreviewScroll = syncScroll(previewContent.value, sourcePanel.value)
+        console.log('Dual screen sync initialized successfully')
+      } catch (error) {
+        console.error('Failed to initialize dual screen sync:', error)
+      }
+    } else {
+      console.warn('DualScreenMode: sourcePanel or previewContent not available', {
+        sourcePanel: sourcePanel.value,
+        previewContent: previewContent.value
+      })
     }
-  }
+
+    // Setup keyboard navigation
+    setupKeyboardNavigation()
+  }, 100)
 })
 
+// Setup keyboard navigation
+const setupKeyboardNavigation = () => {
+  // Add keyboard event listeners to panels
+  if (sourcePanel.value) {
+    sourcePanel.value.addEventListener('keydown', handlePanelKeydown)
+  }
+  if (previewContent.value) {
+    previewContent.value.addEventListener('keydown', handlePanelKeydown)
+  }
+}
+
 onBeforeUnmount(() => {
+  console.log('DualScreenMode unmounting, cleaning up...')
   // Clean up scroll sync listeners
   try {
     if (cleanupSourceScroll) cleanupSourceScroll()
@@ -227,6 +371,18 @@ onBeforeUnmount(() => {
     document.removeEventListener('mouseup', stopResize)
   } catch (error) {
     console.error('Error cleaning up resize listeners:', error)
+  }
+
+  // Clean up keyboard navigation listeners
+  try {
+    if (sourcePanel.value) {
+      sourcePanel.value.removeEventListener('keydown', handlePanelKeydown)
+    }
+    if (previewContent.value) {
+      previewContent.value.removeEventListener('keydown', handlePanelKeydown)
+    }
+  } catch (error) {
+    console.error('Error cleaning up keyboard navigation listeners:', error)
   }
 
   // Clean up any remaining timeouts
@@ -350,7 +506,7 @@ onBeforeUnmount(() => {
 }
 
 .splitter {
-  width: 8px;
+  width: var(--dual-screen-splitter-width);
   background: var(--floatBgColor);
   border-left: 1px solid var(--itemBgColor);
   border-right: 1px solid var(--itemBgColor);
@@ -360,6 +516,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   position: relative;
   z-index: 10;
+  transition: var(--animation-property-color) var(--dual-screen-transition-duration) var(--easing-standard);
 }
 
 .splitter:hover .splitter-handle {
@@ -378,6 +535,36 @@ onBeforeUnmount(() => {
 .splitter:active .splitter-handle {
   opacity: 1;
   background: var(--themeColor);
+}
+
+/* Focus styles for accessibility */
+.splitter-focused {
+  outline: 2px solid var(--themeColor);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px var(--themeColor);
+}
+
+.splitter:focus {
+  outline: none;
+}
+
+.source-panel:focus,
+.preview-panel:focus {
+  outline: 2px solid var(--themeColor);
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Responsive design */

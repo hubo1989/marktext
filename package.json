@@ -1,10 +1,10 @@
 {
-  "name": "marktext",
+  "name": "marktext-next",
   "version": "0.18.3",
-  "description": "MarkText",
+  "description": "MarkText Next - Next Generation Markdown Editor",
   "main": "./out/main/index.js",
   "author": "Marktext Contributors (Tkaixiang fork)",
-  "homepage": "https://github.com/Tkaixiang/marktext",
+  "homepage": "https://github.com/hubo1989/marktext-next",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

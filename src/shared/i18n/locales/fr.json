@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "Chargement du composant éditeur...",
-                "initializingEditor": "Veuillez patienter pendant l'initialisation de l'éditeur"
+                "initializingEditor": "Veuillez patienter pendant l'initialisation de l'éditeur",
+                "initializingApplication": "MarkText démarre",
+                "startingApplication": "Initialisation de l'application, veuillez patienter...",
+                "loadingComponents": "Chargement des composants...",
+                "preparingInterface": "Préparation de l'interface, veuillez patienter"
             },
             "sidebar": {
                 "title": "Barre latérale",

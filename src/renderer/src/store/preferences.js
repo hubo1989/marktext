@@ -13,7 +13,7 @@ export const usePreferencesStore = defineStore('preferences', {
     hideScrollbar: false,
     wordWrapInToc: false,
     fileSortBy: 'created',
-    startUpAction: 'lastState',
+    startUpAction: 'blank',
     defaultDirectoryToOpen: '',
     treePathExcludePatterns: [],
     language: 'en',
@@ -43,11 +43,12 @@ export const usePreferencesStore = defineStore('preferences', {
     hideLinkPopup: false,
     autoCheck: false,
 
-    // Dual Screen Mode
+    // Dual Screen Mode - Enhanced with persistence
     dualScreenMode: 'disabled',
     dualScreenSplitRatio: 0.5,
     dualScreenSyncScroll: true,
     dualScreenSyncCursor: true,
+    dualScreenKeyboardShortcuts: true,
 
     preferLooseListItem: true,
     bulletListMarker: '-',

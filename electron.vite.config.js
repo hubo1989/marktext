@@ -138,25 +138,55 @@ export default defineConfig({
         // But just in case there are any changes in the future
         external: ['fontmanager-redux', 'muya'],
         output: {
-          // 优化chunk分割
-          manualChunks: {
-            // Vue相关
-            'vue-vendor': ['vue', 'vue-router', 'pinia'],
-            // Element Plus
-            'element-plus': ['element-plus', 'element-plus/dist/index.css'],
+          // 优化chunk分割 - Enhanced for performance
+          manualChunks: (id) => {
+            // Vue生态系统
+            if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
+              return 'vue-vendor'
+            }
+            // Element Plus UI库
+            if (id.includes('element-plus')) {
+              return 'element-plus'
+            }
+            // 编辑器核心
+            if (id.includes('codemirror') || id.includes('muya') || id.includes('katex')) {
+              return 'editor-core'
+            }
             // 工具库
-            'utils': ['axios', 'dayjs', 'dompurify'],
-            // 编辑器相关
-            'editor-core': ['codemirror'],
-            // 其他第三方库
-            'vendor': ['mermaid', 'katex', 'prismjs', 'turndown']
+            if (id.includes('axios') || id.includes('dayjs') || id.includes('dompurify')) {
+              return 'utils'
+            }
+            // 第三方库
+            if (id.includes('mermaid') || id.includes('prismjs') || id.includes('turndown')) {
+              return 'vendor'
+            }
+            // 节点模块 - 分离以便缓存
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
+          },
+          // 优化chunk命名
+          chunkFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId
+              ? chunkInfo.facadeModuleId.split('/').pop().replace('.js', '')
+              : 'chunk'
+            return `js/${facadeModuleId}-[hash].js`
+          },
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+              return 'css/[name]-[hash][extname]'
+            }
+            return 'assets/[name]-[hash][extname]'
           }
         },
         // 启用Tree Shaking优化
         treeshake: {
           moduleSideEffects: false,
           propertyReadSideEffects: false,
-          tryCatchDeoptimization: false
+          tryCatchDeoptimization: false,
+          // 更激进的tree shaking
+          annotations: true,
+          unknownGlobalSideEffects: false
         }
       },
       // 启用压缩

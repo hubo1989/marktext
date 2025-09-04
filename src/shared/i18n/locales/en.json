@@ -105,17 +105,17 @@
             "checkUpdates": "Check for Updates"
         },
         "marktext": {
-            "title": "MarkText",
-            "marktext": "MarkText",
-            "about": "About MarkText",
+            "title": "MarkText Next",
+            "marktext": "MarkText Next",
+            "about": "About MarkText Next",
             "checkUpdates": "Check for Updates...",
             "preferences": "Preferences",
             "services": "Services",
-            "hide": "Hide MarkText",
-            "hideMarkText": "Hide MarkText",
+            "hide": "Hide MarkText Next",
+            "hideMarkText": "Hide MarkText Next",
             "hideOthers": "Hide Others",
             "showAll": "Show All",
-            "quit": "Quit MarkText"
+            "quit": "Quit MarkText Next"
         },
         "view": {
             "view": "View",
@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "Loading Editor Component...",
-                "initializingEditor": "Please wait while we initialize the editor"
+                "initializingEditor": "Please wait while we initialize the editor",
+                "initializingApplication": "MarkText is Starting",
+                "startingApplication": "Initializing application, please wait...",
+                "loadingComponents": "Loading Components...",
+                "preparingInterface": "Preparing interface, please wait"
             },
             "sidebar": {
                 "title": "Sidebar",

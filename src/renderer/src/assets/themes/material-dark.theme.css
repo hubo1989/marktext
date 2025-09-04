@@ -73,6 +73,12 @@
   --editorAreaWidth: 750px;
 }
 
+/* Editor container background */
+.editor-container {
+  background-color: var(--editorBgColor);
+  color: var(--editorColor);
+}
+
 .ag-front-menu .submenu,
 .ag-float-wrapper {
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;

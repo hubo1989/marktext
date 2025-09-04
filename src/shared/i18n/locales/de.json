@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "Editor-Komponente wird geladen...",
-                "initializingEditor": "Bitte warten Sie, während wir den Editor initialisieren"
+                "initializingEditor": "Bitte warten Sie, während wir den Editor initialisieren",
+                "initializingApplication": "MarkText startet",
+                "startingApplication": "Anwendung wird initialisiert, bitte warten...",
+                "loadingComponents": "Komponenten werden geladen...",
+                "preparingInterface": "Benutzeroberfläche wird vorbereitet, bitte warten"
             },
             "sidebar": {
                 "title": "Seitenleiste",

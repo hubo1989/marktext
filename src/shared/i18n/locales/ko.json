@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "편집기 컴포넌트 로딩 중...",
-                "initializingEditor": "편집기를 초기화하는 동안 잠시 기다려주세요"
+                "initializingEditor": "편집기를 초기화하는 동안 잠시 기다려주세요",
+                "initializingApplication": "MarkText 시작 중",
+                "startingApplication": "애플리케이션을 초기화하고 있습니다. 잠시 기다려주세요...",
+                "loadingComponents": "컴포넌트 로딩 중...",
+                "preparingInterface": "인터페이스를 준비하고 있습니다. 잠시 기다려주세요"
             },
             "sidebar": {
                 "title": "사이드바",

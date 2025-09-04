@@ -40,6 +40,10 @@ class EditorWindow extends BaseWindow {
    */
   createWindow(rootDirectory = null, fileList = [], markdownList = [], options = {}) {
     const { menu: appMenu, env, preferences } = this._accessor
+
+    // Store markdown list to open
+    this._markdownToOpen = markdownList || []
+
     const addBlankTab = !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
     const mainWindowState = windowStateKeeper({

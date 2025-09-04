@@ -1,19 +1,13 @@
 <template>
   <div class="editor-container">
     <!-- 侧边栏 -->
-    <Suspense v-if="init">
+    <Suspense v-if="init" @resolve="onSideBarResolve">
       <component :is="SideBar"></component>
-      <template #fallback>
-        <div class="component-loading" style="background: #f0f0f0; border: 2px solid #ccc; padding: 20px; text-align: center;">
-          <div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px;"></div>
-          <p style="margin: 0 0 10px 0; color: #333;">{{ t('preferences.general.loading.editorComponent') }}</p>
-        </div>
-      </template>
     </Suspense>
 
-    <div class="editor-middle">
+    <div class="editor-middle" :class="{ 'sidebar-hidden': !showSideBar }">
       <!-- 标题栏 -->
-      <Suspense>
+      <Suspense @resolve="onTitleBarResolve">
         <component :is="TitleBar"
           :project="projectTree"
           :pathname="pathname"
@@ -23,38 +17,24 @@
           :platform="platform"
           :is-saved="isSaved"
         ></component>
-        <template #fallback>
-          <div class="component-loading" style="background: #e7f3ff; border: 2px solid #2196f3; padding: 20px; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center;">
-            <div class="loading-spinner" style="border: 3px solid #f3f3f3; border-top: 3px solid #2196f3; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-right: 10px;"></div>
-            <div>
-              <p style="margin: 0; color: #1976d2; font-weight: bold;">{{ t('preferences.general.loading.editorComponent') }}</p>
-              <div class="debug-info" style="font-size: 10px; color: #666; margin-top: 5px;">
-                Project: {{ projectTree?.length || 0 }} items | File: {{ filename || 'none' }}
-              </div>
-            </div>
-          </div>
-        </template>
       </Suspense>
 
-      <div v-if="!init" class="editor-placeholder">
-        <div class="loading-spinner"></div>
-        <p>Initializing application...</p>
+      <!-- 统一的加载动画 - 从应用启动到组件加载完成都显示 -->
+      <div v-if="isAppLoading" class="app-startup-loading-overlay">
+        <div class="app-startup-loading-content">
+          <div class="modern-loading-spinner"></div>
+          <h2 class="startup-loading-title">{{ loadingTitle }}</h2>
+          <p class="startup-loading-subtitle">{{ loadingSubtitle }}</p>
+        </div>
       </div>
 
       <!-- 最近文件 -->
-      <Suspense v-if="!hasCurrentFile && init">
+      <Suspense v-if="!hasCurrentFile && init" @resolve="onRecentResolve">
         <component :is="Recent"></component>
-        <template #fallback>
-          <div class="component-loading" style="background: #f3e5f5; border: 2px solid #9c27b0; padding: 30px; text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #9c27b0; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
-            <h4 style="margin: 0 0 10px 0; color: #7b1fa2;">Loading Recent Files...</h4>
-            <p style="margin: 0 0 15px 0; color: #7b1fa2;">Preparing your recent documents</p>
-          </div>
-        </template>
       </Suspense>
 
       <!-- 编辑器 -->
-      <Suspense v-if="hasCurrentFile && init">
+      <Suspense v-if="hasCurrentFile && init" @resolve="onEditorResolve">
         <component :is="EditorWithTabs"
           :markdown="markdown"
           :cursor="cursor"
@@ -65,13 +45,16 @@
           :platform="platform"
         ></component>
         <template #fallback>
-          <div class="component-loading" style="background: #fff3cd; border: 2px solid #ffc107; padding: 20px; text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
-            <div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid #ffc107; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div>
-            <h3 style="margin: 0 0 10px 0; color: #856404;">{{ t('preferences.general.loading.editorComponent') }}</h3>
-            <p style="margin: 0 0 15px 0; color: #856404;">{{ t('preferences.general.loading.initializingEditor') }}</p>
+          <div class="editor-loading-overlay">
+            <div class="editor-loading-content">
+              <div class="modern-loading-spinner"></div>
+              <h3 class="loading-title">{{ t('preferences.general.loading.editorComponent') }}</h3>
+              <p class="loading-subtitle">{{ t('preferences.general.loading.initializingEditor') }}</p>
+            </div>
           </div>
         </template>
       </Suspense>
+
 
       <!-- 其他组件 -->
       <command-palette></command-palette>
@@ -80,6 +63,9 @@
       <rename></rename>
       <tweet></tweet>
       <import-modal></import-modal>
+
+      <!-- Performance Monitor (Development Only) -->
+      <performance-monitor v-if="isDevelopment"></performance-monitor>
     </div>
   </div>
 </template>
@@ -148,6 +134,15 @@ import { useMainStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { addStyles, addThemeStyle, addCustomStyle } from '@/util/theme'
 
+// Import new services
+import ThemeService from '@/services/themeService'
+import ThemePersistenceService from '@/services/themePersistenceService'
+import ThemeTransitionService from '@/services/themeTransitionService'
+import AnimationService from '@/services/animationService'
+import PerformanceService from '@/services/performanceService'
+import AnimationController from '@/services/animationController'
+import ConfigPersistenceService from '@/services/configPersistenceService'
+
 // 同步导入常用组件（这些组件通常很快被需要）
 import AboutDialog from '@/components/about'
 import CommandPalette from '@/components/commandPalette'
@@ -155,6 +150,9 @@ import ExportSettingDialog from '@/components/exportSettings'
 import Rename from '@/components/rename'
 import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
+
+// Performance monitor component (lazy loaded)
+const PerformanceMonitor = () => import('@/components/performanceMonitor')
 
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
@@ -188,7 +186,7 @@ const listenerManager = ref(null)
 
 // States from Pini
 const { windowActive, platform, init } = storeToRefs(mainStore)
-const { showTabBar } = storeToRefs(layoutStore)
+const { showTabBar, showSideBar } = storeToRefs(layoutStore)
 const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile } = storeToRefs(editorStore)
@@ -205,10 +203,81 @@ const hasCurrentFile = computed(() => {
   return markdown.value !== undefined
 })
 
-// Watchers
-watch(theme, (value, oldValue) => {
+// 统一的加载状态 - 从应用启动到组件加载完成都显示
+const isAppLoading = computed(() => {
+  // 从应用启动开始显示加载状态，直到编辑器组件加载完成
+  return !editorLoaded.value
+})
+
+// 跟踪编辑器组件是否已加载完成
+const editorLoaded = ref(false)
+
+// Development mode flag
+const isDevelopment = ref(process.env.NODE_ENV === 'development')
+
+// 动态加载标题
+const loadingTitle = computed(() => {
+  if (!init.value) {
+    return t('preferences.general.loading.initializingApplication')
+  }
+  return t('preferences.general.loading.loadingComponents')
+})
+
+// 动态加载副标题
+const loadingSubtitle = computed(() => {
+  if (!init.value) {
+    return t('preferences.general.loading.startingApplication')
+  }
+  return t('preferences.general.loading.preparingInterface')
+})
+
+// 编辑器组件加载完成时的处理函数
+const onEditorResolve = () => {
+  console.log('🎨 [APP] Editor component loaded successfully')
+  editorLoaded.value = true
+}
+
+// 最近文件组件加载完成时的处理函数
+const onRecentResolve = () => {
+  console.log('🎨 [APP] Recent component loaded successfully')
+  editorLoaded.value = true
+}
+
+// 侧边栏组件加载完成时的处理函数
+const onSideBarResolve = () => {
+  console.log('🎨 [APP] SideBar component loaded successfully')
+  // 侧边栏加载完成后不直接结束加载动画，需要等待主要内容组件加载完成
+}
+
+// 标题栏组件加载完成时的处理函数
+const onTitleBarResolve = () => {
+  console.log('🎨 [APP] TitleBar component loaded successfully')
+  // 标题栏加载完成后不直接结束加载动画，需要等待主要内容组件加载完成
+}
+
+// Watchers - Enhanced with new theme service
+watch(theme, async (value, oldValue) => {
   if (value !== oldValue) {
-    addThemeStyle(value)
+    console.log('🎨 [APP] Theme changed:', oldValue, '->', value)
+    try {
+      // Use new theme transition service for smooth transitions
+      await ThemeTransitionService.switchTheme(value, {
+        duration: 300,
+        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)'
+      })
+
+      // Save theme preference
+      ThemePersistenceService.setCurrentTheme(value)
+
+      // Update legacy theme style for compatibility
+      addThemeStyle(value)
+
+      console.log('✅ [APP] Theme transition completed successfully')
+    } catch (error) {
+      console.error('❌ [APP] Theme transition failed:', error)
+      // Fallback to legacy method
+      addThemeStyle(value)
+    }
   }
 })
 
@@ -257,12 +326,58 @@ const setupDragDropHandler = () => {
 }
 onMounted(async () => {
   console.log('🚀 [APP] onMounted - Starting application initialization')
+  console.log('🎨 [APP] Loading animation will be visible from now')
   console.log('🔧 [APP] Async components defined:', {
     Recent: typeof Recent,
     EditorWithTabs: typeof EditorWithTabs,
     TitleBar: typeof TitleBar,
     SideBar: typeof SideBar
   })
+
+  // Initialize new services
+  console.log('🎨 [APP] Initializing theme and animation services')
+  try {
+    // Initialize configuration persistence service
+    ConfigPersistenceService.initialize()
+
+    // Load all saved preferences using the unified service
+    const savedSettings = ConfigPersistenceService.getAllSettings()
+    console.log('⚙️ [APP] Loading saved settings:', savedSettings)
+
+    // Apply theme setting
+    if (savedSettings.theme && savedSettings.theme !== theme.value) {
+      console.log('🎨 [APP] Applying saved theme:', savedSettings.theme)
+      preferencesStore.SET_THEME(savedSettings.theme)
+    }
+
+    // Apply dual screen settings
+    if (savedSettings.dualScreenMode && savedSettings.dualScreenMode !== dualScreenMode.value) {
+      console.log('📺 [APP] Applying saved dual screen mode:', savedSettings.dualScreenMode)
+      preferencesStore.SET_SINGLE_PREFERENCE({
+        type: 'dualScreenMode',
+        value: savedSettings.dualScreenMode
+      })
+    }
+
+    // Initialize theme persistence service (legacy compatibility)
+    ThemePersistenceService.initialize()
+
+    // Initialize theme transition service
+    ThemeTransitionService.initialize()
+
+    // Initialize animation service
+    AnimationService.initialize()
+
+    // Initialize performance service
+    PerformanceService.initialize()
+
+    // Initialize animation controller
+    AnimationController.initialize()
+
+    console.log('✅ [APP] Services initialized successfully')
+  } catch (error) {
+    console.error('❌ [APP] Failed to initialize services:', error)
+  }
 
   if (global.marktext.initialState) {
     console.log('⚙️ [APP] Setting initial user preferences')
@@ -355,9 +470,18 @@ onMounted(async () => {
   margin: 0 auto;
   max-width: 1200px;
   width: 100%;
+  background-color: var(--editorBgColor);
+  color: var(--editorColor);
 
   & > .editor {
     flex: 1;
+  }
+
+  /* 当sidebar隐藏时，充满整个容器 */
+  &.sidebar-hidden {
+    max-width: none;
+    width: 100%;
+    margin: 0;
   }
 }
 
@@ -400,5 +524,164 @@ onMounted(async () => {
   color: var(--editorColor);
   font-size: 14px;
   opacity: 0.7;
+}
+
+/* 现代化的编辑器加载样式 */
+.editor-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  background: transparent;
+}
+
+.editor-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.modern-loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--themeColor, #007acc);
+  border-radius: 50%;
+  animation: modern-spin 1s linear infinite, modern-pulse 1s ease-in-out infinite;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.modern-loading-spinner::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: var(--themeColor, #007acc);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: modern-fill 1s linear infinite;
+}
+
+.loading-title {
+  margin: 0 0 8px 0;
+  color: var(--editorColor, #333);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.loading-subtitle {
+  margin: 0;
+  color: var(--editorColor, #666);
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+/* 应用启动加载动画样式 */
+.app-startup-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(2px);
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .app-startup-loading-overlay {
+    background: rgba(0, 0, 0, 0.95);
+  }
+}
+
+/* 基于主题的背景色 */
+.theme-dark .app-startup-loading-overlay,
+.theme-material-dark .app-startup-loading-overlay,
+.theme-one-dark .app-startup-loading-overlay {
+  background: rgba(0, 0, 0, 0.95);
+}
+
+.theme-light .app-startup-loading-overlay,
+.theme-material-light .app-startup-loading-overlay,
+.theme-graphite-light .app-startup-loading-overlay,
+.theme-ulysses-light .app-startup-loading-overlay {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.app-startup-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.startup-loading-title {
+  margin: 0 0 12px 0;
+  color: var(--editorColor, #333);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.startup-loading-subtitle {
+  margin: 0;
+  color: var(--editorColor, #666);
+  font-size: 16px;
+  opacity: 0.85;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+
+@keyframes modern-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes modern-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes modern-fill {
+  0% {
+    clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+  }
+  25% {
+    clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%);
+  }
+  50% {
+    clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 0% 100%);
+  }
+  75% {
+    clip-path: polygon(50% 50%, 100% 50%, 0% 50%, 0% 100%);
+  }
+  100% {
+    clip-path: polygon(50% 50%, 100% 50%, 0% 50%, 0% 0%);
+  }
 }
 </style>

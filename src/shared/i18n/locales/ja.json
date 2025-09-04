@@ -483,7 +483,11 @@
             },
             "loading": {
                 "editorComponent": "エディターコンポーネントを読み込み中...",
-                "initializingEditor": "エディターを初期化している間、しばらくお待ちください"
+                "initializingEditor": "エディターを初期化している間、しばらくお待ちください",
+                "initializingApplication": "MarkText を起動中",
+                "startingApplication": "アプリケーションを初期化しています。お待ちください...",
+                "loadingComponents": "コンポーネントを読み込み中...",
+                "preparingInterface": "インターフェースを準備しています。お待ちください"
             },
             "sidebar": {
                 "title": "サイドバー",

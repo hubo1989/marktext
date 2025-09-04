@@ -114,8 +114,8 @@ const setupExceptionHandler = () => {
   // start crashReporter to save core dumps to temporary folder - only in production
   if (process.env.NODE_ENV === 'production') {
     crashReporter.start({
-      companyName: 'marktext',
-      productName: 'marktext',
+      companyName: 'marktext-next',
+      productName: 'marktext-next',
       submitURL: 'http://0.0.0.0/',
       uploadToServer: false,
       compress: true

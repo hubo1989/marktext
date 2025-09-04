@@ -216,9 +216,8 @@ class App {
       if (info) {
         _openFilesCache.unshift(info)
       }
-    } else if (startUpAction === 'blank' || startUpAction === 'lastState') {
-      // For blank startup or lastState (which is hidden in UI but might be set as default)
-      // we need to create an empty markdown string to open
+    } else if (startUpAction === 'blank') {
+      // For blank startup: create an empty markdown file
       _openFilesCache.push({
         isDir: false,
         path: '',
@@ -226,6 +225,35 @@ class App {
         filename: 'Untitled.md',
         pathname: 'Untitled.md'
       })
+    } else if (startUpAction === 'lastState') {
+      // For lastState: try to restore previous state, fallback to blank if no previous state
+      const hasFilesFromArgs = args._.length > 0
+      if (!hasFilesFromArgs && _openFilesCache.length === 0) {
+        // No files from command line and no cached files, create blank
+        _openFilesCache.push({
+          isDir: false,
+          path: '',
+          markdown: '',
+          filename: 'Untitled.md',
+          pathname: 'Untitled.md'
+        })
+      }
+      // If there are cached files or command line args, they will be used
+    }
+
+    // For blank startup, we need to create a window with the blank file
+    if (startUpAction === 'blank' && _openFilesCache.length === 1 && _openFilesCache[0].path === '') {
+      // Create a window with the blank file
+      const blankFile = _openFilesCache[0]
+      const rawDocument = {
+        isDir: false,
+        path: blankFile.pathname,
+        markdown: blankFile.markdown,
+        filename: blankFile.filename,
+        pathname: blankFile.pathname
+      }
+      this._createEditorWindow(null, [], [rawDocument])
+      _openFilesCache.length = 0 // Clear the cache since we've handled it
     }
 
     // Set initial native theme for theme in preferences.

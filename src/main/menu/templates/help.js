@@ -37,7 +37,7 @@ export default function () {
         label: t('menu.help.markdownReference'),
         click() {
           shell.openExternal(
-            'https://github.com/Tkaixiang/marktext/blob/trunk/docs/MARKDOWN_SYNTAX.md'
+            'https://github.com/hubo1989/marktext-next/blob/main/docs/MARKDOWN_SYNTAX.md'
           )
         }
       },
@@ -45,7 +45,7 @@ export default function () {
         label: t('menu.help.changelog'),
         click() {
           shell.openExternal(
-            'https://github.com/Tkaixiang/marktext/blob/trunk/.github/CHANGELOG.md'
+            'https://github.com/hubo1989/marktext-next/blob/main/.github/CHANGELOG.md'
           )
         }
       },
@@ -55,19 +55,19 @@ export default function () {
       {
         label: t('menu.help.askQuestion'),
         click() {
-          shell.openExternal('https://github.com/Tkaixiang/marktext/discussions')
+          shell.openExternal('https://github.com/hubo1989/marktext-next/discussions')
         }
       },
       {
         label: t('menu.help.reportBug'),
         click() {
-          shell.openExternal('https://github.com/Tkaixiang/marktext/issues')
+          shell.openExternal('https://github.com/hubo1989/marktext-next/issues')
         }
       },
       {
         label: t('menu.help.viewSource'),
         click() {
-          shell.openExternal('https://github.com/Tkaixiang/marktext')
+          shell.openExternal('https://github.com/hubo1989/marktext-next')
         }
       },
       {
@@ -76,7 +76,7 @@ export default function () {
       {
         label: t('menu.help.license'),
         click() {
-          shell.openExternal('https://github.com/Tkaixiang/marktext/blob/trunk/LICENSE')
+          shell.openExternal('https://github.com/hubo1989/marktext-next/blob/main/LICENSE')
         }
       }
     ]

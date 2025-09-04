@@ -1,10 +1,10 @@
-<p align="center"><img src="static/logo-small.png" alt="MarkText" width="100" height="100"></p>
+<p align="center"><img src="static/logo-small.png" alt="MarkText Next" width="100" height="100"></p>
 
-<h1 align="center">MarkText</h1>
+<h1 align="center">MarkText Next</h1>
 
 <div align="center">
-  <strong>🔆 Next generation markdown editor 🌙</strong><br>
-  A simple and elegant open-source markdown editor that focused on speed and usability.<br>
+  <strong>🔆 Next Generation Markdown Editor 🌙</strong><br>
+  A modern, elegant open-source markdown editor focused on speed, usability, and developer experience.<br>
   <br>
   [<img src="https://img.shields.io/badge/中文-README-blue.svg" alt="中文">](README-zh-CN.md)
 </div>
@@ -24,9 +24,9 @@
   </a>
 </div>
 
-- [MarkText](https://github.com/marktext/marktext) is a free and open source markdown editor originally written by [Jocs](https://github.com/Jocs) and [contributors](https://github.com/marktext/marktext/graphs/contributors).
+- [MarkText Next](https://github.com/hubo1989/marktext-next) is a free and open source markdown editor originally written by [Jocs](https://github.com/Jocs) and [contributors](https://github.com/marktext/marktext/graphs/contributors).
 
-- **Enhanced Fork**: This repository [hubo1989/marktext](https://github.com/hubo1989/marktext) provides comprehensive improvements and modernizations to the original MarkText editor.
+- **Enhanced Fork**: This repository [hubo1989/marktext-next](https://github.com/hubo1989/marktext-next) provides comprehensive improvements and modernizations to the original MarkText editor.
 
 - **Key Features:**
   - 🚀 **Modern Tech Stack**: Vue 3, Pinia, Vite, TypeScript support
@@ -46,7 +46,7 @@
 
 ## Windows
 
-- Simply check out the [Releases Page](https://github.com/hubo1989/marktext/releases)!
+- Simply check out the [Releases Page](https://github.com/hubo1989/marktext-next/releases)!
 
 - Tested on:
 
@@ -54,7 +54,7 @@
 
 ## Linux
 
-- Simply check out the [Releases Page](https://github.com/hubo1989/marktext/releases)
+- Simply check out the [Releases Page](https://github.com/hubo1989/marktext-next/releases)
 - Tested on:
   - `Ubuntu 24.0.2` (`AppImage` and `.deb` packages)
   - _Would love some help in testing the other Linux packages!_
@@ -70,7 +70,7 @@
 > ⚠️ MacOS releases will show a "`MarkText is damaged and can't be opened`" due to a **lack of notorisation**.
 > Please see [this fix here](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) (which also applies to any other app that lacks a Developer Account signing)
 
-- Available on the [Releases Page](https://github.com/hubo1989/marktext/releases)
+- Available on the [Releases Page](https://github.com/hubo1989/marktext-next/releases)
 
 # 2. Screenshots
 
@@ -113,7 +113,7 @@
 
 - Hence, this fork is kind of a major "re-write" that makes use of [electron-vite](https://electron-vite.org/) instead of the old `Babel + Webpack` setup
 
-  - The goal here is to give `marktext` a **fresh start** using **modern frameworks and libraries as much as possible**
+  - The goal here is to give `marktext-next` a **fresh start** using **modern frameworks and libraries as much as possible**
   - Everything has also been migrated to `Vue3` and `Pinia` with all libraries updated to their latest possible versions
 
 - The `main` and `preload` processes are still compiled to `CommonJS`, but the `renderer` is now fully **`ESModules` only** (_which posed some interesting issues during migration_)
@@ -127,7 +127,7 @@
 
   Are more than welcome!
 
-- You can find a basic list of commands for getting around this repo below, but otherwise - the file structure should be **very similar to the original marktext**
+- You can find a basic list of commands for getting around this repo below, but otherwise - the file structure should be **very similar to the original marktext-next**
 
 # 5. Code Optimizations and Improvements
 

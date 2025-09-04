@@ -67,7 +67,7 @@ if (process.env.NODE_ENV === 'development') {
 if (process.env.NODE_ENV === 'production') {
   crashReporter.start({
     companyName: '',
-    productName: 'marktextv2',
+    productName: 'marktext-next',
     uploadToServer: false, // collect locally
     compress: true
   })
@@ -105,7 +105,7 @@ if (!process.mas && process.env.NODE_ENV !== 'development') {
 remoteInitializeServer()
 
 // Windows-specific AppUserModelID
-electronApp.setAppUserModelId('com.electron.marktext')
+electronApp.setAppUserModelId('com.electron.marktext-next')
 
 // Dev shortcuts and reload suppression
 app.on('browser-window-created', (_, window) => {
