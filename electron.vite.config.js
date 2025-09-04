@@ -138,34 +138,8 @@ export default defineConfig({
         // But just in case there are any changes in the future
         external: ['fontmanager-redux', 'muya'],
         output: {
-          // 简化chunk分割以避免变量冲突
-          manualChunks: (id) => {
-            // Vue生态系统
-            if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
-              return 'vue-vendor'
-            }
-            // Element Plus UI库
-            if (id.includes('element-plus')) {
-              return 'element-plus'
-            }
-            // 编辑器核心
-            if (id.includes('codemirror') || id.includes('muya') || id.includes('katex')) {
-              return 'editor-core'
-            }
-            // 工具库
-            if (id.includes('axios') || id.includes('dayjs') || id.includes('dompurify')) {
-              return 'utils'
-            }
-            // 第三方库
-            if (id.includes('mermaid') || id.includes('prismjs') || id.includes('turndown')) {
-              return 'vendor'
-            }
-            // 节点模块 - 分离以便缓存
-            if (id.includes('node_modules')) {
-              return 'vendor'
-            }
-          },
-          // 简化chunk命名以避免冲突
+          // 完全使用默认chunk策略，避免手动分割导致的变量冲突
+          // 移除所有manualChunks配置
           chunkFileNames: 'js/chunk-[hash].js',
           assetFileNames: (assetInfo) => {
             if (assetInfo.name && assetInfo.name.endsWith('.css')) {
@@ -174,23 +148,35 @@ export default defineConfig({
             return 'assets/[name]-[hash][extname]'
           }
         },
-        // 调整Tree Shaking配置
+        // 最小化Tree Shaking以避免变量作用域问题
         treeshake: {
           moduleSideEffects: false,
           propertyReadSideEffects: false,
-          tryCatchDeoptimization: false,
-          // 减少激进优化
+          // 禁用所有可能导致问题的优化
           annotations: false,
-          unknownGlobalSideEffects: false
+          unknownGlobalSideEffects: false,
+          tryCatchDeoptimization: false,
+          // 禁用更激进的优化
+          correctVarValueUndefined: false,
+          pure_getters: false
         }
       },
-      // 启用压缩
+      // 启用压缩，但减少优化以避免变量作用域问题
       minify: 'terser',
       terserOptions: {
         compress: {
+          // 减少压缩优化以避免变量作用域问题
           drop_console: process.env.NODE_ENV === 'production',
           drop_debugger: process.env.NODE_ENV === 'production',
-          pure_funcs: process.env.NODE_ENV === 'production' ? ['console.log', 'console.info', 'console.debug'] : []
+          pure_funcs: process.env.NODE_ENV === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
+          // 禁用可能导致问题的优化
+          collapse_vars: false,
+          reduce_vars: false,
+          pure_getters: false
+        },
+        mangle: {
+          // 减少变量名混淆以避免作用域问题
+          toplevel: false
         }
       },
       // 启用source map（仅开发环境）
