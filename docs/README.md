@@ -15,9 +15,10 @@
 
 ---
 
-- [MarkText Next](https://github.com/hubo1989/marktext-next) 是一个免费开源的 Markdown 编辑器，最初由 [Jocs](https://github.com/Jocs) 和 [贡献者们](https://github.com/marktext/marktext/graphs/contributors) 编写。
+- [MarkText](https://github.com/marktext/marktext) 是一个免费开源的 Markdown 编辑器，最初由 [Jocs](https://github.com/Jocs) 和 [贡献者们](https://github.com/marktext/marktext/graphs/contributors) 编写。
 - 遗憾的是，核心仓库在大约 3 年前就停止维护了，但在我日常使用中仍然存在各种生活质量问题。
 - 这个仓库是对我最喜欢的 Markdown 编辑器进行现代化改造的尝试，基于 [Jacob Whall 的分支](https://github.com/jacobwhall/marktext) 进行开发。
+- 基于 [@Tkaixiang/marktext](https://github.com/Tkaixiang/marktext) 的现代化改造-迁移至 Vue 3
 - 由 Trae AI Claude 4.0 提供多语言支持
 
 ### 安装
