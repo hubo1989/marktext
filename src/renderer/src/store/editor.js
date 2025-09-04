@@ -1,6 +1,18 @@
 import equal from 'deep-equal'
 import bus from '../bus'
 import { hasKeys, getUniqueId, deepClone } from '../util'
+
+// 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
+}
+
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
 import listToTree from '../util/listToTree'
 import {
   createDocumentState,
@@ -62,8 +74,8 @@ export const useEditorStore = defineStore('editor', {
      * This method is called during store creation to set up module functionality
      */
     initializeModules() {
-      console.log('🚀 [STORE] initializeModules called')
-      console.log('🚀 [STORE] Available modules:', {
+      devLog('🚀 [STORE] initializeModules called')
+      devLog('🚀 [STORE] Available modules:', {
         tabManagement: !!tabManagement,
         fileOperations: !!fileOperations,
         editorState: !!editorState,
@@ -76,7 +88,7 @@ export const useEditorStore = defineStore('editor', {
       Object.assign(this, editorState)
       Object.assign(this, listenerManager)
       
-      console.log('🚀 [STORE] Modules initialized, checking methods:', {
+      devLog('🚀 [STORE] Modules initialized, checking methods:', {
         NEW_UNTITLED_TAB: !!this.NEW_UNTITLED_TAB,
         UPDATE_CURRENT_FILE: !!this.UPDATE_CURRENT_FILE,
         SHOW_TAB_VIEW: !!this.SHOW_TAB_VIEW,
@@ -590,10 +602,10 @@ export const useEditorStore = defineStore('editor', {
         }, 100)
       }, 400)
 
-      console.log('🎧 [STORE] Registering bootstrap listener...')
+      devLog('🎧 [STORE] Registering bootstrap listener...')
       window.electron.ipcRenderer.on('mt::bootstrap-editor', (_, config) => {
-        console.log('📡 [STORE] ========== BOOTSTRAP MESSAGE RECEIVED ==========')
-        console.log('📡 [STORE] Received bootstrap config:', config)
+        devLog('📡 [STORE] ========== BOOTSTRAP MESSAGE RECEIVED ==========')
+        devLog('📡 [STORE] Received bootstrap config:', config)
 
         const {
           addBlankTab,
@@ -620,50 +632,50 @@ export const useEditorStore = defineStore('editor', {
         })
 
         // Force always create blank page on startup - ignore all conditions
-        console.log('🔍 [STORE] Bootstrap message received - forcing blank page creation')
-        console.log('🔍 [STORE] - showStartupChoice:', showStartupChoice, '(ignored)')
-        console.log('🔍 [STORE] - addBlankTab:', addBlankTab, '(ignored)')
-        console.log('🔍 [STORE] - markdownList:', markdownList, '(ignored)')
+        devLog('🔍 [STORE] Bootstrap message received - forcing blank page creation')
+        devLog('🔍 [STORE] - showStartupChoice:', showStartupChoice, '(ignored)')
+        devLog('🔍 [STORE] - addBlankTab:', addBlankTab, '(ignored)')
+        devLog('🔍 [STORE] - markdownList:', markdownList, '(ignored)')
 
-        console.log('📝 [STORE] Always creating blank file on startup (forced behavior)')
+        devLog('📝 [STORE] Always creating blank file on startup (forced behavior)')
 
         // Always create blank file regardless of any conditions
         this.NEW_UNTITLED_TAB({ selected: true })
-        console.log('📝 [STORE] Blank file creation completed (forced)')
+        devLog('📝 [STORE] Blank file creation completed (forced)')
 
         // Force update current file state after creation
-        console.log('📝 [STORE] Current file after creation:', this.currentFile)
-        console.log('📝 [STORE] Current tabs after creation:', this.tabs)
+        devLog('📝 [STORE] Current file after creation:', this.currentFile)
+        devLog('📝 [STORE] Current tabs after creation:', this.tabs)
 
         // Always hide startup choice page
-        console.log('📝 [STORE] Emitting hide-startup-choice event (forced)')
+        devLog('📝 [STORE] Emitting hide-startup-choice event (forced)')
         bus.emit('hide-startup-choice')
 
         // Force emit file-loaded event to ensure app layer updates
         setTimeout(() => {
           if (this.currentFile && this.currentFile.id) {
-            console.log('📝 [STORE] Force emitting file-loaded event:', this.currentFile.id)
+            devLog('📝 [STORE] Force emitting file-loaded event:', this.currentFile.id)
             bus.emit('file-loaded', {
               id: this.currentFile.id,
               markdown: this.currentFile.markdown
             })
           } else {
-            console.log('📝 [STORE] currentFile not ready yet, retrying in 200ms')
+            devLog('📝 [STORE] currentFile not ready yet, retrying in 200ms')
             setTimeout(() => {
               if (this.currentFile && this.currentFile.id) {
-                console.log('📝 [STORE] Force emitting file-loaded event (retry):', this.currentFile.id)
+                devLog('📝 [STORE] Force emitting file-loaded event (retry):', this.currentFile.id)
                 bus.emit('file-loaded', {
                   id: this.currentFile.id,
                   markdown: this.currentFile.markdown
                 })
               } else {
-                console.log('📝 [STORE] currentFile still not ready, giving up')
+                devLog('📝 [STORE] currentFile still not ready, giving up')
               }
             }, 200)
           }
         }, 200)
 
-        console.log('📝 [STORE] Bootstrap processing completed (forced blank page)')
+        devLog('📝 [STORE] Bootstrap processing completed (forced blank page)')
       })
     },
 
@@ -759,7 +771,7 @@ export const useEditorStore = defineStore('editor', {
         this.listToc = []
         this.toc = []
         // 当所有标签页关闭后，回到启动选择页面
-        console.log('🎯 [EDITOR] All tabs closed, returning to startup choice page')
+        devLog('🎯 [EDITOR] All tabs closed, returning to startup choice page')
         bus.emit('all-tabs-closed')
       }
 

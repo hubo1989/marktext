@@ -1,3 +1,15 @@
+// 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
+}
+
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
+
 import { defineStore } from 'pinia'
 import { addFile, unlinkFile, addDirectory, unlinkDirectory } from './treeCtrl'
 import bus from '../bus'
@@ -78,7 +90,7 @@ export const useProjectStore = defineStore('project', {
             break
           default:
             if (process.env.NODE_ENV === 'development') {
-              console.log(`Unknown directory watch type: "${type}"`)
+              devLog(`Unknown directory watch type: "${type}"`)
             }
             break
         }

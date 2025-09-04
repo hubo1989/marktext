@@ -80,42 +80,60 @@
 import { computed, watch, nextTick, onMounted, onBeforeMount, ref, defineAsyncComponent, Suspense } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+// 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
+}
+
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
+
+const devWarn = (...args) => {
+  if (isDevelopment()) {
+    console.warn(...args)
+  }
+}
+
 // StartupChoice 组件已预加载，直接使用
 
 // Set up IPC listeners as early as possible
 onBeforeMount(() => {
-  console.log('🚀 [APP] ========== ON BEFORE MOUNT CALLED ==========')
-  console.log('🚀 [APP] onBeforeMount - Setting up early IPC listeners')
-  console.log('🚀 [APP] window.electron exists:', !!window.electron)
-  console.log('🚀 [APP] window.electron.ipcRenderer exists:', !!window.electron?.ipcRenderer)
+  devLog('🚀 [APP] ========== ON BEFORE MOUNT CALLED ==========')
+  devLog('🚀 [APP] onBeforeMount - Setting up early IPC listeners')
+  devLog('🚀 [APP] window.electron exists:', !!window.electron)
+  devLog('🚀 [APP] window.electron.ipcRenderer exists:', !!window.electron?.ipcRenderer)
 
-  console.log('📡 [APP] Setting up mt::bootstrap-editor listener...')
+  devLog('📡 [APP] Setting up mt::bootstrap-editor listener...')
 
   // Listen to all IPC messages for debugging
   window.electron.ipcRenderer.on('*', (event, ...args) => {
-    console.log('📡 [APP] IPC MESSAGE RECEIVED - Channel:', event.channel || event.type, 'Args length:', args.length)
+    devLog('📡 [APP] IPC MESSAGE RECEIVED - Channel:', event.channel || event.type, 'Args length:', args.length)
     if (event.channel === 'mt::bootstrap-editor') {
-      console.log('📡 [APP] BOOTSTRAP MESSAGE RECEIVED:', args[0])
+      devLog('📡 [APP] BOOTSTRAP MESSAGE RECEIVED:', args[0])
     }
   })
 
   // Initialize editor store modules if not already done
-  console.log('📡 [APP] Checking if editor store modules are initialized...')
+  devLog('📡 [APP] Checking if editor store modules are initialized...')
   if (!editorStore.NEW_UNTITLED_TAB) {
-    console.log('📡 [APP] Modules not initialized, initializing now...')
+    devLog('📡 [APP] Modules not initialized, initializing now...')
     editorStore.initializeModules()
-    console.log('📡 [APP] Editor store modules initialized')
+    devLog('📡 [APP] Editor store modules initialized')
   }
   
   // Initialize listener manager early to ensure bootstrap listener is ready
-  console.log('📡 [APP] Initializing listener manager early')
+  devLog('📡 [APP] Initializing listener manager early')
   if (!listenerManager.value) {
     listenerManager.value = new ListenerManager(editorStore)
   }
-  console.log('🎧 [APP] Registering bootstrap listener early')
+  devLog('🎧 [APP] Registering bootstrap listener early')
   listenerManager.value.registerAllListeners()
 
-  console.log('✅ [APP] Early IPC listeners set up successfully')
+  devLog('✅ [APP] Early IPC listeners set up successfully')
 })
 
 const Recent = defineAsyncComponent({
@@ -281,49 +299,49 @@ const loadingSubtitle = computed(() => {
 
 // 编辑器组件加载完成时的处理函数
 const onEditorResolve = () => {
-  console.log('🎨 [APP] Editor component loaded successfully')
+  devLog('🎨 [APP] Editor component loaded successfully')
   editorLoaded.value = true
 }
 
 // 最近文件组件加载完成时的处理函数
 const onRecentResolve = () => {
-  console.log('🎨 [APP] Recent component loaded successfully')
+  devLog('🎨 [APP] Recent component loaded successfully')
   editorLoaded.value = true
 }
 
 // 侧边栏组件加载完成时的处理函数
 const onSideBarResolve = () => {
-  console.log('🎨 [APP] SideBar component loaded successfully')
+  devLog('🎨 [APP] SideBar component loaded successfully')
   // 侧边栏加载完成后不直接结束加载动画，需要等待主要内容组件加载完成
 }
 
 // 标题栏组件加载完成时的处理函数
 const onTitleBarResolve = () => {
-  console.log('🎨 [APP] TitleBar component loaded successfully')
+  devLog('🎨 [APP] TitleBar component loaded successfully')
   // 标题栏加载完成后不直接结束加载动画，需要等待主要内容组件加载完成
 }
 
 // 启动选择页面组件加载完成时的处理函数
 const onStartupChoiceResolve = () => {
-  console.log('🎨 [APP] StartupChoice component loaded successfully')
+  devLog('🎨 [APP] StartupChoice component loaded successfully')
   editorLoaded.value = true
 }
 
 // 处理启动选择
 const handleStartupChoice = (choice) => {
-  console.log('🎯 [APP] User made startup choice:', choice)
+  devLog('🎯 [APP] User made startup choice:', choice)
 
   switch (choice) {
     case 'new-file':
       // 直接创建新文件并进入编辑器
-      console.log('📝 [APP] Creating new file...')
+      devLog('📝 [APP] Creating new file...')
       editorStore.NEW_UNTITLED_TAB({})
 
       // 等待文件创建完成后更新状态
       nextTick(() => {
-        console.log('📝 [APP] New file created, currentFile:', currentFile.value)
-        console.log('📝 [APP] Markdown value:', markdown.value)
-        console.log('📝 [APP] hasCurrentFile:', hasCurrentFile.value)
+        devLog('📝 [APP] New file created, currentFile:', currentFile.value)
+        devLog('📝 [APP] Markdown value:', markdown.value)
+        devLog('📝 [APP] hasCurrentFile:', hasCurrentFile.value)
 
         // 关键修复：新建文件后需要重置启动选择状态
         shouldShowStartupChoice.value = false
@@ -345,7 +363,7 @@ const handleStartupChoice = (choice) => {
 // Watchers - Enhanced with new theme service
 watch(theme, async (value, oldValue) => {
   if (value !== oldValue) {
-    console.log('🎨 [APP] Theme changed:', oldValue, '->', value)
+    devLog('🎨 [APP] Theme changed:', oldValue, '->', value)
     try {
       // Use new theme transition service for smooth transitions
       await ThemeTransitionService.switchTheme(value, {
@@ -359,7 +377,7 @@ watch(theme, async (value, oldValue) => {
       // Update legacy theme style for compatibility
       addThemeStyle(value)
 
-      console.log('✅ [APP] Theme transition completed successfully')
+      devLog('✅ [APP] Theme transition completed successfully')
     } catch (error) {
       console.error('❌ [APP] Theme transition failed:', error)
       // Fallback to legacy method
@@ -412,22 +430,22 @@ const setupDragDropHandler = () => {
   )
 }
   onMounted(async () => {
-    console.log('🚀 [APP] onMounted - Starting application initialization')
+    devLog('🚀 [APP] onMounted - Starting application initialization')
 
     // IPC listeners are already set up in onBeforeMount, just test communication
-    console.log('📡 [APP] IPC listeners already set up in onBeforeMount')
-    console.log('📡 [APP] ipcRenderer available:', !!window.electron?.ipcRenderer)
+    devLog('📡 [APP] IPC listeners already set up in onBeforeMount')
+    devLog('📡 [APP] ipcRenderer available:', !!window.electron?.ipcRenderer)
 
     // Test IPC communication
-    console.log('📡 [APP] Testing IPC communication...')
+    devLog('📡 [APP] Testing IPC communication...')
     try {
       window.electron.ipcRenderer.send('test-message', { test: 'hello from renderer' })
-      console.log('📡 [APP] Test message sent successfully')
+      devLog('📡 [APP] Test message sent successfully')
     } catch (error) {
       console.error('📡 [APP] Failed to send test message:', error)
     }
-  console.log('🎨 [APP] Loading animation will be visible from now')
-  console.log('🔧 [APP] Components defined:', {
+  devLog('🎨 [APP] Loading animation will be visible from now')
+  devLog('🔧 [APP] Components defined:', {
     Recent: typeof Recent,
     EditorWithTabs: typeof EditorWithTabs,
     TitleBar: typeof TitleBar,
@@ -436,34 +454,34 @@ const setupDragDropHandler = () => {
   })
 
   // 预热关键组件，确保快速响应
-  console.log('🎯 [APP] Pre-warming critical components')
+  devLog('🎯 [APP] Pre-warming critical components')
   try {
     // 预热 StartupChoice 组件
     if (StartupChoice && typeof StartupChoice === 'function') {
-      console.log('✅ [APP] StartupChoice component pre-loaded')
+      devLog('✅ [APP] StartupChoice component pre-loaded')
     }
 
     // 预热 EditorWithTabs 组件 - 这是最重要的组件，应该尽快加载
     if (EditorWithTabs && typeof EditorWithTabs === 'function') {
-      console.log('✅ [APP] EditorWithTabs component pre-loaded')
+      devLog('✅ [APP] EditorWithTabs component pre-loaded')
     }
   } catch (error) {
     console.warn('⚠️ [APP] Failed to pre-warm components:', error)
   }
 
   // Initialize new services
-  console.log('🎨 [APP] Initializing theme and animation services')
+  devLog('🎨 [APP] Initializing theme and animation services')
   try {
     // Initialize configuration persistence service
     ConfigPersistenceService.initialize()
 
     // Load all saved preferences using the unified service
     const savedSettings = ConfigPersistenceService.getAllSettings()
-    console.log('⚙️ [APP] Loading saved settings:', savedSettings)
+    devLog('⚙️ [APP] Loading saved settings:', savedSettings)
 
     // Apply theme setting
     if (savedSettings.theme && savedSettings.theme !== theme.value) {
-      console.log('🎨 [APP] Applying saved theme:', savedSettings.theme)
+      devLog('🎨 [APP] Applying saved theme:', savedSettings.theme)
       preferencesStore.SET_SINGLE_PREFERENCE({
         type: 'theme',
         value: savedSettings.theme
@@ -472,7 +490,7 @@ const setupDragDropHandler = () => {
 
     // Apply dual screen settings
     if (savedSettings.dualScreenMode && savedSettings.dualScreenMode !== dualScreenMode.value) {
-      console.log('📺 [APP] Applying saved dual screen mode:', savedSettings.dualScreenMode)
+      devLog('📺 [APP] Applying saved dual screen mode:', savedSettings.dualScreenMode)
       preferencesStore.SET_SINGLE_PREFERENCE({
         type: 'dualScreenMode',
         value: savedSettings.dualScreenMode
@@ -494,11 +512,11 @@ const setupDragDropHandler = () => {
     // Initialize animation controller
     AnimationController.initialize()
 
-    console.log('✅ [APP] Services initialized successfully')
+    devLog('✅ [APP] Services initialized successfully')
 
     // Force hide startup choice page after 3 seconds to ensure blank page is always shown
     setTimeout(() => {
-      console.log('⏰ [APP] Forcing hide startup choice page after 3 seconds')
+      devLog('⏰ [APP] Forcing hide startup choice page after 3 seconds')
       shouldShowStartupChoice.value = false
       hasShownStartupChoice.value = true
     }, 3000)
@@ -507,11 +525,11 @@ const setupDragDropHandler = () => {
   }
 
   if (global.marktext.initialState) {
-    console.log('⚙️ [APP] Setting initial user preferences')
+    devLog('⚙️ [APP] Setting initial user preferences')
     preferencesStore.SET_USER_PREFERENCE(global.marktext.initialState)
   }
 
-  console.log('🎧 [APP] Setting up additional store listeners')
+  devLog('🎧 [APP] Setting up additional store listeners')
   mainStore.LISTEN_WIN_STATUS()
   await commandCenterStore.LISTEN_COMMAND_CENTER_BUS()
   tweetStore.LISTEN_FOR_TWEET()
@@ -528,52 +546,52 @@ const setupDragDropHandler = () => {
   preferencesStore.LISTEN_TOGGLE_VIEW()
 
   // 监听所有标签页关闭事件，回到启动选择页面
-  console.log('🎧 [APP] Setting up all-tabs-closed listener')
+  devLog('🎧 [APP] Setting up all-tabs-closed listener')
   bus.on('all-tabs-closed', () => {
-    console.log('🎯 [APP] All tabs closed, showing startup choice page')
+    devLog('🎯 [APP] All tabs closed, showing startup choice page')
     shouldShowStartupChoice.value = true
     hasShownStartupChoice.value = false
   })
 
   // 监听来自store的启动选择页面事件
-  console.log('🎧 [APP] Setting up startup choice event listeners')
+  devLog('🎧 [APP] Setting up startup choice event listeners')
   bus.on('show-startup-choice', () => {
-    console.log('🎯 [APP] Received show-startup-choice event from store')
-    console.log('🎯 [APP] Before setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+    devLog('🎯 [APP] Received show-startup-choice event from store')
+    devLog('🎯 [APP] Before setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
     shouldShowStartupChoice.value = true
-    console.log('🎯 [APP] After setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+    devLog('🎯 [APP] After setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
   })
 
   bus.on('hide-startup-choice', () => {
-    console.log('🎯 [APP] Received hide-startup-choice event from store')
-    console.log('🎯 [APP] Before setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+    devLog('🎯 [APP] Received hide-startup-choice event from store')
+    devLog('🎯 [APP] Before setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
     shouldShowStartupChoice.value = false
     hasShownStartupChoice.value = true
-    console.log('🎯 [APP] After setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+    devLog('🎯 [APP] After setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
   })
 
   // 监听文件加载事件 - 确保编辑器显示
-  console.log('🎧 [APP] Setting up file-loaded listener')
+  devLog('🎧 [APP] Setting up file-loaded listener')
   bus.on('file-loaded', (fileData) => {
-    console.log('🎯 [APP] ===== RECEIVED FILE-LOADED EVENT =====')
-    console.log('🎯 [APP] File data:', fileData)
-    console.log('🎯 [APP] Current file state:', currentFile.value)
-    console.log('🎯 [APP] hasCurrentFile:', hasCurrentFile.value)
-    console.log('🎯 [APP] shouldShowStartupChoice:', shouldShowStartupChoice.value)
-    console.log('🎯 [APP] hasShownStartupChoice:', hasShownStartupChoice.value)
-    console.log('🎯 [APP] Editor store tabs length:', editorStore.tabs?.length || 0)
+    devLog('🎯 [APP] ===== RECEIVED FILE-LOADED EVENT =====')
+    devLog('🎯 [APP] File data:', fileData)
+    devLog('🎯 [APP] Current file state:', currentFile.value)
+    devLog('🎯 [APP] hasCurrentFile:', hasCurrentFile.value)
+    devLog('🎯 [APP] shouldShowStartupChoice:', shouldShowStartupChoice.value)
+    devLog('🎯 [APP] hasShownStartupChoice:', hasShownStartupChoice.value)
+    devLog('🎯 [APP] Editor store tabs length:', editorStore.tabs?.length || 0)
 
     if (editorStore.tabs && editorStore.tabs.length > 0) {
-      console.log('🎯 [APP] First tab:', editorStore.tabs[0])
-      console.log('🎯 [APP] All tab IDs:', editorStore.tabs.map(t => t.id))
+      devLog('🎯 [APP] First tab:', editorStore.tabs[0])
+      devLog('🎯 [APP] All tab IDs:', editorStore.tabs.map(t => t.id))
     }
 
     // 强制触发响应式更新
     nextTick(() => {
-      console.log('🎯 [APP] Next tick - checking file state after file-loaded')
-      console.log('🎯 [APP] Current file after nextTick:', currentFile.value)
-      console.log('🎯 [APP] hasCurrentFile after nextTick:', hasCurrentFile.value)
-      console.log('🎯 [APP] Tabs after nextTick:', editorStore.tabs)
+      devLog('🎯 [APP] Next tick - checking file state after file-loaded')
+      devLog('🎯 [APP] Current file after nextTick:', currentFile.value)
+      devLog('🎯 [APP] hasCurrentFile after nextTick:', hasCurrentFile.value)
+      devLog('🎯 [APP] Tabs after nextTick:', editorStore.tabs)
     })
   })
 
@@ -582,23 +600,23 @@ const setupDragDropHandler = () => {
 
   setupDragDropHandler()
 
-  console.log('✅ [APP] Setting app as initialized')
+  devLog('✅ [APP] Setting app as initialized')
   // Set app as initialized
   mainStore.SET_INITIALIZED()
 
   // 初始化布局状态
-  console.log('📐 [APP] Initializing layout state')
+  devLog('📐 [APP] Initializing layout state')
   layoutStore.SET_LAYOUT({
     showSideBar: false, // 默认隐藏侧边栏，让编辑器居中
     showTabBar: true   // 显示标签栏
   })
 
-  console.log('🎨 [APP] Applying styles')
+  devLog('🎨 [APP] Applying styles')
   nextTick(() => {
     const style = global.marktext.initialState || DEFAULT_STYLE
     addStyles(style)
-    console.log('🎨 [APP] Styles applied, app fully initialized')
-    console.log('📊 [APP] Current state after initialization:', {
+    devLog('🎨 [APP] Styles applied, app fully initialized')
+    devLog('📊 [APP] Current state after initialization:', {
       init: init.value,
       hasCurrentFile: hasCurrentFile.value,
       currentFile: currentFile.value?.pathname || 'none',

@@ -1,3 +1,15 @@
+// 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
+}
+
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
+
 import equal from 'deep-equal'
 import bus from '../../bus'
 import listToTree from '../../util/listToTree'
@@ -85,22 +97,22 @@ export default {
       return
     }
 
-    console.log('🔄 [UPDATE_CURRENT_FILE] Called with:', {
+    devLog('🔄 [UPDATE_CURRENT_FILE] Called with:', {
       id: currentFile.id,
       filename: currentFile.filename,
       pathname: currentFile.pathname
     })
 
     const oldCurrentFile = this.currentFile
-    console.log('🔄 [UPDATE_CURRENT_FILE] Old currentFile:', oldCurrentFile)
+    devLog('🔄 [UPDATE_CURRENT_FILE] Old currentFile:', oldCurrentFile)
 
     if (!oldCurrentFile || !oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
       const { id, markdown, cursor, history, pathname, scrollTop, blocks } = currentFile
       window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
       this.currentFile = currentFile
 
-      console.log('🔄 [UPDATE_CURRENT_FILE] Updated currentFile to:', this.currentFile)
-      console.log('🔄 [UPDATE_CURRENT_FILE] Tabs before adding:', this.tabs)
+      devLog('🔄 [UPDATE_CURRENT_FILE] Updated currentFile to:', this.currentFile)
+      devLog('🔄 [UPDATE_CURRENT_FILE] Tabs before adding:', this.tabs)
 
       bus.emit('file-changed', {
         id,
@@ -116,11 +128,11 @@ export default {
     // 检查文件是否已经在tabs中
     const existingIndex = this.tabs.findIndex((file) => file.id === currentFile.id)
     if (existingIndex === -1) {
-      console.log('🔄 [UPDATE_CURRENT_FILE] File not in tabs, adding it')
+      devLog('🔄 [UPDATE_CURRENT_FILE] File not in tabs, adding it')
       this.tabs.push(currentFile)
-      console.log('🔄 [UPDATE_CURRENT_FILE] Tabs after adding:', this.tabs)
+      devLog('🔄 [UPDATE_CURRENT_FILE] Tabs after adding:', this.tabs)
     } else {
-      console.log('🔄 [UPDATE_CURRENT_FILE] File already exists in tabs at index:', existingIndex)
+      devLog('🔄 [UPDATE_CURRENT_FILE] File already exists in tabs at index:', existingIndex)
       // 确保更新现有文件的状态
       this.tabs[existingIndex] = { ...currentFile }
     }

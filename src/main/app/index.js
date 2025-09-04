@@ -128,7 +128,7 @@ class App {
       // 如果没有设置语言，则根据系统语言自动设置
       if (!currentLanguage) {
         const systemLanguage = app.getLocale()
-        console.log(`System language detected: ${systemLanguage}`)
+        devLog(`System language detected: ${systemLanguage}`)
         
         // 支持的语言列表（根据项目实际支持的语言）
         const supportedLanguages = ['en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'pt', 'ru']
@@ -167,11 +167,11 @@ class App {
         
         // 保存检测到的语言设置
         this._accessor.preferences.setItem('language', currentLanguage)
-        console.log(`Auto-detected and set language to: ${currentLanguage}`)
+        devLog(`Auto-detected and set language to: ${currentLanguage}`)
       }
       
       setLanguage(currentLanguage)
-      console.log(`Main process language initialized to: ${currentLanguage}`)
+      devLog(`Main process language initialized to: ${currentLanguage}`)
     } catch (error) {
       console.error('Failed to initialize main process language:', error)
       // 如果出错，使用英语作为默认语言
@@ -186,13 +186,13 @@ class App {
   }
 
   ready = () => {
-    console.log('🎯 [APP] Ready method called - starting application initialization')
+    devLog('🎯 [APP] Ready method called - starting application initialization')
 
     try {
       const { _args: args, _openFilesCache } = this
       const { preferences } = this._accessor
 
-      console.log('🎯 [APP] Arguments and cache:', { args: args._, cacheLength: _openFilesCache.length })
+      devLog('🎯 [APP] Arguments and cache:', { args: args._, cacheLength: _openFilesCache.length })
 
       // 初始化语言设置
       const { language } = preferences.getAll()
@@ -214,18 +214,30 @@ class App {
       }
     }
 
-    const { startUpAction, defaultDirectoryToOpen, autoSwitchTheme, theme } = preferences.getAll()
+    // 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development'
+}
 
-    // Debug: Log startup preferences
-    console.log('🎯 [APP] Startup preferences:', {
-      startUpAction,
-      defaultDirectoryToOpen,
-      autoSwitchTheme,
-      theme
-    })
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
 
-    console.log('🎯 [APP] About to check startup action logic')
-    console.log('🎯 [APP] Startup action is:', startUpAction)
+const { startUpAction, defaultDirectoryToOpen, autoSwitchTheme, theme } = preferences.getAll()
+
+// Debug: Log startup preferences (development only)
+devLog('🎯 [APP] Startup preferences:', {
+  startUpAction,
+  defaultDirectoryToOpen,
+  autoSwitchTheme,
+  theme
+})
+
+devLog('🎯 [APP] About to check startup action logic')
+devLog('🎯 [APP] Startup action is:', startUpAction)
 
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
@@ -233,18 +245,18 @@ class App {
         _openFilesCache.unshift(info)
       }
     } else if (startUpAction === 'blank') {
-      console.log('🎯 [APP] Blank startup condition matched, creating blank file...')
+      devLog('🎯 [APP] Blank startup condition matched, creating blank file...')
       // For blank startup: create window with empty fileList and markdownList
       // This will trigger addBlankTab: true in createWindow method
-      console.log('🎯 [APP] Blank startup: creating window with empty fileList (will trigger addBlankTab: true)')
+      devLog('🎯 [APP] Blank startup: creating window with empty fileList (will trigger addBlankTab: true)')
       const editorWindow = this._createEditorWindow(null, [], [], { showStartupChoice: false })
-      console.log('🎯 [APP] Blank startup: _createEditorWindow called, result:', editorWindow ? 'success' : 'failed')
+      devLog('🎯 [APP] Blank startup: _createEditorWindow called, result:', editorWindow ? 'success' : 'failed')
 
       // For blank startup, we need to send bootstrap message with addBlankTab: true
-      console.log('🎯 [APP] Blank startup: will send bootstrap with addBlankTab: true')
+      devLog('🎯 [APP] Blank startup: will send bootstrap with addBlankTab: true')
       // The bootstrap message will be sent by the editorWindow when ready
 
-      console.log('🎯 [APP] Blank startup: exiting early to prevent further startup logic')
+      devLog('🎯 [APP] Blank startup: exiting early to prevent further startup logic')
       return // Exit early, don't process further startup logic
     } else if (startUpAction === 'lastState') {
       // For lastState: try to restore previous state, show startup choice if no previous state
@@ -312,7 +324,7 @@ class App {
       this._openFilesToOpen()
     } else {
       // No files to open and not blank startup, show startup choice page
-      console.log('🎯 [APP] No files to open: creating window with startup choice page')
+      devLog('🎯 [APP] No files to open: creating window with startup choice page')
       this._createEditorWindow(null, [], [], { showStartupChoice: true })
     }
 
@@ -374,7 +386,7 @@ class App {
    * @returns {EditorWindow} The created editor window.
    */
   _createEditorWindow(rootDirectory = null, fileList = [], markdownList = [], options = {}) {
-    console.log('🎯 [APP] _createEditorWindow called with:', {
+    devLog('🎯 [APP] _createEditorWindow called with:', {
       rootDirectory,
       fileList,
       markdownList,

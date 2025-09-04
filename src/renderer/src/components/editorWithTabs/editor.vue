@@ -58,6 +58,18 @@
 
 <script setup>
 import { ref, reactive, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+// 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
+}
+
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
 import log from 'electron-log'
 // import ViewImage from 'view-image'
 import Muya from 'muya/lib/index.js'
@@ -267,7 +279,7 @@ watch(editorOptions, (newOptions, oldOptions) => {
 watch(themeConfig, (newConfig, oldConfig) => {
   if (editor.value && JSON.stringify(newConfig) !== JSON.stringify(oldConfig)) {
     // Handle theme changes - theme is applied globally via CSS, not through editor API
-    console.log('Theme changed to:', newConfig.theme)
+    devLog('Theme changed to:', newConfig.theme)
     // The theme change is handled globally by the theme utility
   }
 }, { deep: true })
@@ -985,13 +997,13 @@ const handleResetPaddingBottom = () => {
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
 onMounted(() => {
-  console.log('🎨 [EDITOR] Editor component mounted - Starting initialization')
+  devLog('🎨 [EDITOR] Editor component mounted - Starting initialization')
 
   printer = new Printer()
   const ele = editorRef.value
 
-  console.log('🎨 [EDITOR] Editor element:', ele)
-  console.log('🎨 [EDITOR] Props received:', {
+  devLog('🎨 [EDITOR] Editor element:', ele)
+  devLog('🎨 [EDITOR] Props received:', {
     markdown: props.markdown ? `${props.markdown.length} chars` : 'none (will use empty string)',
     cursor: props.cursor ? 'provided' : 'none (will use empty object)',
     textDirection: props.textDirection,
@@ -1068,7 +1080,7 @@ onMounted(() => {
     })
   }
 
-  console.log('🎨 [EDITOR] Creating Muya editor with options:', {
+  devLog('🎨 [EDITOR] Creating Muya editor with options:', {
     focusMode: focus.value,
     markdown: props.markdown ? 'provided' : 'empty (using default)',
     theme: theme.value,
@@ -1077,10 +1089,10 @@ onMounted(() => {
 
   try {
     editor.value = new Muya(ele, options)
-    console.log('✅ [EDITOR] Muya editor created successfully')
+    devLog('✅ [EDITOR] Muya editor created successfully')
 
     const { container } = editor.value
-    console.log('🎨 [EDITOR] Editor container:', container)
+    devLog('🎨 [EDITOR] Editor container:', container)
 
     // Ensure contentState is properly initialized
     if (!editor.value.contentState) {
@@ -1088,27 +1100,27 @@ onMounted(() => {
       // Wait a bit for contentState to be ready
       setTimeout(() => {
         if (editor.value.contentState) {
-          console.log('✅ [EDITOR] contentState initialized successfully')
+          devLog('✅ [EDITOR] contentState initialized successfully')
         } else {
           console.warn('⚠️ [EDITOR] contentState still null after initialization')
         }
       }, 100)
     } else {
-      console.log('✅ [EDITOR] contentState initialized successfully')
+      devLog('✅ [EDITOR] contentState initialized successfully')
     }
 
     // Listen for language changes and update Muya's translation function
     bus.on('language-changed', () => {
       if (editor.value) {
-        console.log('🎨 [EDITOR] Updating translation function')
+        devLog('🎨 [EDITOR] Updating translation function')
         editor.value.setOptions({ t })
       }
     })
 
     // Create spell check wrapper and enable spell checking if preferred.
-    console.log('🎨 [EDITOR] Initializing spell checker')
+    devLog('🎨 [EDITOR] Initializing spell checker')
     spellchecker = new SpellChecker(spellcheckerEnabled.value, spellcheckerLanguage.value)
-    console.log('✅ [EDITOR] Spell checker initialized')
+    devLog('✅ [EDITOR] Spell checker initialized')
 
   } catch (error) {
     console.error('❌ [EDITOR] Failed to initialize Muya editor:', error)
@@ -1243,11 +1255,11 @@ onMounted(() => {
   setWrapCodeBlocks(wrapCodeBlocks.value)
   setEditorWidth(editorLineWidth.value)
 
-  console.log('✅ [EDITOR] Editor component initialization completed successfully!')
-  console.log('🎨 [EDITOR] Editor instance:', editor.value)
+  devLog('✅ [EDITOR] Editor component initialization completed successfully!')
+  devLog('🎨 [EDITOR] Editor instance:', editor.value)
   if (editor.value) {
     const { container } = editor.value
-    console.log('🎨 [EDITOR] Editor container:', container)
+    devLog('🎨 [EDITOR] Editor container:', container)
   }
 })
 

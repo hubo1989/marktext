@@ -1,3 +1,15 @@
+// 环境检测工具函数
+const isDevelopment = () => {
+  return process.env.NODE_ENV === 'development' || import.meta.env.DEV
+}
+
+// 开发环境专用日志函数
+const devLog = (...args) => {
+  if (isDevelopment()) {
+    devLog(...args)
+  }
+}
+
 /**
  * Listener Manager - 统一管理所有监听器的注册
  * 优化监听器注册模式，减少重复代码和性能问题
@@ -13,7 +25,7 @@ export default class ListenerManager {
    * 注册所有监听器
    */
   registerAllListeners() {
-    console.log('📋 [LISTENER_MANAGER] Starting to register all listeners...')
+    devLog('📋 [LISTENER_MANAGER] Starting to register all listeners...')
     const listenerGroups = [
       // 文件操作监听器
       'LISTEN_FOR_SAVE',
@@ -50,19 +62,19 @@ export default class ListenerManager {
       'LISTEN_FOR_EXPORT_SUCCESS'
     ]
 
-    console.log('📋 [LISTENER_MANAGER] Listener groups:', listenerGroups.length)
+    devLog('📋 [LISTENER_MANAGER] Listener groups:', listenerGroups.length)
 
     // 批量注册监听器
     listenerGroups.forEach(listenerName => {
       if (typeof this.editorStore[listenerName] === 'function') {
         try {
           if (listenerName === 'LISTEN_FOR_BOOTSTRAP_WINDOW') {
-            console.log(`📋 [LISTENER_MANAGER] Registering BOOTSTRAP listener: ${listenerName}`)
+            devLog(`📋 [LISTENER_MANAGER] Registering BOOTSTRAP listener: ${listenerName}`)
           }
           this.editorStore[listenerName]()
           this.listeners.push(listenerName)
           if (listenerName === 'LISTEN_FOR_BOOTSTRAP_WINDOW') {
-            console.log(`✅ [LISTENER_MANAGER] BOOTSTRAP listener registered successfully`)
+            devLog(`✅ [LISTENER_MANAGER] BOOTSTRAP listener registered successfully`)
           }
         } catch (error) {
           console.error(`Failed to register listener ${listenerName}:`, error)
@@ -72,7 +84,7 @@ export default class ListenerManager {
       }
     })
 
-    console.log(`Successfully registered ${this.listeners.length} listeners`)
+    devLog(`Successfully registered ${this.listeners.length} listeners`)
   }
 
   /**
@@ -81,7 +93,7 @@ export default class ListenerManager {
   unregisterAllListeners() {
     // Note: Electron IPC listeners are automatically cleaned up when the window is closed
     // This method is for future use if manual cleanup is needed
-    console.log(`Unregistered ${this.listeners.length} listeners`)
+    devLog(`Unregistered ${this.listeners.length} listeners`)
     this.listeners = []
   }
 
