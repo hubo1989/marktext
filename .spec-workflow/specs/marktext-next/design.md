@@ -1,461 +1,898 @@
-# Design Document
+# Design Document: MarkText-Next Bug Fixes and Feature Enhancements
 
-## Introduction
+## Document Information
 
-This design document outlines the technical implementation strategy for MarkText-Next, providing detailed specifications for system architecture, user interface design, API integration, performance optimization, and security measures. The design is based on the requirements document and aims to create a modern, performant, and user-friendly Markdown editing environment.
+| Field | Value |
+|-------|--------|
+| **Project** | MarkText-Next |
+| **Version** | 0.1.0 |
+| **Date** | 2024-12-19 |
+| **Status** | Active |
 
-## System Architecture
+## Executive Summary
 
-### Overview
+This design document provides detailed architectural and UI/UX specifications for the MarkText-Next bug fixes and feature enhancements. It covers the startup navigation fix, dual-screen mode improvements, real-time synchronization, export functionality, and code cleanup requirements.
 
-MarkText-Next follows a layered architecture with clear separation of concerns:
+## Architecture Overview
+
+### System Architecture
 
 ```
-┌─────────────────┐
-│   Presentation  │ ← Vue.js Components, UI Logic
-├─────────────────┤
-│   Application   │ ← State Management, Business Logic
-├─────────────────┤
-│     Domain      │ ← Core Business Rules, Services
-├─────────────────┤
-│ Infrastructure  │ ← External APIs, File System, Storage
-└─────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    MarkText-Next Application                 │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │              Vue 3 Application Layer                    │ │
+│  ├─────────────────────────────────────────────────────────┤ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │ │
+│  │  │  Startup    │  │   Editor    │  │   Export    │     │ │
+│  │  │ Navigation  │  │ Components  │  │ Services    │     │ │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘     │ │
+│  └─────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │             Electron Main Process                       │ │
+│  └─────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │               Node.js Runtime                           │ │
+│  └─────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Architecture
 
-#### Core Components
-
-1. **EditorWithTabs** - Main editor container with tab management
-2. **DualScreenMode** - Dual-screen layout for source code editing
-3. **SideBar** - File navigation and project structure
-4. **TitleBar** - Application header with controls
-5. **Preferences** - Settings management interface
-
-#### Service Layer
-
-- **WeChatService** - WeChat Official Account integration
-- **ExportService** - Multi-platform content export
-- **ThemeService** - Theme management and transitions
-- **AnimationService** - UI animation coordination
-
-### Data Flow Architecture
-
 ```
-User Input → Component → Store Action → Service → API/Storage
-      ↓           ↓          ↓         ↓        ↓
-   UI Update ← State ← Mutation ← Response ← Result
-```
-
-## User Interface Design
-
-### Main Application Layout
-
-```
-┌─────────────────────────────────────────────────┐
-│ Title Bar (32px)                               │
-├─────────────────┬───────────────────────────────┤
-│ Side Bar        │ Editor Area                   │
-│ (Collapsible)   │                               │
-│                 │ ┌─────────────────────────┐   │
-│                 │ │ Editor with Tabs        │   │
-│                 │ │                         │   │
-│                 │ │ [Source] [Preview]      │   │
-│                 │ └─────────────────────────┘   │
-└─────────────────┴───────────────────────────────┘
+src/renderer/src/
+├── components/
+│   ├── startup/
+│   │   ├── StartupPage.vue          # 启动页面组件
+│   │   └── NavigationFix.vue        # 导航修复逻辑
+│   ├── editorWithTabs/
+│   │   ├── DualScreenMode.vue       # 双屏模式主组件
+│   │   ├── SourcePanel.vue          # 源码面板
+│   │   └── PreviewPanel.vue         # 预览面板
+│   └── export/
+│       ├── ExportDialog.vue         # 导出对话框
+│       ├── ConfluencePreview.vue    # Confluence预览
+│       └── WeChatPreview.vue        # 微信预览
+├── services/
+│   ├── syncService.js               # 同步服务
+│   ├── exportService.js             # 导出服务
+│   └── cleanupService.js            # 清理服务
+└── utils/
+    ├── formatConverters.js          # 格式转换工具
+    └── startupNavigation.js         # 启动导航工具
 ```
 
-### Dual-Screen Mode Layout
+## Detailed Design Specifications
 
+### 1. Startup Navigation Fix Design
+
+#### Problem Analysis
+The current startup flow gets stuck on the "New File" page due to improper routing logic and state management issues.
+
+#### Solution Architecture
+
+```mermaid
+graph TD
+    A[Application Start] --> B{User Choice?}
+    B -->|Blank Page| C[Create New Document]
+    B -->|Restore Session| D[Load Previous Documents]
+    C --> E[Navigate to Editor]
+    D --> E
+    E --> F[Initialize Editor State]
+    F --> G[Render Editor Interface]
 ```
-┌─────────────────────────────────────────────────┐
-│ Title Bar                                       │
-├─────────────────┬───────────────────────────────┤
-│ Side Bar        │ Source Code     │ Preview     │
-│                 │                 │             │
-│                 │                 │             │
-│                 │                 │             │
-└─────────────────┴─────────────────┴─────────────┘
-```
 
-### Preferences Interface
+#### Component Design
 
-#### General Settings
-- Startup behavior (Folder/Last State/Blank)
-- Language selection
-- Auto-save configuration
+```vue
+<!-- src/renderer/src/components/startup/StartupPage.vue -->
+<template>
+  <div class="startup-page">
+    <div class="options">
+      <button @click="handleBlankPage" class="option-btn">
+        Open Blank Page
+      </button>
+      <button @click="handleRestoreSession" class="option-btn">
+        Restore Previous Session
+      </button>
+    </div>
+  </div>
+</template>
 
-#### Editor Settings
-- Font family and size
-- Line height and width
-- Dual-screen mode (Disabled/Enabled)
-- Sync options (Scroll, Cursor)
+<script setup>
+import { useRouter } from 'vue-router'
+import { useEditorStore } from '@/store/editor'
 
-#### Image Settings
-- Upload service selection (PicGo, WeChat)
-- WeChat configuration (App ID, App Secret)
-- Default upload path
+const router = useRouter()
+const editorStore = useEditorStore()
 
-## API Design
-
-### WeChat Official Account Integration
-
-#### Authentication Flow
-
-```javascript
-// 1. Configuration
-const wechatConfig = {
-  appId: 'wx1234567890',
-  appSecret: 'secret-key',
-  defaultPath: '/marktext'
+const handleBlankPage = async () => {
+  try {
+    // Create new blank document
+    await editorStore.createNewDocument()
+    // Navigate to editor
+    await router.push('/editor')
+  } catch (error) {
+    console.error('Failed to create blank page:', error)
+  }
 }
 
-// 2. Token Management
-const tokenManager = {
-  getAccessToken: async () => {
-    // Check cache first
-    const cached = await storage.get('wechat_token')
-    if (cached && !isExpired(cached)) {
-      return cached.access_token
+const handleRestoreSession = async () => {
+  try {
+    // Load previous session
+    await editorStore.restoreSession()
+    // Navigate to editor
+    await router.push('/editor')
+  } catch (error) {
+    console.error('Failed to restore session:', error)
+  }
+}
+</script>
+```
+
+#### State Management Updates
+
+```javascript
+// src/renderer/src/store/editor.js
+export const useEditorStore = defineStore('editor', {
+  state: () => ({
+    currentDocument: null,
+    sessionDocuments: [],
+    startupComplete: false
+  }),
+
+  actions: {
+    async createNewDocument() {
+      // Create and set new document
+      this.currentDocument = createBlankDocument()
+      this.startupComplete = true
+    },
+
+    async restoreSession() {
+      // Load and set previous documents
+      this.sessionDocuments = await loadSessionDocuments()
+      this.currentDocument = this.sessionDocuments[0] || createBlankDocument()
+      this.startupComplete = true
     }
-    // Request new token
-    const response = await api.getToken(wechatConfig)
-    await storage.set('wechat_token', response)
-    return response.access_token
+  }
+})
+```
+
+### 2. Dual-Screen Mode Design
+
+#### Layout Architecture
+
+```css
+/* Full-width dual-screen layout */
+.dual-screen-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+}
+
+.dual-screen-container.with-sidebar {
+  width: calc(100vw - 300px); /* Adjust for sidebar */
+}
+
+.source-panel,
+.preview-panel {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  border: none;
+  border-right: 1px solid var(--border-color, transparent);
+}
+
+.source-panel {
+  /* Source code editor styling */
+}
+
+.preview-panel {
+  /* Live preview styling */
+  background: var(--preview-bg, #ffffff);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Minimal button design */
+.dual-screen-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+```
+
+#### Component Structure
+
+```vue
+<!-- src/renderer/src/components/editorWithTabs/DualScreenMode.vue -->
+<template>
+  <div class="dual-screen-container" :class="{ 'with-sidebar': hasSidebar }">
+    <!-- Source Panel -->
+    <div class="source-panel">
+      <SourcePanel
+        v-model="sourceContent"
+        @input="handleSourceInput"
+      />
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <PreviewPanel
+        :content="previewContent"
+        @edit="handlePreviewEdit"
+      />
+    </div>
+
+    <!-- Minimal Controls -->
+    <div class="dual-screen-controls">
+      <button @click="toggleSidebar" class="control-btn">
+        Toggle Sidebar
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, watch } from 'vue'
+import SourcePanel from './SourcePanel.vue'
+import PreviewPanel from './PreviewPanel.vue'
+import { useSyncService } from '@/services/syncService'
+
+const sourceContent = ref('')
+const previewContent = ref('')
+const hasSidebar = ref(false)
+
+const syncService = useSyncService()
+
+// Real-time synchronization
+watch(sourceContent, (newContent) => {
+  syncService.syncToPreview(newContent)
+})
+
+const handleSourceInput = (content) => {
+  sourceContent.value = content
+}
+
+const handlePreviewEdit = (content) => {
+  sourceContent.value = content
+  previewContent.value = content
+}
+
+const toggleSidebar = () => {
+  hasSidebar.value = !hasSidebar.value
+}
+</script>
+```
+
+### 3. Real-Time Synchronization Design
+
+#### Synchronization Architecture
+
+```javascript
+// src/renderer/src/services/syncService.js
+class SyncService {
+  constructor() {
+    this.debounceTimer = null
+    this.lastSyncTime = 0
+    this.markdownParser = new MarkdownParser()
+    this.htmlParser = new HtmlParser()
+  }
+
+  // Source to Preview (with debouncing)
+  syncToPreview(markdown) {
+    clearTimeout(this.debounceTimer)
+    this.debounceTimer = setTimeout(async () => {
+      try {
+        const html = await this.markdownParser.parse(markdown)
+        this.updatePreview(html)
+        this.lastSyncTime = Date.now()
+      } catch (error) {
+        console.error('Sync to preview failed:', error)
+      }
+    }, 50) // 50ms debounce
+  }
+
+  // Preview to Source
+  syncToSource(html) {
+    try {
+      const markdown = this.htmlParser.parse(html)
+      this.updateSource(markdown)
+    } catch (error) {
+      console.error('Sync to source failed:', error)
+    }
+  }
+
+  // Bidirectional sync with conflict resolution
+  syncBidirectional(source, preview) {
+    const sourceTime = this.getLastEditTime(source)
+    const previewTime = this.getLastEditTime(preview)
+
+    if (sourceTime > previewTime) {
+      this.syncToPreview(source)
+    } else if (previewTime > sourceTime) {
+      this.syncToSource(preview)
+    }
   }
 }
 ```
 
-#### Image Upload API
+#### Performance Optimizations
 
 ```javascript
-// Upload Interface
-interface WeChatUploadResult {
-  url: string
-  mediaId: string
-  success: boolean
-  error?: string
+// Virtual scrolling for large documents
+const VirtualScroll = {
+  init(container, content) {
+    // Implement virtual scrolling logic
+    // Only render visible content portions
+  },
+
+  updateScroll(position) {
+    // Update visible content based on scroll position
+  }
 }
 
-// Service Implementation
-class WeChatImageService {
-  async uploadImage(file: File): Promise<WeChatUploadResult> {
-    const token = await this.getAccessToken()
-    const formData = new FormData()
-    formData.append('media', file)
+// Content chunking for large documents
+const ContentChunker = {
+  chunkSize: 1000, // characters
 
-    const response = await fetch(
-      `https://api.weixin.qq.com/cgi-bin/media/upload?access_token=${token}&type=image`,
-      {
-        method: 'POST',
-        body: formData
+  split(content) {
+    // Split large content into manageable chunks
+    return content.match(new RegExp(`.{1,${this.chunkSize}}`, 'g')) || []
+  },
+
+  processChunk(chunk) {
+    // Process individual chunks asynchronously
+    return this.markdownParser.parse(chunk)
+  }
+}
+```
+
+### 4. Export Functionality Design
+
+#### Export Service Architecture
+
+```javascript
+// src/renderer/src/services/exportService.js
+class ExportService {
+  constructor() {
+    this.confluenceConverter = new ConfluenceConverter()
+    this.wechatConverter = new WeChatConverter()
+    this.previewRenderer = new PreviewRenderer()
+  }
+
+  // Confluence export
+  async exportToConfluence(markdown, options = {}) {
+    try {
+      const confluenceMarkup = await this.confluenceConverter.convert(markdown, options)
+      await this.copyToClipboard(confluenceMarkup)
+      return {
+        success: true,
+        content: confluenceMarkup,
+        format: 'confluence'
       }
+    } catch (error) {
+      throw new Error(`Confluence export failed: ${error.message}`)
+    }
+  }
+
+  // WeChat export
+  async exportToWeChat(markdown, format = 'web') {
+    try {
+      const html = await this.wechatConverter.convert(markdown, { format })
+      await this.copyToClipboard(html)
+      return {
+        success: true,
+        content: html,
+        format: 'wechat',
+        displayFormat: format
+      }
+    } catch (error) {
+      throw new Error(`WeChat export failed: ${error.message}`)
+    }
+  }
+
+  // Preview generation
+  async generatePreview(markdown, platform, format = 'web') {
+    const content = platform === 'confluence'
+      ? await this.confluenceConverter.convert(markdown)
+      : await this.wechatConverter.convert(markdown, { format })
+
+    return this.previewRenderer.render(content, platform, format)
+  }
+
+  // Clipboard integration
+  async copyToClipboard(content) {
+    try {
+      await navigator.clipboard.writeText(content)
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = content
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+    }
+  }
+}
+```
+
+#### Export Dialog Component
+
+```vue
+<!-- src/renderer/src/components/export/ExportDialog.vue -->
+<template>
+  <Teleport to="body">
+    <div class="export-modal-overlay" @click="closeModal">
+      <div class="export-modal" @click.stop>
+        <!-- Header -->
+        <div class="modal-header">
+          <h3>{{ platform === 'confluence' ? 'Export to Confluence' : 'Export to WeChat' }}</h3>
+          <button @click="closeModal" class="close-btn">×</button>
+        </div>
+
+        <!-- Format Toggle (WeChat only) -->
+        <div v-if="platform === 'wechat'" class="format-toggle">
+          <button
+            @click="currentFormat = 'web'"
+            :class="{ active: currentFormat === 'web' }"
+          >
+            Web View
+          </button>
+          <button
+            @click="currentFormat = 'mobile'"
+            :class="{ active: currentFormat === 'mobile' }"
+          >
+            Mobile View
+          </button>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="preview-container">
+          <div class="preview-content" :class="previewClass">
+            <div v-html="previewContent"></div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="modal-actions">
+          <button @click="copyToClipboard" class="primary-btn">
+            Copy to Clipboard
+          </button>
+          <button @click="closeModal" class="secondary-btn">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</template>
+
+<script setup>
+import { ref, computed, watch } from 'vue'
+import { useExportService } from '@/services/exportService'
+
+const props = defineProps({
+  platform: {
+    type: String,
+    required: true,
+    validator: (value) => ['confluence', 'wechat'].includes(value)
+  },
+  markdown: {
+    type: String,
+    required: true
+  }
+})
+
+const emit = defineEmits(['close'])
+
+const exportService = useExportService()
+const currentFormat = ref('web')
+const previewContent = ref('')
+
+// Computed properties
+const previewClass = computed(() => {
+  return props.platform === 'wechat' ? `wechat-${currentFormat.value}` : 'confluence'
+})
+
+// Watch for format changes
+watch([() => props.markdown, currentFormat], async () => {
+  try {
+    previewContent.value = await exportService.generatePreview(
+      props.markdown,
+      props.platform,
+      currentFormat.value
     )
+  } catch (error) {
+    console.error('Preview generation failed:', error)
+  }
+}, { immediate: true })
 
-    return this.processUploadResponse(response)
+// Actions
+const copyToClipboard = async () => {
+  try {
+    if (props.platform === 'confluence') {
+      await exportService.exportToConfluence(props.markdown)
+    } else {
+      await exportService.exportToWeChat(props.markdown, currentFormat.value)
+    }
+    // Show success message
+    alert('Content copied to clipboard!')
+  } catch (error) {
+    alert('Export failed: ' + error.message)
   }
 }
+
+const closeModal = () => {
+  emit('close')
+}
+</script>
 ```
 
-### Export Services
+### 5. Code Cleanup Design
 
-#### Confluence Export
+#### Cleanup Strategy
 
 ```javascript
-class ConfluenceExporter {
-  convertToConfluence(markdown: string): string {
-    return markdown
-      .replace(/^# (.+)$/gm, 'h1. $1')
-      .replace(/^## (.+)$/gm, 'h2. $1')
-      .replace(/\*\*(.+?)\*\*/g, '*$1*')
-      .replace(/\*(.+?)\*/g, '_$1_')
-      .replace(/```(\w+)?\n([\s\S]*?)\n```/g, '{code:$1}$2{code}')
+// src/renderer/src/services/cleanupService.js
+class CleanupService {
+  constructor() {
+    this.preservedFiles = [
+      'src/renderer/src/services/weChatImageUploader.js',
+      'src/renderer/src/services/weChatService.js',
+      'src/renderer/src/prefComponents/image/components/uploader/services.js'
+    ]
+  }
+
+  // Analyze files to remove
+  async analyzeCleanup() {
+    const filesToRemove = []
+    const filesToCheck = []
+
+    // Find Confluence config files
+    const confluenceFiles = await this.findFiles('*confluence*config*')
+    filesToRemove.push(...confluenceFiles.filter(f => !this.isEssential(f)))
+
+    // Find WeChat config files (excluding image uploader)
+    const wechatFiles = await this.findFiles('*wechat*config*')
+    filesToRemove.push(...wechatFiles.filter(f => !this.isImageUploaderRelated(f)))
+
+    return { filesToRemove, filesToCheck }
+  }
+
+  // Safe removal with backup
+  async safeRemove(files) {
+    for (const file of files) {
+      await this.backupFile(file)
+      await this.removeFile(file)
+      await this.updateImports(file)
+    }
+  }
+
+  // Update import statements
+  async updateImports(removedFile) {
+    // Find files that import the removed file
+    const importingFiles = await this.findImportingFiles(removedFile)
+
+    for (const file of importingFiles) {
+      await this.removeImportStatement(file, removedFile)
+    }
   }
 }
 ```
 
-## Animation and Transition Design
+#### File Preservation Rules
 
-### CSS Variables for Animation
+```javascript
+// Essential files to preserve
+const ESSENTIAL_FILES = [
+  // WeChat Image Uploader (KEEP)
+  'src/renderer/src/services/weChatImageUploader.js',
+  'src/renderer/src/services/weChatService.js',
+  'src/renderer/src/prefComponents/image/components/uploader/services.js',
 
+  // Core functionality (KEEP)
+  'src/renderer/src/services/exportService.js',
+  'src/renderer/src/components/export/ExportDialog.vue',
+  'src/renderer/src/components/export/ConfluencePreview.vue',
+  'src/renderer/src/components/export/WeChatPreview.vue'
+]
+
+// Files to remove
+const FILES_TO_REMOVE = [
+  // Redundant configurations
+  'src/renderer/src/components/settings/WeChatConfig.vue',
+  'src/renderer/src/components/settings/ExportConfig.vue',
+  'src/renderer/src/store/modules/weChatConfig.js',
+  'src/renderer/src/store/modules/exportConfig.js'
+]
+```
+
+## UI/UX Design Specifications
+
+### Visual Design
+
+#### Color Scheme
 ```css
+/* Dual-screen mode colors */
 :root {
-  /* Timing Functions */
-  --easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
-  --easing-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
-  --easing-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
-
-  /* Duration Scale */
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 500ms;
+  --dual-screen-bg: #ffffff;
+  --source-panel-bg: #f8f9fa;
+  --preview-panel-bg: #ffffff;
+  --panel-border: rgba(0, 0, 0, 0.1);
+  --control-btn-bg: rgba(255, 255, 255, 0.9);
+  --control-btn-hover: #f5f5f5;
 }
 ```
 
-### Component Transition Classes
-
+#### Typography
 ```css
-/* Panel Transitions */
-.panel-enter-active {
-  transition: transform var(--duration-normal) var(--easing-standard);
+/* Consistent typography across panels */
+.dual-screen-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.panel-enter-from {
-  transform: translateX(-100%);
+.source-panel {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
 }
 
-.panel-enter-to {
-  transform: translateX(0);
-}
-
-/* Theme Transitions */
-.theme-transition {
-  transition: background-color var(--duration-normal) var(--easing-standard),
-              color var(--duration-normal) var(--easing-standard),
-              border-color var(--duration-normal) var(--easing-standard);
+.preview-panel {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
 }
 ```
 
-### JavaScript Animation Controller
+### Interaction Design
 
+#### Synchronization Indicators
+```vue
+<!-- Real-time sync status indicator -->
+<template>
+  <div class="sync-indicator" :class="syncStatus">
+    <div class="sync-dot"></div>
+    <span class="sync-text">{{ syncMessage }}</span>
+  </div>
+</template>
+
+<style scoped>
+.sync-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sync-indicator.syncing {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.sync-indicator.synced {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.sync-indicator.error {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+</style>
+```
+
+## Performance Design
+
+### Synchronization Performance
+
+#### Debouncing Strategy
 ```javascript
-class AnimationController {
-  async animateThemeChange(newTheme) {
-    // Pre-animation preparation
-    this.prepareThemeTransition()
+const DEBOUNCE_CONFIG = {
+  sourceToPreview: 50,  // ms
+  previewToSource: 100, // ms
+  exportPreview: 200    // ms
+}
 
-    // Apply new theme
-    await this.applyTheme(newTheme)
-
-    // Animate transitions
-    await this.animateElements()
+class PerformanceOptimizer {
+  static debounce(func, wait) {
+    let timeout
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout)
+        func(...args)
+      }
+      clearTimeout(timeout)
+      timeout = setTimeout(later, wait)
+    }
   }
 
-  async animateLayoutChange(layout) {
-    const duration = layout === 'dual-screen' ? 500 : 300
-    await this.animatePanels(duration)
-  }
-}
-```
-
-## Performance Optimization
-
-### Bundle Optimization
-
-#### Code Splitting Strategy
-
-```javascript
-// Dynamic imports for major features
-const DualScreenMode = defineAsyncComponent(() =>
-  import('./components/DualScreenMode.vue')
-)
-
-const WeChatService = defineAsyncComponent(() =>
-  import('./services/WeChatService')
-)
-```
-
-#### Bundle Analysis Configuration
-
-```javascript
-// electron.vite.config.js
-export default {
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor': ['vue', 'pinia'],
-          'editor': ['muya', 'codemirror'],
-          'ui': ['element-plus', 'floating-vue'],
-          'utils': ['lodash', 'dayjs']
-        }
+  static throttle(func, limit) {
+    let inThrottle
+    return function() {
+      const args = arguments
+      const context = this
+      if (!inThrottle) {
+        func.apply(context, args)
+        inThrottle = true
+        setTimeout(() => inThrottle = false, limit)
       }
     }
   }
 }
 ```
 
-### Caching Strategy
-
-#### Multi-Level Caching
-
+#### Memory Management
 ```javascript
-class CacheManager {
-  constructor() {
-    this.memoryCache = new Map()
-    this.fileCache = new FileCache()
-    this.apiCache = new APICache()
+class MemoryManager {
+  static cleanupUnusedContent() {
+    // Clear cached content for inactive tabs
+    // Free up memory for large documents
   }
 
-  async get(key) {
-    // Memory cache (fastest)
-    if (this.memoryCache.has(key)) {
-      return this.memoryCache.get(key)
+  static optimizeLargeDocuments(content) {
+    // Implement virtual scrolling
+    // Lazy load content portions
+    // Compress cached data
+  }
+}
+```
+
+## Error Handling Design
+
+### Synchronization Error Handling
+```javascript
+class SyncErrorHandler {
+  static handleSyncError(error, context) {
+    console.error(`Sync error in ${context}:`, error)
+
+    // Show user-friendly error message
+    this.showErrorNotification(error.message)
+
+    // Attempt recovery
+    if (this.canRecover(error)) {
+      this.attemptRecovery(context)
     }
+  }
 
-    // File cache
-    const fileData = await this.fileCache.get(key)
-    if (fileData) {
-      this.memoryCache.set(key, fileData)
-      return fileData
+  static showErrorNotification(message) {
+    // Show toast notification
+    // Don't interrupt user workflow
+  }
+
+  static canRecover(error) {
+    // Determine if error is recoverable
+    return error.type === 'network' || error.type === 'parsing'
+  }
+
+  static attemptRecovery(context) {
+    // Retry synchronization
+    // Reset to last known good state
+  }
+}
+```
+
+### Export Error Handling
+```javascript
+class ExportErrorHandler {
+  static handleExportError(error, platform) {
+    const userMessage = this.getUserFriendlyMessage(error, platform)
+    this.showErrorDialog(userMessage)
+
+    // Log technical details
+    console.error(`Export error for ${platform}:`, error)
+  }
+
+  static getUserFriendlyMessage(error, platform) {
+    switch (error.type) {
+      case 'network':
+        return `Network error while exporting to ${platform}. Please check your connection.`
+      case 'format':
+        return `Unable to convert content for ${platform} format.`
+      case 'clipboard':
+        return 'Failed to copy to clipboard. Please try again.'
+      default:
+        return `Export to ${platform} failed. Please try again.`
     }
-
-    // API cache
-    return await this.apiCache.get(key)
   }
 }
 ```
 
-### Memory Management
+## Testing Strategy
 
-#### Component Cleanup
-
+### Unit Testing
 ```javascript
-export default {
-  setup() {
-    const cleanup = []
+// src/test/services/syncService.test.js
+describe('SyncService', () => {
+  test('should sync source to preview with debouncing', async () => {
+    // Test debounced synchronization
+  })
 
-    onMounted(() => {
-      // Setup listeners
-      const listener = setupEventListener()
-      cleanup.push(listener)
-    })
-
-    onBeforeUnmount(() => {
-      // Cleanup all resources
-      cleanup.forEach(clean => clean())
-    })
-  }
-}
+  test('should handle bidirectional sync conflicts', async () => {
+    // Test conflict resolution
+  })
+})
 ```
 
-## Security Design
-
-### Credential Storage
-
-#### Secure Storage Implementation
-
+### Integration Testing
 ```javascript
-class SecureStorage {
-  constructor() {
-    this.keytar = require('keytar')
-    this.serviceName = 'MarkText'
-  }
+// src/test/components/DualScreenMode.test.js
+describe('DualScreenMode', () => {
+  test('should render source and preview panels', () => {
+    // Test layout rendering
+  })
 
-  async storeCredential(service, credential) {
-    const encrypted = await this.encryptCredential(credential)
-    await this.keytar.setPassword(this.serviceName, service, encrypted)
-  }
-
-  async getCredential(service) {
-    const encrypted = await this.keytar.getPassword(this.serviceName, service)
-    return encrypted ? this.decryptCredential(encrypted) : null
-  }
-
-  private async encryptCredential(credential) {
-    // Use system keychain for encryption
-    return JSON.stringify(credential)
-  }
-}
+  test('should sync content between panels', () => {
+    // Test real-time synchronization
+  })
+})
 ```
 
-### API Security
-
-#### Request Signing and Validation
-
+### E2E Testing
 ```javascript
-class SecureAPIClient {
-  async makeRequest(endpoint, data) {
-    const timestamp = Date.now()
-    const signature = this.generateSignature(endpoint, data, timestamp)
+// cypress/integration/export.feature.spec.js
+describe('Export Functionality', () => {
+  it('should export to Confluence with preview', () => {
+    // Test complete export workflow
+  })
 
-    const headers = {
-      'X-Timestamp': timestamp,
-      'X-Signature': signature,
-      'X-API-Key': this.apiKey
-    }
-
-    return await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(data)
-    })
-  }
-
-  private generateSignature(endpoint, data, timestamp) {
-    const payload = `${endpoint}${JSON.stringify(data)}${timestamp}`
-    return crypto.createHmac('sha256', this.secretKey)
-                   .update(payload)
-                   .digest('hex')
-  }
-}
+  it('should export to WeChat with format toggle', () => {
+    // Test WeChat export with different formats
+  })
+})
 ```
 
-### Content Security
+## Conclusion
 
-#### Input Validation and Sanitization
+This design document provides a comprehensive architectural specification for all the bug fixes and feature enhancements required for MarkText-Next 0.1.0. The design emphasizes:
 
-```javascript
-class ContentValidator {
-  validateMarkdown(content) {
-    // Check for malicious content
-    if (this.containsMaliciousPatterns(content)) {
-      throw new Error('Content contains potentially malicious patterns')
-    }
+1. **Clean Architecture**: Modular, maintainable component structure
+2. **Performance Optimization**: Efficient synchronization and rendering
+3. **User Experience**: Intuitive interfaces and real-time feedback
+4. **Error Resilience**: Robust error handling and recovery mechanisms
+5. **Testability**: Comprehensive testing strategy for all components
 
-    // Sanitize HTML content
-    return this.sanitizeContent(content)
-  }
-
-  private containsMaliciousPatterns(content) {
-    const patterns = [
-      /<script[^>]*>.*?<\/script>/gi,
-      /javascript:/gi,
-      /on\w+\s*=/gi
-    ]
-
-    return patterns.some(pattern => pattern.test(content))
-  }
-}
-```
-
-## Implementation Roadmap
-
-### Phase 1: Core Infrastructure (Week 1-2)
-- [ ] Set up enhanced theme system
-- [ ] Implement animation framework
-- [ ] Create dual-screen component structure
-
-### Phase 2: Feature Integration (Week 3-4)
-- [ ] Integrate WeChat API services
-- [ ] Implement export functionality
-- [ ] Add performance optimizations
-
-### Phase 3: UI/UX Enhancement (Week 5-6)
-- [ ] Polish animations and transitions
-- [ ] Implement accessibility features
-- [ ] Add error handling and user feedback
-
-### Phase 4: Testing and Optimization (Week 7-8)
-- [ ] Comprehensive testing
-- [ ] Performance benchmarking
-- [ ] Security audit and hardening
-
-## Success Metrics
-
-### Performance Metrics
-- Application startup time: < 3 seconds
-- Memory usage: < 200MB under normal operation
-- UI response time: < 100ms for all interactions
-
-### User Experience Metrics
-- Theme transition smoothness: No jarring effects
-- Dual-screen sync accuracy: < 50ms lag
-- Image upload success rate: > 95%
-
-### Security Metrics
-- Zero credential leaks in testing
-- All API communications encrypted
-- Input validation coverage: 100%
-
-This design document provides the technical foundation for implementing MarkText-Next with modern architecture, excellent performance, and robust security measures.
+The implementation follows Vue 3 best practices, maintains backward compatibility, and ensures a smooth user experience across all new features.

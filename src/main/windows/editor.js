@@ -44,7 +44,8 @@ class EditorWindow extends BaseWindow {
     // Store markdown list to open
     this._markdownToOpen = markdownList || []
 
-    const addBlankTab = !rootDirectory && fileList.length === 0 && markdownList.length === 0
+    // Only add blank tab if user explicitly chooses blank startup, not for showing startup choice page
+    const addBlankTab = !rootDirectory && fileList.length === 0 && markdownList.length === 0 && options?.forceBlankTab
 
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,

@@ -1,4 +1,15 @@
 {
+    "startup": {
+        "welcome": "欢迎使用 MarkText Next",
+        "newFile": "新建文件",
+        "newFileDesc": "创建一个新的空白文档",
+        "openRecent": "打开最近文件",
+        "openRecentDesc": "从上次离开的地方继续",
+        "openFile": "打开文件",
+        "openFileDesc": "打开一个已存在的文件",
+        "preferences": "偏好设置",
+        "help": "帮助"
+    },
     "menu": {
         "file": {
             "file": "文件",

@@ -226,33 +226,20 @@ class App {
         pathname: 'Untitled.md'
       })
     } else if (startUpAction === 'lastState') {
-      // For lastState: try to restore previous state, fallback to blank if no previous state
+      // For lastState: try to restore previous state, show startup choice if no previous state
       const hasFilesFromArgs = args._.length > 0
       if (!hasFilesFromArgs && _openFilesCache.length === 0) {
-        // No files from command line and no cached files, create blank
-        _openFilesCache.push({
-          isDir: false,
-          path: '',
-          markdown: '',
-          filename: 'Untitled.md',
-          pathname: 'Untitled.md'
-        })
+        // No files from command line and no cached files, show startup choice page
+        this._createEditorWindow(null, [], [], { showStartupChoice: true })
       }
       // If there are cached files or command line args, they will be used
     }
 
-    // For blank startup, we need to create a window with the blank file
+    // For blank startup, create a window without pre-loaded content to show startup choice page
     if (startUpAction === 'blank' && _openFilesCache.length === 1 && _openFilesCache[0].path === '') {
-      // Create a window with the blank file
-      const blankFile = _openFilesCache[0]
-      const rawDocument = {
-        isDir: false,
-        path: blankFile.pathname,
-        markdown: blankFile.markdown,
-        filename: blankFile.filename,
-        pathname: blankFile.pathname
-      }
-      this._createEditorWindow(null, [], [rawDocument])
+      // Create a window without content - startup choice page will be shown
+      // Don't force blank tab, let startup choice page handle it
+      this._createEditorWindow(null, [], [], { showStartupChoice: true })
       _openFilesCache.length = 0 // Clear the cache since we've handled it
     }
 

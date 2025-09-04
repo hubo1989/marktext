@@ -1,124 +1,240 @@
-# Requirements Document
+# Requirements Document: MarkText-Next Bug Fixes and Feature Enhancements
 
-## Introduction
+## Document Information
 
-MarkText-Next is an enhanced version of the popular Markdown editor MarkText, focusing on improving user experience, visual aesthetics, and content publishing capabilities. This project aims to create a more modern, performant, and feature-rich Markdown editing environment while maintaining the core functionality that users love.
+| Field | Value |
+|-------|--------|
+| **Project** | MarkText-Next |
+| **Version** | 0.1.0 |
+| **Date** | 2024-12-19 |
+| **Status** | Active |
+| **Priority** | High |
 
-The key improvements include enhanced theme effects, smooth animations, advanced publishing capabilities, dual-screen editing mode, and optimized performance.
+## Executive Summary
 
-## Alignment with Product Vision
+This document outlines the critical bug fixes and feature enhancements required for MarkText-Next version 0.1.0. The requirements focus on resolving startup issues, improving dual-screen mode functionality, and adding export capabilities for Confluence and WeChat Official Account platforms.
 
-This project aligns with the vision of creating the most user-friendly and powerful Markdown editor available, by:
-- Enhancing visual appeal and user experience
-- Expanding publishing capabilities to major platforms
-- Improving performance and reliability
-- Maintaining the simplicity and power of Markdown editing
+## Business Objectives
 
-## Requirements
+### Primary Goals
+1. **Fix Critical Startup Bug**: Resolve the issue where the application always stays on the "New File" page regardless of user selection
+2. **Enhance Dual-Screen Mode**: Implement professional-grade dual-screen editing with real-time synchronization
+3. **Add Export Capabilities**: Integrate Confluence and WeChat Official Account export functionality
+4. **Maintain Code Quality**: Clean up unnecessary configuration while preserving essential functionality
 
-### Requirement 1: Enhanced Theme System
+### Success Criteria
+- Application starts correctly with proper navigation
+- Dual-screen mode provides seamless editing experience
+- Export functions work reliably with preview capabilities
+- Codebase remains maintainable and well-structured
 
-**User Story:** As a content creator, I want better theme effects and visual aesthetics, so that I can work in a more pleasant and customizable environment.
+## Detailed Requirements
 
-#### Acceptance Criteria
+### Requirement 1: Startup Navigation Fix
 
-1. WHEN user opens the application THEN system SHALL display modern, smooth theme transitions
-2. WHEN user changes themes THEN system SHALL animate the transition smoothly without jarring effects
-3. WHEN user customizes theme colors THEN system SHALL provide real-time preview and validation
-4. IF user selects a dark theme THEN system SHALL automatically adjust all UI elements for optimal readability
+#### Description
+Fix the critical bug where the application always remains on the "New File" page regardless of whether the user selects "Open Blank Page" or "Restore Previous Session".
 
-### Requirement 2: Beautiful Transition Animations
+#### Functional Requirements
+1.1 **Navigation Logic**
+   - When user selects "Open Blank Page", create and display a new blank document
+   - When user selects "Restore Previous Session", load and display the last opened documents
+   - Ensure proper navigation to the main editor interface
 
-**User Story:** As a user, I want smooth, beautiful animations throughout the interface, so that interactions feel responsive and polished.
-
-#### Acceptance Criteria
-
-1. WHEN user opens/closes panels THEN system SHALL animate with smooth transitions
-2. WHEN user switches between editing modes THEN system SHALL animate the transition smoothly
-3. WHEN user performs actions (save, export, etc.) THEN system SHALL provide appropriate feedback animations
-4. WHEN application loads THEN system SHALL display an elegant loading animation
-
-### Requirement 3: WeChat Official Account Image Upload
-
-**User Story:** As a content creator publishing to WeChat, I want direct image upload to WeChat Official Account media library, so that I can seamlessly include images in my articles.
-
-#### Acceptance Criteria
-
-1. WHEN user configures WeChat app credentials THEN system SHALL validate and store securely
-2. WHEN user uploads images THEN system SHALL upload directly to WeChat media library
-3. WHEN user inserts images THEN system SHALL use WeChat URLs for better performance
-4. IF upload fails THEN system SHALL provide clear error messages and retry options
-
-### Requirement 4: Dual-Screen Source Code Mode
-
-**User Story:** As a developer, I want a dual-screen mode showing source code side-by-side, so that I can see both code and rendered output simultaneously.
+1.2 **State Management**
+   - Correctly handle application startup state
+   - Preserve user preferences for session restoration
+   - Maintain proper routing between startup and editor views
 
 #### Acceptance Criteria
+- ✅ Application navigates correctly based on user selection
+- ✅ Blank page option creates new document and switches to editor
+- ✅ Session restoration loads previous documents and switches to editor
+- ✅ No more stuck on "New File" page
 
-1. WHEN user enables dual-screen mode THEN system SHALL display source code on left, preview on right
-2. WHEN user edits in either panel THEN system SHALL synchronize content in real-time
-3. WHEN user scrolls in one panel THEN system SHALL sync scrolling in the other panel
-4. WHEN user switches between single/dual mode THEN system SHALL animate the transition smoothly
+### Requirement 2: Dual-Screen Mode Enhancement
 
-### Requirement 5: Multi-Platform Content Export
+#### Description
+Implement a professional dual-screen editing mode with left-side source code and right-side preview, occupying full width without unnecessary borders or scrollbars.
 
-**User Story:** As a content creator, I want to export content to Confluence and WeChat Official Account formats, so that I can publish to multiple platforms efficiently.
+#### Functional Requirements
+2.1 **Layout Design**
+   - Left panel: Source code editor (50% width)
+   - Right panel: Live preview (50% width)
+   - Full width utilization (excluding sidebar if enabled)
+   - No visible borders between panels
+   - Minimal, clean button design
 
-#### Acceptance Criteria
-
-1. WHEN user exports to Confluence THEN system SHALL convert Markdown to Confluence markup
-2. WHEN user exports to WeChat THEN system SHALL optimize formatting for WeChat Official Account
-3. WHEN user performs export THEN system SHALL preserve formatting and media links
-4. IF export encounters issues THEN system SHALL provide detailed error information
-
-### Requirement 6: WeChat Official Account Publishing Integration
-
-**User Story:** As a WeChat content creator, I want to publish directly to WeChat Official Account backend, so that I can manage content publishing workflow efficiently.
-
-#### Acceptance Criteria
-
-1. WHEN user configures WeChat publishing THEN system SHALL validate API credentials
-2. WHEN user publishes content THEN system SHALL upload to WeChat backend with proper formatting
-3. WHEN publishing completes THEN system SHALL provide success confirmation and article links
-4. IF publishing fails THEN system SHALL provide actionable error messages
-
-### Requirement 7: Performance Optimization
-
-**User Story:** As a power user, I want better performance and responsiveness, so that I can work efficiently with large documents.
+2.2 **Responsive Behavior**
+   - Automatic width adjustment based on sidebar state
+   - Maintain proportions when window is resized
+   - Proper handling of content overflow
 
 #### Acceptance Criteria
+- ✅ Clean layout with source on left, preview on right
+- ✅ Full width utilization without gaps or borders
+- ✅ No unnecessary scrollbars
+- ✅ Minimal button styling
+- ✅ Responsive to sidebar toggle
 
-1. WHEN user opens large documents THEN system SHALL load and render quickly
-2. WHEN user performs operations THEN system SHALL respond within 100ms for most actions
-3. WHEN application runs THEN system SHALL maintain stable memory usage
-4. WHEN user switches modes THEN system SHALL transition smoothly without lag
+### Requirement 3: Real-Time Synchronization
 
-## Non-Functional Requirements
+#### Description
+Implement bidirectional real-time synchronization between source code and preview panels in dual-screen mode.
 
-### Code Architecture and Modularity
-- **Single Responsibility Principle**: Each file should have a single, well-defined purpose
-- **Modular Design**: Components, utilities, and services should be isolated and reusable
-- **Dependency Management**: Minimize interdependencies between modules
-- **Clear Interfaces**: Define clean contracts between components and layers
+#### Functional Requirements
+3.1 **Source to Preview Sync**
+   - Real-time preview updates as user types in source panel
+   - Support for all Markdown syntax rendering
+   - Efficient rendering without performance degradation
 
-### Performance
-- **Startup Time**: Application should start within 3 seconds on modern hardware
-- **Memory Usage**: Stable memory usage under normal operation (< 200MB)
-- **Responsiveness**: UI operations should complete within 100ms
-- **Large File Handling**: Support documents up to 10MB without performance degradation
+3.2 **Preview to Source Sync**
+   - Allow editing in preview panel with automatic source updates
+   - Maintain cursor position and selection
+   - Preserve formatting and structure
 
-### Security
-- **Credential Storage**: WeChat credentials should be stored securely
-- **API Communication**: All API calls should use HTTPS and proper authentication
-- **Data Privacy**: User content should not be transmitted without explicit consent
+3.3 **Synchronization Quality**
+   - Minimal latency between panels
+   - Accurate rendering of all Markdown elements
+   - Error handling for invalid syntax
 
-### Reliability
-- **Error Handling**: Graceful handling of network failures and API errors
-- **Auto-save**: Automatic saving of work to prevent data loss
-- **Crash Recovery**: Ability to recover unsaved work after application restart
+#### Acceptance Criteria
+- ✅ Source input immediately reflects in preview
+- ✅ Preview edits update source code in real-time
+- ✅ All Markdown syntax properly synchronized
+- ✅ No performance degradation during editing
 
-### Usability
-- **Intuitive Interface**: All features should be discoverable and easy to use
-- **Consistent Design**: Maintain visual consistency across all features
-- **Accessibility**: Support for keyboard navigation and screen readers
-- **Progressive Enhancement**: Core functionality should work without advanced features
+### Requirement 4: Export Functionality Enhancement
+
+#### Description
+Add Confluence and WeChat Official Account export options to the File menu with preview capabilities and clipboard integration.
+
+#### Functional Requirements
+4.1 **Confluence Export**
+   - Add "Export to Confluence" option in File menu
+   - Modal dialog with Confluence format preview
+   - Convert Markdown to Confluence wiki markup
+   - Copy formatted content to clipboard
+
+4.2 **WeChat Official Account Export**
+   - Add "Export to WeChat Official Account" option in File menu
+   - Modal dialog with mobile/web preview toggle
+   - Convert Markdown to WeChat-compatible HTML
+   - Copy formatted content to clipboard
+
+4.3 **Preview Features**
+   - Real-time preview of formatted output
+   - Mobile and web view switching for WeChat
+   - Syntax highlighting and formatting preview
+   - Copy to clipboard functionality
+
+#### Acceptance Criteria
+- ✅ Confluence export with preview and clipboard copy
+- ✅ WeChat export with mobile/web toggle and clipboard copy
+- ✅ Modal dialogs with proper formatting preview
+- ✅ All export functions work reliably
+
+### Requirement 5: Code Cleanup and Maintenance
+
+#### Description
+Remove unnecessary Confluence and WeChat configuration code while preserving essential WeChat image uploader functionality.
+
+#### Functional Requirements
+5.1 **Configuration Removal**
+   - Remove redundant Confluence configuration components
+   - Remove redundant WeChat configuration components
+   - Clean up unused import statements and dependencies
+
+5.2 **Functionality Preservation**
+   - Maintain WeChat image uploader functionality
+   - Preserve all image upload related WeChat code
+   - Ensure no breaking changes to existing features
+
+#### Acceptance Criteria
+- ✅ Unnecessary configuration code removed
+- ✅ WeChat image uploader functionality intact
+- ✅ No breaking changes to existing features
+- ✅ Codebase remains clean and maintainable
+
+## Technical Constraints
+
+### Architecture Requirements
+- Maintain Vue 3 Composition API structure
+- Preserve existing Pinia state management
+- Keep current file system architecture
+- Maintain Electron framework compatibility
+
+### Performance Requirements
+- Real-time synchronization < 100ms latency
+- Export processing < 2 seconds for typical documents
+- Memory usage remains within reasonable bounds
+- No significant impact on application startup time
+
+### Compatibility Requirements
+- Support all existing Markdown features
+- Maintain backward compatibility
+- Preserve user preferences and settings
+- Ensure cross-platform functionality
+
+## Risk Assessment
+
+### High Risk Items
+1. **Startup Navigation Fix**: Complex routing logic may have cascading effects
+2. **Real-Time Synchronization**: Performance impact on large documents
+3. **Export Functionality**: Format conversion accuracy and reliability
+
+### Mitigation Strategies
+1. **Thorough Testing**: Comprehensive test coverage for all scenarios
+2. **Incremental Implementation**: Feature flags for gradual rollout
+3. **Performance Monitoring**: Built-in performance tracking and optimization
+
+## Dependencies
+
+### Internal Dependencies
+- Vue 3 framework
+- Electron runtime
+- Existing Markdown parsing libraries
+- Current UI component library
+
+### External Dependencies
+- Confluence API (for format validation)
+- WeChat Official Account APIs (for format validation)
+- Clipboard APIs (for export functionality)
+
+## Success Metrics
+
+### Functional Metrics
+- Startup navigation works correctly in 100% of cases
+- Dual-screen synchronization has < 50ms latency
+- Export functions work reliably with proper formatting
+
+### Performance Metrics
+- Application startup time < 3 seconds
+- Memory usage < 200MB during normal operation
+- Export processing time < 2 seconds
+
+### Quality Metrics
+- Zero critical bugs in production
+- 95%+ code coverage for new features
+- User satisfaction rating > 4.5/5
+
+## Implementation Timeline
+
+### Phase 1: Critical Bug Fixes (Week 1)
+- Startup navigation fix
+- Basic dual-screen layout
+
+### Phase 2: Feature Implementation (Week 2)
+- Real-time synchronization
+- Export functionality implementation
+
+### Phase 3: Testing and Polish (Week 3)
+- Comprehensive testing
+- Code cleanup and optimization
+- Documentation updates
+
+## Conclusion
+
+This requirements document provides a comprehensive roadmap for the critical bug fixes and feature enhancements needed for MarkText-Next 0.1.0. The focus on user experience improvements and export functionality will significantly enhance the application's value and usability.
+
+All requirements are designed to be implementable within the existing architecture while maintaining backward compatibility and performance standards.

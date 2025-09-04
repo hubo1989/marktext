@@ -28,8 +28,13 @@
         </div>
       </div>
 
+      <!-- 启动选择页面 -->
+      <Suspense v-if="!hasCurrentFile && shouldShowStartupChoice && !hasShownStartupChoice && init" @resolve="onStartupChoiceResolve">
+        <component :is="StartupChoice" @choice-made="handleStartupChoice"></component>
+      </Suspense>
+
       <!-- 最近文件 -->
-      <Suspense v-if="!hasCurrentFile && init" @resolve="onRecentResolve">
+      <Suspense v-if="!hasCurrentFile && hasShownStartupChoice && init" @resolve="onRecentResolve">
         <component :is="Recent"></component>
       </Suspense>
 
@@ -75,6 +80,20 @@ import { computed, watch, nextTick, onMounted, ref, defineAsyncComponent, Suspen
 import { useI18n } from 'vue-i18n'
 
 // 正确定义异步组件
+const StartupChoice = defineAsyncComponent({
+  loader: () => import(/* webpackChunkName: "startup-choice" */ '@/components/startupChoice'),
+  loadingComponent: {
+    template: '<div>Loading Startup Choice...</div>'
+  },
+  errorComponent: {
+    template: '<div>Failed to load Startup Choice component</div>'
+  },
+  onError(error, retry, fail) {
+    console.error('❌ [ASYNC COMPONENT] StartupChoice component failed to load:', error)
+    fail()
+  }
+})
+
 const Recent = defineAsyncComponent({
   loader: () => import(/* webpackChunkName: "recent" */ '@/components/recent'),
   loadingComponent: {
@@ -203,6 +222,10 @@ const hasCurrentFile = computed(() => {
   return markdown.value !== undefined
 })
 
+// 启动选择页面状态
+const hasShownStartupChoice = ref(false)
+const shouldShowStartupChoice = ref(false)
+
 // 统一的加载状态 - 从应用启动到组件加载完成都显示
 const isAppLoading = computed(() => {
   // 从应用启动开始显示加载状态，直到编辑器组件加载完成
@@ -253,6 +276,33 @@ const onSideBarResolve = () => {
 const onTitleBarResolve = () => {
   console.log('🎨 [APP] TitleBar component loaded successfully')
   // 标题栏加载完成后不直接结束加载动画，需要等待主要内容组件加载完成
+}
+
+// 启动选择页面组件加载完成时的处理函数
+const onStartupChoiceResolve = () => {
+  console.log('🎨 [APP] StartupChoice component loaded successfully')
+}
+
+// 处理启动选择
+const handleStartupChoice = (choice) => {
+  console.log('🎯 [APP] User made startup choice:', choice)
+  hasShownStartupChoice.value = true
+
+  switch (choice) {
+    case 'new-file':
+      // 已经通过editorStore.NEW_UNTITLED_TAB()处理
+      // 通知主进程创建空白标签页
+      window.electron.ipcRenderer.send('mt::new-untitled-tab', true, '')
+      break
+    case 'recent-files':
+      // 显示最近文件页面 - 已经在模板中处理
+      break
+    case 'open-file':
+      // 文件打开对话框已触发
+      break
+    default:
+      console.warn('⚠️ [APP] Unknown startup choice:', choice)
+  }
 }
 
 // Watchers - Enhanced with new theme service
@@ -375,6 +425,21 @@ onMounted(async () => {
     AnimationController.initialize()
 
     console.log('✅ [APP] Services initialized successfully')
+
+    // Listen for bootstrap message from main process to determine if startup choice should be shown
+    window.electron.ipcRenderer.on('mt::bootstrap-editor', (event, data) => {
+      console.log('📡 [APP] Received bootstrap data:', data)
+
+      // Check if we should show startup choice page
+      if (data.showStartupChoice || (!data.addBlankTab && (!data.markdownList || data.markdownList.length === 0))) {
+        console.log('🎯 [APP] Showing startup choice page')
+        shouldShowStartupChoice.value = true
+      } else {
+        console.log('📝 [APP] Skipping startup choice, proceeding directly to editor')
+        shouldShowStartupChoice.value = false
+        hasShownStartupChoice.value = true // Skip startup choice page
+      }
+    })
   } catch (error) {
     console.error('❌ [APP] Failed to initialize services:', error)
   }
