@@ -110,6 +110,22 @@ export const usePreferencesStore = defineStore('preferences', {
       appSecret: '',
       defaultPath: '/marktext'
     },
+    exportConfig: {
+      confluence: {
+        baseUrl: '',
+        username: '',
+        password: '',
+        spaceKey: ''
+      },
+      wechat: {
+        appId: '',
+        appSecret: ''
+      },
+      options: {
+        title: '',
+        author: ''
+      }
+    },
     cliScript: ''
   }),
 
