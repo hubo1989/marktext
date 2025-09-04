@@ -62,11 +62,26 @@ export const useEditorStore = defineStore('editor', {
      * This method is called during store creation to set up module functionality
      */
     initializeModules() {
+      console.log('🚀 [STORE] initializeModules called')
+      console.log('🚀 [STORE] Available modules:', {
+        tabManagement: !!tabManagement,
+        fileOperations: !!fileOperations,
+        editorState: !!editorState,
+        listenerManager: !!listenerManager
+      })
+      
       // Mix in module methods
       Object.assign(this, tabManagement)
       Object.assign(this, fileOperations)
       Object.assign(this, editorState)
       Object.assign(this, listenerManager)
+      
+      console.log('🚀 [STORE] Modules initialized, checking methods:', {
+        NEW_UNTITLED_TAB: !!this.NEW_UNTITLED_TAB,
+        UPDATE_CURRENT_FILE: !!this.UPDATE_CURRENT_FILE,
+        SHOW_TAB_VIEW: !!this.SHOW_TAB_VIEW,
+        LISTEN_FOR_BOOTSTRAP_WINDOW: !!this.LISTEN_FOR_BOOTSTRAP_WINDOW
+      })
     },
 
     /**
@@ -93,6 +108,10 @@ export const useEditorStore = defineStore('editor', {
      * Update scroll position for the currentFile
      */
     updateScrollPosition(scrollTop) {
+      if (!this.currentFile) {
+        console.warn('[WARN] updateScrollPosition called but currentFile is null/undefined')
+        return
+      }
       this.currentFile.scrollTop = scrollTop
     },
 
@@ -248,6 +267,11 @@ export const useEditorStore = defineStore('editor', {
 
     // image path auto complement
     ASK_FOR_IMAGE_AUTO_PATH(src) {
+      if (!this.currentFile) {
+        console.warn('[WARN] ASK_FOR_IMAGE_AUTO_PATH called but currentFile is null/undefined')
+        return Promise.resolve([])
+      }
+
       const { pathname } = this.currentFile
       if (pathname) {
         let rs
@@ -271,6 +295,10 @@ export const useEditorStore = defineStore('editor', {
     },
 
     SEARCH(value) {
+      if (!this.currentFile) {
+        console.warn('[WARN] SEARCH called but currentFile is null/undefined')
+        return
+      }
       this.currentFile.searchMatches = value
     },
 
@@ -360,7 +388,7 @@ export const useEditorStore = defineStore('editor', {
 
         // SET_PATHNAME
         const { filename } = fileInfo
-        if (id === this.currentFile.id && pathname) {
+        if (this.currentFile && this.currentFile.id && id === this.currentFile.id && pathname) {
           window.DIRNAME = window.path.dirname(pathname)
         }
         if (tab) {
@@ -562,14 +590,19 @@ export const useEditorStore = defineStore('editor', {
         }, 100)
       }, 400)
 
+      console.log('🎧 [STORE] Registering bootstrap listener...')
       window.electron.ipcRenderer.on('mt::bootstrap-editor', (_, config) => {
+        console.log('📡 [STORE] ========== BOOTSTRAP MESSAGE RECEIVED ==========')
+        console.log('📡 [STORE] Received bootstrap config:', config)
+
         const {
           addBlankTab,
           markdownList,
           lineEnding,
           sideBarVisibility,
           tabBarVisibility,
-          sourceCodeModeEnabled
+          sourceCodeModeEnabled,
+          showStartupChoice
         } = config
 
         window.electron.ipcRenderer.send('mt::window-initialized')
@@ -586,15 +619,51 @@ export const useEditorStore = defineStore('editor', {
           checked: !!sourceCodeModeEnabled
         })
 
-        if (addBlankTab) {
-          this.NEW_UNTITLED_TAB({ selected: true })
-        } else if (markdownList.length) {
-          let isFirst = true
-          for (const markdown of markdownList) {
-            this.NEW_UNTITLED_TAB({ markdown, selected: isFirst })
-            isFirst = false
+        // Force always create blank page on startup - ignore all conditions
+        console.log('🔍 [STORE] Bootstrap message received - forcing blank page creation')
+        console.log('🔍 [STORE] - showStartupChoice:', showStartupChoice, '(ignored)')
+        console.log('🔍 [STORE] - addBlankTab:', addBlankTab, '(ignored)')
+        console.log('🔍 [STORE] - markdownList:', markdownList, '(ignored)')
+
+        console.log('📝 [STORE] Always creating blank file on startup (forced behavior)')
+
+        // Always create blank file regardless of any conditions
+        this.NEW_UNTITLED_TAB({ selected: true })
+        console.log('📝 [STORE] Blank file creation completed (forced)')
+
+        // Force update current file state after creation
+        console.log('📝 [STORE] Current file after creation:', this.currentFile)
+        console.log('📝 [STORE] Current tabs after creation:', this.tabs)
+
+        // Always hide startup choice page
+        console.log('📝 [STORE] Emitting hide-startup-choice event (forced)')
+        bus.emit('hide-startup-choice')
+
+        // Force emit file-loaded event to ensure app layer updates
+        setTimeout(() => {
+          if (this.currentFile && this.currentFile.id) {
+            console.log('📝 [STORE] Force emitting file-loaded event:', this.currentFile.id)
+            bus.emit('file-loaded', {
+              id: this.currentFile.id,
+              markdown: this.currentFile.markdown
+            })
+          } else {
+            console.log('📝 [STORE] currentFile not ready yet, retrying in 200ms')
+            setTimeout(() => {
+              if (this.currentFile && this.currentFile.id) {
+                console.log('📝 [STORE] Force emitting file-loaded event (retry):', this.currentFile.id)
+                bus.emit('file-loaded', {
+                  id: this.currentFile.id,
+                  markdown: this.currentFile.markdown
+                })
+              } else {
+                console.log('📝 [STORE] currentFile still not ready, giving up')
+              }
+            }, 200)
           }
-        }
+        }, 200)
+
+        console.log('📝 [STORE] Bootstrap processing completed (forced blank page)')
       })
     },
 
@@ -689,6 +758,9 @@ export const useEditorStore = defineStore('editor', {
       if (this.tabs.length === 0) {
         this.listToc = []
         this.toc = []
+        // 当所有标签页关闭后，回到启动选择页面
+        console.log('🎯 [EDITOR] All tabs closed, returning to startup choice page')
+        bus.emit('all-tabs-closed')
       }
 
       const { pathname } = file
@@ -742,7 +814,7 @@ export const useEditorStore = defineStore('editor', {
         }
 
         this.tabs.splice(index, 1)
-        if (this.currentFile.id === id) {
+        if (this.currentFile && this.currentFile.id === id) {
           this.currentFile = {}
           window.DIRNAME = ''
           if (tabIdList.length === 1) {
@@ -751,7 +823,7 @@ export const useEditorStore = defineStore('editor', {
         }
       })
 
-      if (!this.currentFile.id && this.tabs.length > 0) {
+      if ((!this.currentFile || !this.currentFile.id) && this.tabs.length > 0) {
         this.currentFile = this.tabs[tabIndex] || this.tabs[tabIndex - 1] || this.tabs[0] || {}
         if (typeof this.currentFile.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks } = this.currentFile
@@ -976,6 +1048,13 @@ export const useEditorStore = defineStore('editor', {
     }) {
       const preferencesStore = usePreferencesStore()
       const { autoSave } = preferencesStore
+
+      // Check if currentFile exists
+      if (!this.currentFile) {
+        console.warn('[WARN] LISTEN_FOR_CONTENT_CHANGE called but currentFile is null/undefined')
+        return
+      }
+
       const {
         id: currentId,
         filename,
@@ -1153,6 +1232,11 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_SET_LINE_ENDING() {
       window.electron.ipcRenderer.on('mt::set-line-ending', (_, lineEnding) => {
+        if (!this.currentFile) {
+          console.warn('[WARN] LISTEN_FOR_SET_LINE_ENDING called but currentFile is null/undefined')
+          return
+        }
+
         const { lineEnding: oldLineEnding } = this.currentFile
         if (lineEnding !== oldLineEnding) {
           this.currentFile.lineEnding = lineEnding
@@ -1165,6 +1249,11 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_SET_ENCODING() {
       window.electron.ipcRenderer.on('mt::set-file-encoding', (_, encodingName) => {
+        if (!this.currentFile || !this.currentFile.encoding) {
+          console.warn('[WARN] LISTEN_FOR_SET_ENCODING called but currentFile.encoding is null/undefined')
+          return
+        }
+
         const { encoding } = this.currentFile.encoding
         if (encoding !== encodingName) {
           this.currentFile.encoding.encoding = encodingName
@@ -1176,6 +1265,11 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_SET_FINAL_NEWLINE() {
       window.electron.ipcRenderer.on('mt::set-final-newline', (_, value) => {
+        if (!this.currentFile) {
+          console.warn('[WARN] LISTEN_FOR_SET_FINAL_NEWLINE called but currentFile is null/undefined')
+          return
+        }
+
         const { trimTrailingNewline } = this.currentFile
         if (trimTrailingNewline !== value) {
           this.currentFile.trimTrailingNewline = value

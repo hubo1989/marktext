@@ -44,8 +44,10 @@ class EditorWindow extends BaseWindow {
     // Store markdown list to open
     this._markdownToOpen = markdownList || []
 
-    // Only add blank tab if user explicitly chooses blank startup, not for showing startup choice page
-    const addBlankTab = !rootDirectory && fileList.length === 0 && markdownList.length === 0 && options?.forceBlankTab
+    // Always add blank tab for startup - force blank page on every launch
+    const addBlankTab = true
+
+    console.log('🎯 [EditorWindow] createWindow - addBlankTab:', addBlankTab, '(forced to always create blank page)', 'fileList:', fileList, 'options:', options)
 
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
@@ -111,21 +113,84 @@ class EditorWindow extends BaseWindow {
       const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(this.id, lineEnding)
 
-      win.webContents.send('mt::bootstrap-editor', {
+      console.log('🎯 [EditorWindow] Sending bootstrap message with addBlankTab:', addBlankTab)
+      console.log('🎯 [EditorWindow] Bootstrap message payload:', {
         addBlankTab,
         markdownList: this._markdownToOpen,
         lineEnding,
         sideBarVisibility,
         tabBarVisibility,
-        sourceCodeModeEnabled
+        sourceCodeModeEnabled,
+        showStartupChoice: options?.showStartupChoice || false
       })
+
+      console.log('🎯 [EditorWindow] Scheduling bootstrap message with setTimeout...')
+
+      // Delay sending bootstrap message to ensure renderer is ready
+      const timeoutId = setTimeout(() => {
+        try {
+          console.log('🎯 [EditorWindow] setTimeout callback executing...')
+          console.log('🎯 [EditorWindow] Actually sending bootstrap message now...')
+          console.log('🎯 [EditorWindow] Window object:', win)
+          console.log('🎯 [EditorWindow] Window is destroyed:', win.isDestroyed())
+          console.log('🎯 [EditorWindow] Window webContents:', win.webContents)
+
+          if (win.isDestroyed()) {
+            console.error('🎯 [EditorWindow] Window is destroyed, cannot send bootstrap message')
+            return
+          }
+
+          if (!win.webContents) {
+            console.error('🎯 [EditorWindow] No webContents, cannot send bootstrap message')
+            return
+          }
+
+          console.log('🎯 [EditorWindow] WebContents is destroyed:', win.webContents.isDestroyed())
+          console.log('🎯 [EditorWindow] WebContents is ready:', !win.webContents.isLoading())
+
+          console.log('🎯 [EditorWindow] About to send bootstrap message to renderer')
+          const bootstrapPayload = {
+            addBlankTab,
+            markdownList: this._markdownToOpen,
+            lineEnding,
+            sideBarVisibility,
+            tabBarVisibility,
+            sourceCodeModeEnabled,
+            showStartupChoice: options?.showStartupChoice || false,
+            // Add debug info to help troubleshooting
+            debug: {
+              hasMarkdownList: this._markdownToOpen && this._markdownToOpen.length > 0,
+              addBlankTab,
+              windowType: this.type,
+              showStartupChoice: options?.showStartupChoice || false
+            }
+          }
+          console.log('🎯 [EditorWindow] Bootstrap payload:', JSON.stringify(bootstrapPayload, null, 2))
+
+          win.webContents.send('mt::bootstrap-editor', bootstrapPayload)
+
+          console.log('🎯 [EditorWindow] Bootstrap message actually sent to webContents')
+        } catch (error) {
+          console.error('🎯 [EditorWindow] Error sending bootstrap message:', error)
+        }
+      }, 500) // Reduce to 500ms to make it more reliable
+
+      console.log('🎯 [EditorWindow] setTimeout scheduled with ID:', timeoutId)
+
+      console.log('🎯 [EditorWindow] Bootstrap message scheduled, now processing files')
 
       this._doOpenFilesToOpen()
       this._markdownToOpen.length = 0
 
-      // Listen on default system mouse zoom event (e.g. Ctrl+MouseWheel on Linux/Windows).
-      win.webContents.on('zoom-changed', (event, zoomDirection) => {
-        if (zoomDirection === 'in') {
+          // Test IPC communication
+    ipcMain.on('test-message', (event, data) => {
+      console.log('🔄 [MAIN] Received test message from renderer:', data)
+      console.log('🔄 [MAIN] Test message sender webContents id:', event.sender.id)
+    })
+
+    // Listen on default system mouse zoom event (e.g. Ctrl+MouseWheel on Linux/Windows).
+    win.webContents.on('zoom-changed', (event, zoomDirection) => {
+      if (zoomDirection === 'in') {
           zoomIn(win)
         } else if (zoomDirection === 'out') {
           zoomOut(win)
@@ -246,7 +311,27 @@ class EditorWindow extends BaseWindow {
   openTabsFromPaths(filePaths) {
     if (!filePaths || filePaths.length === 0) return
 
-    const fileList = filePaths.map((p) => ({ filePath: p, options: {}, selected: false }))
+    console.log('🎯 [EditorWindow] openTabsFromPaths called with:', filePaths)
+    console.log('🎯 [EditorWindow] filePaths type:', typeof filePaths, 'length:', filePaths.length)
+
+    const fileList = filePaths.map((p) => {
+      // Ensure p is a string path, not an object
+      if (typeof p === 'string') {
+        return { filePath: p, options: {}, selected: false }
+      } else if (p && typeof p === 'object' && p.path) {
+        // Handle object format { isDir, path }
+        return { filePath: p.path, options: {}, selected: false }
+      } else {
+        console.error('❌ [EditorWindow] Invalid file path format:', p)
+        return null
+      }
+    }).filter(Boolean) // Remove null entries
+
+    if (fileList.length === 0) {
+      console.warn('⚠️ [EditorWindow] No valid file paths found')
+      return
+    }
+
     fileList[0].selected = true
     this.openTabs(fileList)
   }
@@ -260,12 +345,20 @@ class EditorWindow extends BaseWindow {
     // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
+    console.log('🎯 [EditorWindow] openTabs called with:', fileList)
+    console.log('🎯 [EditorWindow] fileList type:', typeof fileList, 'length:', fileList?.length)
+
     const { browserWindow } = this
     const { preferences } = this._accessor
     const eol = preferences.getPreferredEol()
     const { autoGuessEncoding, trimTrailingNewline } = preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
+      console.log('🎯 [EditorWindow] Processing filePath:', filePath, 'type:', typeof filePath)
+      if (filePath === '' || filePath === null || filePath === undefined) {
+        console.log('🎯 [EditorWindow] Skipping blank file path')
+        continue
+      }
       loadMarkdownFile(filePath, eol, autoGuessEncoding, trimTrailingNewline)
         .then((rawDocument) => {
           if (this.lifecycle === WindowLifecycle.READY) {
@@ -423,17 +516,8 @@ class EditorWindow extends BaseWindow {
 
     browserWindow.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
-      const { preferences } = this._accessor
-      const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled } = preferences.getAll()
-      const lineEnding = preferences.getPreferredEol()
-      browserWindow.webContents.send('mt::bootstrap-editor', {
-        addBlankTab: true,
-        markdownList: [],
-        lineEnding,
-        sideBarVisibility,
-        tabBarVisibility,
-        sourceCodeModeEnabled
-      })
+      // Bootstrap message is already sent in _createWindow, don't send again here
+      console.log('🎯 [EditorWindow] Window reloaded, bootstrap already sent in _createWindow')
     })
 
     this.lifecycle = WindowLifecycle.LOADING

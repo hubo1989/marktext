@@ -992,8 +992,8 @@ onMounted(() => {
 
   console.log('🎨 [EDITOR] Editor element:', ele)
   console.log('🎨 [EDITOR] Props received:', {
-    markdown: props.markdown ? `${props.markdown.length} chars` : 'none',
-    cursor: props.cursor,
+    markdown: props.markdown ? `${props.markdown.length} chars` : 'none (will use empty string)',
+    cursor: props.cursor ? 'provided' : 'none (will use empty object)',
     textDirection: props.textDirection,
     platform: props.platform
   })
@@ -1018,9 +1018,15 @@ onMounted(() => {
   Muya.use(FootnoteTool)
   Muya.use(TableBarTools)
 
+  // Ensure markdown is always a valid string
+  const safeMarkdown = props.markdown || ''
+
+  // Ensure cursor is always a valid object
+  const safeCursor = props.cursor || {}
+
   const options = {
     focusMode: focus.value,
-    markdown: props.markdown,
+    markdown: safeMarkdown,
     preferLooseListItem: preferLooseListItem.value,
     autoPairBracket: autoPairBracket.value,
     autoPairMarkdownSyntax: autoPairMarkdownSyntax.value,
@@ -1064,7 +1070,7 @@ onMounted(() => {
 
   console.log('🎨 [EDITOR] Creating Muya editor with options:', {
     focusMode: focus.value,
-    markdown: props.markdown ? 'provided' : 'empty',
+    markdown: props.markdown ? 'provided' : 'empty (using default)',
     theme: theme.value,
     fontSize: fontSize.value
   })

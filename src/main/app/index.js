@@ -186,14 +186,19 @@ class App {
   }
 
   ready = () => {
-    const { _args: args, _openFilesCache } = this
-    const { preferences } = this._accessor
+    console.log('🎯 [APP] Ready method called - starting application initialization')
 
-    // 初始化语言设置
-    const { language } = preferences.getAll()
-    if (language) {
-      setLanguage(language)
-    }
+    try {
+      const { _args: args, _openFilesCache } = this
+      const { preferences } = this._accessor
+
+      console.log('🎯 [APP] Arguments and cache:', { args: args._, cacheLength: _openFilesCache.length })
+
+      // 初始化语言设置
+      const { language } = preferences.getAll()
+      if (language) {
+        setLanguage(language)
+      }
 
     if (args._.length) {
       for (const pathname of args._) {
@@ -211,20 +216,36 @@ class App {
 
     const { startUpAction, defaultDirectoryToOpen, autoSwitchTheme, theme } = preferences.getAll()
 
+    // Debug: Log startup preferences
+    console.log('🎯 [APP] Startup preferences:', {
+      startUpAction,
+      defaultDirectoryToOpen,
+      autoSwitchTheme,
+      theme
+    })
+
+    console.log('🎯 [APP] About to check startup action logic')
+    console.log('🎯 [APP] Startup action is:', startUpAction)
+
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
         _openFilesCache.unshift(info)
       }
     } else if (startUpAction === 'blank') {
-      // For blank startup: create an empty markdown file
-      _openFilesCache.push({
-        isDir: false,
-        path: '',
-        markdown: '',
-        filename: 'Untitled.md',
-        pathname: 'Untitled.md'
-      })
+      console.log('🎯 [APP] Blank startup condition matched, creating blank file...')
+      // For blank startup: create window with empty fileList and markdownList
+      // This will trigger addBlankTab: true in createWindow method
+      console.log('🎯 [APP] Blank startup: creating window with empty fileList (will trigger addBlankTab: true)')
+      const editorWindow = this._createEditorWindow(null, [], [], { showStartupChoice: false })
+      console.log('🎯 [APP] Blank startup: _createEditorWindow called, result:', editorWindow ? 'success' : 'failed')
+
+      // For blank startup, we need to send bootstrap message with addBlankTab: true
+      console.log('🎯 [APP] Blank startup: will send bootstrap with addBlankTab: true')
+      // The bootstrap message will be sent by the editorWindow when ready
+
+      console.log('🎯 [APP] Blank startup: exiting early to prevent further startup logic')
+      return // Exit early, don't process further startup logic
     } else if (startUpAction === 'lastState') {
       // For lastState: try to restore previous state, show startup choice if no previous state
       const hasFilesFromArgs = args._.length > 0
@@ -235,13 +256,7 @@ class App {
       // If there are cached files or command line args, they will be used
     }
 
-    // For blank startup, create a window without pre-loaded content to show startup choice page
-    if (startUpAction === 'blank' && _openFilesCache.length === 1 && _openFilesCache[0].path === '') {
-      // Create a window without content - startup choice page will be shown
-      // Don't force blank tab, let startup choice page handle it
-      this._createEditorWindow(null, [], [], { showStartupChoice: true })
-      _openFilesCache.length = 0 // Clear the cache since we've handled it
-    }
+    // Blank startup logic has been moved above and exits early
 
     // Set initial native theme for theme in preferences.
     const isDarkTheme = /dark/i.test(theme)
@@ -291,10 +306,14 @@ class App {
       ])
     }
 
-    if (_openFilesCache.length) {
+    // Handle different startup scenarios
+    if (_openFilesCache.length && startUpAction !== 'blank') {
+      // If we have cached files and startup action is not blank, open them
       this._openFilesToOpen()
     } else {
-      this._createEditorWindow()
+      // No files to open and not blank startup, show startup choice page
+      console.log('🎯 [APP] No files to open: creating window with startup choice page')
+      this._createEditorWindow(null, [], [], { showStartupChoice: true })
     }
 
     // this.shortcutCapture = new ShortcutCapture()
@@ -318,6 +337,10 @@ class App {
     //     log.error(err)
     //   }
     // })
+    } catch (error) {
+      console.error('❌ [APP] Ready method failed:', error)
+      console.error('❌ [APP] Error stack:', error.stack)
+    }
   }
 
   openFile = (event, pathname) => {
@@ -351,6 +374,13 @@ class App {
    * @returns {EditorWindow} The created editor window.
    */
   _createEditorWindow(rootDirectory = null, fileList = [], markdownList = [], options = {}) {
+    console.log('🎯 [APP] _createEditorWindow called with:', {
+      rootDirectory,
+      fileList,
+      markdownList,
+      options
+    })
+
     const editor = new EditorWindow(this._accessor)
     editor.createWindow(rootDirectory, fileList, markdownList, options)
     this._windowManager.add(editor)

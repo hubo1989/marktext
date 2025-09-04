@@ -5,6 +5,7 @@
         "newFileDesc": "创建一个新的空白文档",
         "openRecent": "打开最近文件",
         "openRecentDesc": "从上次离开的地方继续",
+        "noRecentFiles": "暂无最近打开的文件",
         "openFile": "打开文件",
         "openFileDesc": "打开一个已存在的文件",
         "preferences": "偏好设置",

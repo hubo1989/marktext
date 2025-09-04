@@ -13,6 +13,7 @@ export default class ListenerManager {
    * 注册所有监听器
    */
   registerAllListeners() {
+    console.log('📋 [LISTENER_MANAGER] Starting to register all listeners...')
     const listenerGroups = [
       // 文件操作监听器
       'LISTEN_FOR_SAVE',
@@ -49,12 +50,20 @@ export default class ListenerManager {
       'LISTEN_FOR_EXPORT_SUCCESS'
     ]
 
+    console.log('📋 [LISTENER_MANAGER] Listener groups:', listenerGroups.length)
+
     // 批量注册监听器
     listenerGroups.forEach(listenerName => {
       if (typeof this.editorStore[listenerName] === 'function') {
         try {
+          if (listenerName === 'LISTEN_FOR_BOOTSTRAP_WINDOW') {
+            console.log(`📋 [LISTENER_MANAGER] Registering BOOTSTRAP listener: ${listenerName}`)
+          }
           this.editorStore[listenerName]()
           this.listeners.push(listenerName)
+          if (listenerName === 'LISTEN_FOR_BOOTSTRAP_WINDOW') {
+            console.log(`✅ [LISTENER_MANAGER] BOOTSTRAP listener registered successfully`)
+          }
         } catch (error) {
           console.error(`Failed to register listener ${listenerName}:`, error)
         }

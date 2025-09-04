@@ -269,6 +269,34 @@ class ThemeTransitionService {
   respectsReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches
   }
+
+  /**
+   * Initialize the theme transition service
+   */
+  initialize() {
+    console.log('🎨 [ThemeTransitionService] Initializing theme transition service')
+
+    // Set up reduced motion listener
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    mediaQuery.addEventListener('change', (event) => {
+      console.log('🎨 [ThemeTransitionService] Reduced motion preference changed:', event.matches)
+      if (event.matches) {
+        this.transitionDuration = 0 // Disable transitions
+      } else {
+        this.transitionDuration = this.getOptimalTransitionSettings().duration
+      }
+    })
+
+    // Load saved theme preference
+    const savedTheme = this.loadSavedTheme()
+    if (savedTheme && savedTheme !== themeService.currentTheme) {
+      console.log('🎨 [ThemeTransitionService] Loading saved theme:', savedTheme)
+      // Apply saved theme without animation on startup
+      this.applyThemeVariables(savedTheme)
+    }
+
+    console.log('✅ [ThemeTransitionService] Theme transition service initialized successfully')
+  }
 }
 
 // Export singleton instance

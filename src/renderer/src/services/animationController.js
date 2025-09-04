@@ -398,6 +398,76 @@ class AnimationController {
   }
 
   /**
+   * Initialize the animation controller
+   */
+  initialize() {
+    console.log('🎨 [AnimationController] Initializing animation controller')
+
+    // Set up performance monitoring
+    this.setupPerformanceMonitoring()
+
+    // Set up reduced motion listener
+    this.setupReducedMotionListener()
+
+    // Load preset sequences
+    this.loadPresetSequences()
+
+    // Start performance monitoring
+    this.startPerformanceMonitoring()
+
+    console.log('✅ [AnimationController] Animation controller initialized successfully')
+  }
+
+  /**
+   * Set up performance monitoring
+   */
+  setupPerformanceMonitoring() {
+    // Monitor animation performance
+    this.performanceStats = {
+      totalAnimations: 0,
+      failedAnimations: 0,
+      averageDuration: 0,
+      frameDrops: 0
+    }
+  }
+
+  /**
+   * Set up reduced motion listener
+   */
+  setupReducedMotionListener() {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    mediaQuery.addEventListener('change', (event) => {
+      console.log('🎨 [AnimationController] Reduced motion preference changed:', event.matches)
+
+      if (event.matches) {
+        this.performanceMode = 'reduced'
+        this.setEnabled(false)
+      } else {
+        this.performanceMode = this.detectPerformanceMode()
+        this.setEnabled(true)
+      }
+    })
+
+    // Apply initial preference
+    if (mediaQuery.matches) {
+      this.performanceMode = 'reduced'
+      this.setEnabled(false)
+    }
+  }
+
+  /**
+   * Load preset sequences
+   */
+  loadPresetSequences() {
+    const presets = this.getPresetSequences()
+
+    // Create queues for preset sequences
+    Object.keys(presets).forEach(sequenceName => {
+      this.createSequence(sequenceName, presets[sequenceName])
+    })
+  }
+
+  /**
    * Preset sequences for common UI patterns
    */
   getPresetSequences() {

@@ -27,7 +27,10 @@
     "code:fix": "npm run lint:fix && npm run format",
     "type-check": "vue-tsc --noEmit",
     "type-check:watch": "vue-tsc --noEmit --watch",
-    "build:types": "vue-tsc --declaration --emitDeclarationOnly"
+    "build:types": "vue-tsc --declaration --emitDeclarationOnly",
+    "native:check": "node fix-native-modules.js",
+    "native:clean": "node fix-native-modules.js clean",
+    "native:rebuild": "node fix-native-modules.js rebuild-all"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",

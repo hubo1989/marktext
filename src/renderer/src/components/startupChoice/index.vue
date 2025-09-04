@@ -5,9 +5,6 @@
       <div class="startup-header">
         <div class="logo-section">
           <svg class="app-logo" viewBox="0 0 177.27 236.36" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <style>.a{fill:#fff;}.b{fill:#999faa;}.c{fill:#6e737a;}.d{fill:#c8ccd6;fill-rule:evenodd;}</style>
-            </defs>
             <title>markdown-document</title>
             <polygon class="a" points="121.87 3.69 3.69 3.69 3.69 232.67 173.58 232.67 173.58 55.4 121.87 3.69"/>
             <rect class="b" x="48.64" y="125.18" width="106" height="7"/>
@@ -50,7 +47,11 @@
           </div>
 
           <!-- Open Recent Card -->
-          <div class="action-card" @click="handleOpenRecent">
+          <div
+            class="action-card"
+            :class="{ 'no-recent-files': !hasRecentFiles }"
+            @click="handleOpenRecent"
+          >
             <div class="card-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/>
@@ -58,7 +59,7 @@
               </svg>
             </div>
             <h3 class="card-title">{{ t('startup.openRecent') }}</h3>
-            <p class="card-description">{{ t('startup.openRecentDesc') }}</p>
+            <p class="card-description">{{ hasRecentFiles ? t('startup.openRecentDesc') : t('startup.noRecentFiles') }}</p>
           </div>
 
           <!-- Open File Card -->
@@ -108,12 +109,19 @@ const mainStore = useMainStore()
 // Reactive data
 const appVersion = ref('0.1.0')
 
+// Computed
+const hasRecentFiles = computed(() => {
+  // 检查是否有任何已打开或最近的文件
+  // 这里可以扩展为检查本地存储或其他文件历史记录
+  // 暂时基于是否有任何已知的文件状态来判断
+  return false // 暂时禁用，因为没有专门的最近文件API
+})
+
 // Methods
 const handleNewFile = () => {
   console.log('🎯 [STARTUP] User selected: New File')
   try {
-    // Create new blank document
-    editorStore.NEW_UNTITLED_TAB({})
+    // Just emit choice, file creation is handled by parent component
     emit('choice-made', 'new-file')
   } catch (error) {
     console.error('❌ [STARTUP] Failed to create new file:', error)
@@ -123,6 +131,13 @@ const handleNewFile = () => {
 const handleOpenRecent = () => {
   console.log('🎯 [STARTUP] User selected: Open Recent')
   try {
+    if (!hasRecentFiles.value) {
+      console.log('ℹ️ [STARTUP] No recent files available')
+      // 可以在这里添加提示用户没有最近文件的逻辑
+      // 比如显示一个toast提示或者alert
+      alert('暂无最近打开的文件')
+      return
+    }
     // Show recent files view
     emit('choice-made', 'recent-files')
   } catch (error) {
@@ -172,6 +187,12 @@ onMounted(() => {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--primary-bg, #f5f7fa) 0%, var(--secondary-bg, #c3cfe2) 100%);
   padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000; /* 高于加载动画的z-index */
 }
 
 .startup-choice-content {
@@ -205,6 +226,24 @@ onMounted(() => {
   height: 80px;
   margin: 0 auto 16px;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+/* SVG Logo Styles */
+.app-logo .a {
+  fill: #fff;
+}
+
+.app-logo .b {
+  fill: #999faa;
+}
+
+.app-logo .c {
+  fill: #6e737a;
+}
+
+.app-logo .d {
+  fill: #c8ccd6;
+  fill-rule: evenodd;
 }
 
 .app-title {
@@ -312,6 +351,19 @@ onMounted(() => {
 
 .separator {
   color: var(--secondary-text, #718096);
+}
+
+/* No recent files state for action cards */
+.action-card.no-recent-files {
+  opacity: 0.6;
+  filter: grayscale(30%);
+}
+
+.action-card.no-recent-files:hover {
+  opacity: 0.7;
+  filter: grayscale(20%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

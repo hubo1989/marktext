@@ -92,7 +92,7 @@
   background-color: rgb(255, 255, 255, .05);
 }
 
-.recent-files-projects a,
+.recent-files-container a,
 .open-project a {
   box-shadow: none !important;
 }

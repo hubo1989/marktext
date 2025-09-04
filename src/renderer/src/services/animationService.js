@@ -366,6 +366,51 @@ class AnimationService {
         this.animateParallel(elements, animation, options)
     }
   }
+
+  /**
+   * Initialize the animation service
+   */
+  initialize() {
+    console.log('🎨 [AnimationService] Initializing animation service')
+
+    // Set up reduced motion listener
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    mediaQuery.addEventListener('change', (event) => {
+      console.log('🎨 [AnimationService] Reduced motion preference changed:', event.matches)
+      if (event.matches) {
+        // Disable animations by setting a global CSS variable
+        document.documentElement.style.setProperty('--animation-disabled', 'true')
+      } else {
+        document.documentElement.style.removeProperty('--animation-disabled')
+      }
+    })
+
+    // Check if animations are supported
+    if (!this.areAnimationsSupported()) {
+      console.warn('⚠️ [AnimationService] CSS animations not supported, falling back to no animations')
+      document.documentElement.style.setProperty('--animation-disabled', 'true')
+    }
+
+    // Set up global animation settings
+    this.setupGlobalAnimationSettings()
+
+    console.log('✅ [AnimationService] Animation service initialized successfully')
+  }
+
+  /**
+   * Set up global animation settings
+   */
+  setupGlobalAnimationSettings() {
+    // Set CSS custom properties for animation timings
+    document.documentElement.style.setProperty('--duration-fast', '150ms')
+    document.documentElement.style.setProperty('--duration-normal', '300ms')
+    document.documentElement.style.setProperty('--duration-slow', '500ms')
+
+    // Set easing functions
+    document.documentElement.style.setProperty('--easing-standard', 'cubic-bezier(0.4, 0.0, 0.2, 1)')
+    document.documentElement.style.setProperty('--easing-accelerate', 'cubic-bezier(0.4, 0.0, 1, 1)')
+    document.documentElement.style.setProperty('--easing-decelerate', 'cubic-bezier(0.0, 0.0, 0.2, 1)')
+  }
 }
 
 // Export singleton instance

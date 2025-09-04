@@ -79,11 +79,29 @@ export default {
 
   // File state updates
   UPDATE_CURRENT_FILE(currentFile) {
+    // Check if currentFile is null or undefined
+    if (!currentFile) {
+      console.warn('🔄 [UPDATE_CURRENT_FILE] Called with null/undefined currentFile')
+      return
+    }
+
+    console.log('🔄 [UPDATE_CURRENT_FILE] Called with:', {
+      id: currentFile.id,
+      filename: currentFile.filename,
+      pathname: currentFile.pathname
+    })
+
     const oldCurrentFile = this.currentFile
-    if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
+    console.log('🔄 [UPDATE_CURRENT_FILE] Old currentFile:', oldCurrentFile)
+
+    if (!oldCurrentFile || !oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
       const { id, markdown, cursor, history, pathname, scrollTop, blocks } = currentFile
       window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
       this.currentFile = currentFile
+
+      console.log('🔄 [UPDATE_CURRENT_FILE] Updated currentFile to:', this.currentFile)
+      console.log('🔄 [UPDATE_CURRENT_FILE] Tabs before adding:', this.tabs)
+
       bus.emit('file-changed', {
         id,
         markdown,
@@ -95,8 +113,16 @@ export default {
       })
     }
 
-    if (!this.tabs.some((file) => file.id === currentFile.id)) {
+    // 检查文件是否已经在tabs中
+    const existingIndex = this.tabs.findIndex((file) => file.id === currentFile.id)
+    if (existingIndex === -1) {
+      console.log('🔄 [UPDATE_CURRENT_FILE] File not in tabs, adding it')
       this.tabs.push(currentFile)
+      console.log('🔄 [UPDATE_CURRENT_FILE] Tabs after adding:', this.tabs)
+    } else {
+      console.log('🔄 [UPDATE_CURRENT_FILE] File already exists in tabs at index:', existingIndex)
+      // 确保更新现有文件的状态
+      this.tabs[existingIndex] = { ...currentFile }
     }
     this.UPDATE_LINE_ENDING_MENU()
   },

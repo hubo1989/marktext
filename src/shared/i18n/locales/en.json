@@ -5,6 +5,7 @@
         "newFileDesc": "Create a new blank document",
         "openRecent": "Open Recent",
         "openRecentDesc": "Continue where you left off",
+        "noRecentFiles": "No recent files available",
         "openFile": "Open File",
         "openFileDesc": "Open an existing file",
         "preferences": "Preferences",

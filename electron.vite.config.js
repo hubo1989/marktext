@@ -16,7 +16,11 @@ export default defineConfig({
     strictPort: false, // Allow fallback to other ports
     host: 'localhost',
     // 仅在开发环境启用热更新
-    hmr: process.env.NODE_ENV === 'development'
+    hmr: process.env.NODE_ENV === 'development',
+    // CSP headers to allow SharedWorker
+    headers: {
+      'Content-Security-Policy': "script-src 'self' 'unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' ws: wss: http: https:;"
+    }
   },
   main: {
     // --> Bundled as CommonJS
@@ -128,15 +132,21 @@ export default defineConfig({
     optimizeDeps: {
       // We need to externalise fontmanager-redux as it is not a browser compatible module
       // electron-vite will throw an error during the optimisation step when it tries to optimise it
-      exclude: ['fontmanager-redux'],
+      exclude: ['fontmanager-redux', 'cytoscape'],
       // Include muya in optimization to avoid resolution issues
-      include: ['muya/lib']
+      include: ['muya/lib'],
+      // Handle ESM modules that need special treatment
+      esbuildOptions: {
+        // Allow dynamic imports of ESM modules
+        format: 'esm',
+        target: 'esnext'
+      }
     },
     build: {
       rollupOptions: {
         // This is technically not required since rollUp by default does not bundle require() calls
         // But just in case there are any changes in the future
-        external: ['fontmanager-redux', 'muya'],
+        external: ['fontmanager-redux', 'muya', 'mermaid', 'cytoscape'],
         output: {
           // 完全使用默认chunk策略，避免手动分割导致的变量冲突
           // 移除所有manualChunks配置

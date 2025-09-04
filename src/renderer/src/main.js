@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import bootstrapRenderer from './bootstrap'
 import axios from './axios'
 import pinia from './store'
+import { useEditorStore } from './store/editor'
 import './assets/symbolIcon'
 
 // Element Plus instead of Element UI for Vue 3
@@ -51,6 +52,21 @@ setupRoutePreloading(router)
 app.use(router)
 app.use(pinia)
 app.use(i18nPlugin)
+
+// Initialize editor store modules after pinia is ready
+console.log('📦 [MAIN] Initializing editor store...')
+const editorStore = useEditorStore()
+console.log('📦 [MAIN] Editor store created:', !!editorStore)
+
+// Initialize modules
+console.log('📦 [MAIN] Initializing editor store modules...')
+editorStore.initializeModules()
+console.log('📦 [MAIN] Editor store modules initialized')
+
+// Register bootstrap listener early
+console.log('📦 [MAIN] Registering bootstrap listener...')
+editorStore.LISTEN_FOR_BOOTSTRAP_WINDOW()
+console.log('📦 [MAIN] Bootstrap listener registered')
 
 // Configure axios globally
 app.config.globalProperties.$http = axios

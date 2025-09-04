@@ -160,7 +160,7 @@
 }
 
 .open-project button.button-primary,
-.recent-files-projects button.button-primary {
+.recent-files-container button.button-primary {
   box-shadow: none;
 }
 

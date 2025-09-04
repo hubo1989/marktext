@@ -1,5 +1,6 @@
 import { hasKeys, deepClone } from '../../util'
 import { getBlankFileState, createDocumentState, getOptionsFromState } from '../help'
+import { nextTick } from 'vue'
 import { defineStore } from 'pinia'
 import { usePreferencesStore } from '../preferences'
 import { useLayoutStore } from '../layout'
@@ -277,18 +278,48 @@ export default {
       selected = true
     }
 
+    console.log('🔥 [NEW_UNTITLED_TAB] Called with selected:', selected)
+    console.log('🔥 [NEW_UNTITLED_TAB] Current tabs before:', this.tabs)
+    console.log('🔥 [NEW_UNTITLED_TAB] Current tabs length:', this.tabs.length)
+
     this.SHOW_TAB_VIEW(false)
 
     const preferencesStore = usePreferencesStore()
     const { defaultEncoding, endOfLine } = preferencesStore
     const fileState = getBlankFileState(this.tabs, defaultEncoding, endOfLine, markdownString)
 
+    console.log('🔥 [NEW_UNTITLED_TAB] Created fileState:', {
+      id: fileState.id,
+      filename: fileState.filename,
+      isSaved: fileState.isSaved
+    })
+
     if (selected) {
       const { id, markdown } = fileState
+      console.log('🔥 [NEW_UNTITLED_TAB] Selected=true, calling UPDATE_CURRENT_FILE')
+
+      // 强制触发响应式更新
+      const oldTabsLength = this.tabs.length
       this.UPDATE_CURRENT_FILE(fileState)
+
+      console.log('🔥 [NEW_UNTITLED_TAB] After UPDATE_CURRENT_FILE:')
+      console.log('🔥 [NEW_UNTITLED_TAB] - currentFile:', this.currentFile)
+      console.log('🔥 [NEW_UNTITLED_TAB] - tabs length changed:', oldTabsLength, '->', this.tabs.length)
+      console.log('🔥 [NEW_UNTITLED_TAB] - tabs content:', this.tabs)
+
+      // 确保 Vue 响应式系统有时间更新
+      nextTick(() => {
+        console.log('🔥 [NEW_UNTITLED_TAB] After nextTick:')
+        console.log('🔥 [NEW_UNTITLED_TAB] - tabs length:', this.tabs.length)
+        console.log('🔥 [NEW_UNTITLED_TAB] - current tabs:', this.tabs)
+      })
+
       bus.emit('file-loaded', { id, markdown })
+      console.log('🔥 [NEW_UNTITLED_TAB] Emitted file-loaded event for id:', id)
     } else {
+      console.log('🔥 [NEW_UNTITLED_TAB] Selected=false, pushing to tabs array')
       this.tabs.push(fileState)
+      console.log('🔥 [NEW_UNTITLED_TAB] After push, tabs length:', this.tabs.length)
     }
   },
 

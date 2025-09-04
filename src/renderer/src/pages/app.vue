@@ -31,18 +31,19 @@
       <!-- 启动选择页面 -->
       <Suspense v-if="!hasCurrentFile && shouldShowStartupChoice && !hasShownStartupChoice && init" @resolve="onStartupChoiceResolve">
         <component :is="StartupChoice" @choice-made="handleStartupChoice"></component>
-      </Suspense>
-
-      <!-- 最近文件 -->
-      <Suspense v-if="!hasCurrentFile && hasShownStartupChoice && init" @resolve="onRecentResolve">
-        <component :is="Recent"></component>
+        <template #fallback>
+          <div class="startup-loading">
+            <div class="loading-spinner"></div>
+            <p>正在加载启动页面...</p>
+          </div>
+        </template>
       </Suspense>
 
       <!-- 编辑器 -->
-      <Suspense v-if="hasCurrentFile && init" @resolve="onEditorResolve">
+      <Suspense v-if="(hasCurrentFile || (!shouldShowStartupChoice && hasShownStartupChoice)) && init" @resolve="onEditorResolve">
         <component :is="EditorWithTabs"
-          :markdown="markdown"
-          :cursor="cursor"
+          :markdown="markdown || ''"
+          :cursor="cursor || {}"
           :muyaIndexCursor="muyaIndexCursor"
           :source-code="sourceCode"
           :show-tab-bar="showTabBar"
@@ -76,22 +77,45 @@
 </template>
 
 <script setup>
-import { computed, watch, nextTick, onMounted, ref, defineAsyncComponent, Suspense } from 'vue'
+import { computed, watch, nextTick, onMounted, onBeforeMount, ref, defineAsyncComponent, Suspense } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// 正确定义异步组件
-const StartupChoice = defineAsyncComponent({
-  loader: () => import(/* webpackChunkName: "startup-choice" */ '@/components/startupChoice'),
-  loadingComponent: {
-    template: '<div>Loading Startup Choice...</div>'
-  },
-  errorComponent: {
-    template: '<div>Failed to load Startup Choice component</div>'
-  },
-  onError(error, retry, fail) {
-    console.error('❌ [ASYNC COMPONENT] StartupChoice component failed to load:', error)
-    fail()
+// StartupChoice 组件已预加载，直接使用
+
+// Set up IPC listeners as early as possible
+onBeforeMount(() => {
+  console.log('🚀 [APP] ========== ON BEFORE MOUNT CALLED ==========')
+  console.log('🚀 [APP] onBeforeMount - Setting up early IPC listeners')
+  console.log('🚀 [APP] window.electron exists:', !!window.electron)
+  console.log('🚀 [APP] window.electron.ipcRenderer exists:', !!window.electron?.ipcRenderer)
+
+  console.log('📡 [APP] Setting up mt::bootstrap-editor listener...')
+
+  // Listen to all IPC messages for debugging
+  window.electron.ipcRenderer.on('*', (event, ...args) => {
+    console.log('📡 [APP] IPC MESSAGE RECEIVED - Channel:', event.channel || event.type, 'Args length:', args.length)
+    if (event.channel === 'mt::bootstrap-editor') {
+      console.log('📡 [APP] BOOTSTRAP MESSAGE RECEIVED:', args[0])
+    }
+  })
+
+  // Initialize editor store modules if not already done
+  console.log('📡 [APP] Checking if editor store modules are initialized...')
+  if (!editorStore.NEW_UNTITLED_TAB) {
+    console.log('📡 [APP] Modules not initialized, initializing now...')
+    editorStore.initializeModules()
+    console.log('📡 [APP] Editor store modules initialized')
   }
+  
+  // Initialize listener manager early to ensure bootstrap listener is ready
+  console.log('📡 [APP] Initializing listener manager early')
+  if (!listenerManager.value) {
+    listenerManager.value = new ListenerManager(editorStore)
+  }
+  console.log('🎧 [APP] Registering bootstrap listener early')
+  listenerManager.value.registerAllListeners()
+
+  console.log('✅ [APP] Early IPC listeners set up successfully')
 })
 
 const Recent = defineAsyncComponent({
@@ -108,19 +132,7 @@ const Recent = defineAsyncComponent({
   }
 })
 
-const EditorWithTabs = defineAsyncComponent({
-  loader: () => import(/* webpackChunkName: "editor" */ '@/components/editorWithTabs'),
-  loadingComponent: {
-    template: '<div>Loading Editor...</div>'
-  },
-  errorComponent: {
-    template: '<div>Failed to load Editor component</div>'
-  },
-  onError(error, retry, fail) {
-    console.error('❌ [ASYNC COMPONENT] EditorWithTabs component failed to load:', error)
-    fail()
-  }
-})
+// EditorWithTabs 组件已预加载，直接使用
 
 const TitleBar = defineAsyncComponent({
   loader: () => import(/* webpackChunkName: "titlebar" */ '@/components/titleBar'),
@@ -169,6 +181,8 @@ import ExportSettingDialog from '@/components/exportSettings'
 import Rename from '@/components/rename'
 import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
+import StartupChoice from '@/components/startupChoice'
+import EditorWithTabs from '@/components/editorWithTabs'
 
 // Performance monitor component (lazy loaded)
 const PerformanceMonitor = () => import('@/components/performanceMonitor')
@@ -206,7 +220,7 @@ const listenerManager = ref(null)
 // States from Pini
 const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar, showSideBar } = storeToRefs(layoutStore)
-const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
+const { sourceCode, theme, customCss, textDirection, zoom, dualScreenMode } = storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile } = storeToRefs(editorStore)
 
@@ -219,7 +233,18 @@ const wordCount = computed(() => currentFile.value?.wordCount)
 const muyaIndexCursor = computed(() => currentFile.value?.muyaIndexCursor)
 
 const hasCurrentFile = computed(() => {
-  return markdown.value !== undefined
+  // If we're showing startup choice, don't consider current file as existing
+  if (shouldShowStartupChoice.value && !hasShownStartupChoice.value) {
+    return false
+  }
+
+  // Check if currentFile exists (even with empty markdown content)
+  if (currentFile.value && currentFile.value.id) {
+    return true
+  }
+
+  // Fallback: check markdown content
+  return markdown.value !== undefined && markdown.value !== ''
 })
 
 // 启动选择页面状态
@@ -281,21 +306,33 @@ const onTitleBarResolve = () => {
 // 启动选择页面组件加载完成时的处理函数
 const onStartupChoiceResolve = () => {
   console.log('🎨 [APP] StartupChoice component loaded successfully')
+  editorLoaded.value = true
 }
 
 // 处理启动选择
 const handleStartupChoice = (choice) => {
   console.log('🎯 [APP] User made startup choice:', choice)
-  hasShownStartupChoice.value = true
 
   switch (choice) {
     case 'new-file':
-      // 已经通过editorStore.NEW_UNTITLED_TAB()处理
-      // 通知主进程创建空白标签页
-      window.electron.ipcRenderer.send('mt::new-untitled-tab', true, '')
+      // 直接创建新文件并进入编辑器
+      console.log('📝 [APP] Creating new file...')
+      editorStore.NEW_UNTITLED_TAB({})
+
+      // 等待文件创建完成后更新状态
+      nextTick(() => {
+        console.log('📝 [APP] New file created, currentFile:', currentFile.value)
+        console.log('📝 [APP] Markdown value:', markdown.value)
+        console.log('📝 [APP] hasCurrentFile:', hasCurrentFile.value)
+
+        // 关键修复：新建文件后需要重置启动选择状态
+        shouldShowStartupChoice.value = false
+        hasShownStartupChoice.value = true
+      })
       break
     case 'recent-files':
-      // 显示最近文件页面 - 已经在模板中处理
+      // 显示最近文件页面
+      hasShownStartupChoice.value = true
       break
     case 'open-file':
       // 文件打开对话框已触发
@@ -374,15 +411,45 @@ const setupDragDropHandler = () => {
     false
   )
 }
-onMounted(async () => {
-  console.log('🚀 [APP] onMounted - Starting application initialization')
+  onMounted(async () => {
+    console.log('🚀 [APP] onMounted - Starting application initialization')
+
+    // IPC listeners are already set up in onBeforeMount, just test communication
+    console.log('📡 [APP] IPC listeners already set up in onBeforeMount')
+    console.log('📡 [APP] ipcRenderer available:', !!window.electron?.ipcRenderer)
+
+    // Test IPC communication
+    console.log('📡 [APP] Testing IPC communication...')
+    try {
+      window.electron.ipcRenderer.send('test-message', { test: 'hello from renderer' })
+      console.log('📡 [APP] Test message sent successfully')
+    } catch (error) {
+      console.error('📡 [APP] Failed to send test message:', error)
+    }
   console.log('🎨 [APP] Loading animation will be visible from now')
-  console.log('🔧 [APP] Async components defined:', {
+  console.log('🔧 [APP] Components defined:', {
     Recent: typeof Recent,
     EditorWithTabs: typeof EditorWithTabs,
     TitleBar: typeof TitleBar,
-    SideBar: typeof SideBar
+    SideBar: typeof SideBar,
+    StartupChoice: typeof StartupChoice
   })
+
+  // 预热关键组件，确保快速响应
+  console.log('🎯 [APP] Pre-warming critical components')
+  try {
+    // 预热 StartupChoice 组件
+    if (StartupChoice && typeof StartupChoice === 'function') {
+      console.log('✅ [APP] StartupChoice component pre-loaded')
+    }
+
+    // 预热 EditorWithTabs 组件 - 这是最重要的组件，应该尽快加载
+    if (EditorWithTabs && typeof EditorWithTabs === 'function') {
+      console.log('✅ [APP] EditorWithTabs component pre-loaded')
+    }
+  } catch (error) {
+    console.warn('⚠️ [APP] Failed to pre-warm components:', error)
+  }
 
   // Initialize new services
   console.log('🎨 [APP] Initializing theme and animation services')
@@ -397,7 +464,10 @@ onMounted(async () => {
     // Apply theme setting
     if (savedSettings.theme && savedSettings.theme !== theme.value) {
       console.log('🎨 [APP] Applying saved theme:', savedSettings.theme)
-      preferencesStore.SET_THEME(savedSettings.theme)
+      preferencesStore.SET_SINGLE_PREFERENCE({
+        type: 'theme',
+        value: savedSettings.theme
+      })
     }
 
     // Apply dual screen settings
@@ -426,20 +496,12 @@ onMounted(async () => {
 
     console.log('✅ [APP] Services initialized successfully')
 
-    // Listen for bootstrap message from main process to determine if startup choice should be shown
-    window.electron.ipcRenderer.on('mt::bootstrap-editor', (event, data) => {
-      console.log('📡 [APP] Received bootstrap data:', data)
-
-      // Check if we should show startup choice page
-      if (data.showStartupChoice || (!data.addBlankTab && (!data.markdownList || data.markdownList.length === 0))) {
-        console.log('🎯 [APP] Showing startup choice page')
-        shouldShowStartupChoice.value = true
-      } else {
-        console.log('📝 [APP] Skipping startup choice, proceeding directly to editor')
-        shouldShowStartupChoice.value = false
-        hasShownStartupChoice.value = true // Skip startup choice page
-      }
-    })
+    // Force hide startup choice page after 3 seconds to ensure blank page is always shown
+    setTimeout(() => {
+      console.log('⏰ [APP] Forcing hide startup choice page after 3 seconds')
+      shouldShowStartupChoice.value = false
+      hasShownStartupChoice.value = true
+    }, 3000)
   } catch (error) {
     console.error('❌ [APP] Failed to initialize services:', error)
   }
@@ -449,11 +511,7 @@ onMounted(async () => {
     preferencesStore.SET_USER_PREFERENCE(global.marktext.initialState)
   }
 
-  // Initialize listener manager
-  console.log('📡 [APP] Initializing listener manager')
-  listenerManager.value = new ListenerManager(editorStore)
-
-  console.log('🎧 [APP] Setting up store listeners')
+  console.log('🎧 [APP] Setting up additional store listeners')
   mainStore.LISTEN_WIN_STATUS()
   await commandCenterStore.LISTEN_COMMAND_CENTER_BUS()
   tweetStore.LISTEN_FOR_TWEET()
@@ -469,9 +527,55 @@ onMounted(async () => {
   preferencesStore.ASK_FOR_USER_PREFERENCE()
   preferencesStore.LISTEN_TOGGLE_VIEW()
 
-  // Register all editor listeners using the manager
-  console.log('🎧 [APP] Registering editor listeners')
-  listenerManager.value.registerAllListeners()
+  // 监听所有标签页关闭事件，回到启动选择页面
+  console.log('🎧 [APP] Setting up all-tabs-closed listener')
+  bus.on('all-tabs-closed', () => {
+    console.log('🎯 [APP] All tabs closed, showing startup choice page')
+    shouldShowStartupChoice.value = true
+    hasShownStartupChoice.value = false
+  })
+
+  // 监听来自store的启动选择页面事件
+  console.log('🎧 [APP] Setting up startup choice event listeners')
+  bus.on('show-startup-choice', () => {
+    console.log('🎯 [APP] Received show-startup-choice event from store')
+    console.log('🎯 [APP] Before setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+    shouldShowStartupChoice.value = true
+    console.log('🎯 [APP] After setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+  })
+
+  bus.on('hide-startup-choice', () => {
+    console.log('🎯 [APP] Received hide-startup-choice event from store')
+    console.log('🎯 [APP] Before setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+    shouldShowStartupChoice.value = false
+    hasShownStartupChoice.value = true
+    console.log('🎯 [APP] After setting: shouldShowStartupChoice =', shouldShowStartupChoice.value, ', hasShownStartupChoice =', hasShownStartupChoice.value)
+  })
+
+  // 监听文件加载事件 - 确保编辑器显示
+  console.log('🎧 [APP] Setting up file-loaded listener')
+  bus.on('file-loaded', (fileData) => {
+    console.log('🎯 [APP] ===== RECEIVED FILE-LOADED EVENT =====')
+    console.log('🎯 [APP] File data:', fileData)
+    console.log('🎯 [APP] Current file state:', currentFile.value)
+    console.log('🎯 [APP] hasCurrentFile:', hasCurrentFile.value)
+    console.log('🎯 [APP] shouldShowStartupChoice:', shouldShowStartupChoice.value)
+    console.log('🎯 [APP] hasShownStartupChoice:', hasShownStartupChoice.value)
+    console.log('🎯 [APP] Editor store tabs length:', editorStore.tabs?.length || 0)
+
+    if (editorStore.tabs && editorStore.tabs.length > 0) {
+      console.log('🎯 [APP] First tab:', editorStore.tabs[0])
+      console.log('🎯 [APP] All tab IDs:', editorStore.tabs.map(t => t.id))
+    }
+
+    // 强制触发响应式更新
+    nextTick(() => {
+      console.log('🎯 [APP] Next tick - checking file state after file-loaded')
+      console.log('🎯 [APP] Current file after nextTick:', currentFile.value)
+      console.log('🎯 [APP] hasCurrentFile after nextTick:', hasCurrentFile.value)
+      console.log('🎯 [APP] Tabs after nextTick:', editorStore.tabs)
+    })
+  })
 
   // module: notification
   notificationStore.listenForNotification()
@@ -663,7 +767,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 9999; /* 降低z-index，让启动选择页面可以覆盖 */
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(2px);
 }
@@ -680,6 +784,60 @@ onMounted(async () => {
 .theme-material-dark .app-startup-loading-overlay,
 .theme-one-dark .app-startup-loading-overlay {
   background: rgba(0, 0, 0, 0.95);
+}
+
+/* StartupChoice 组件加载样式 */
+.startup-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #4299e1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.startup-loading p {
+  color: #718096;
+  font-size: 14px;
+  margin: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 暗色主题下的加载样式 */
+@media (prefers-color-scheme: dark) {
+  .loading-spinner {
+    border-color: #4a5568;
+    border-top-color: #63b3ed;
+  }
+
+  .startup-loading p {
+    color: #a0aec0;
+  }
+}
+
+.theme-dark .loading-spinner,
+.theme-material-dark .loading-spinner,
+.theme-one-dark .loading-spinner {
+  border-color: #4a5568;
+  border-top-color: #63b3ed;
+}
+
+.theme-dark .startup-loading p,
+.theme-material-dark .startup-loading p,
+.theme-one-dark .startup-loading p {
+  color: #a0aec0;
 }
 
 .theme-light .app-startup-loading-overlay,

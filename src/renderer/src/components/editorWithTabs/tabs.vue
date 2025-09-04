@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
@@ -45,6 +45,50 @@ const layoutStore = useLayoutStore()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
 
+// 添加调试日志
+console.log('🔍 [TABS] Component initialized')
+console.log('🔍 [TABS] Initial tabs:', tabs.value)
+console.log('🔍 [TABS] Initial currentFile:', currentFile.value)
+
+// 监听tabs变化
+watch(tabs, (newTabs, oldTabs) => {
+  console.log('📊 [TABS] ===== TABS CHANGED =====')
+  console.log('📊 [TABS] New tabs:', newTabs)
+  console.log('📊 [TABS] Old tabs:', oldTabs)
+  console.log('📊 [TABS] New tabs count:', newTabs?.length || 0)
+  console.log('📊 [TABS] Old tabs count:', oldTabs?.length || 0)
+
+  if (newTabs && newTabs.length > 0) {
+    console.log('📊 [TABS] First tab:', newTabs[0])
+    console.log('📊 [TABS] Tab IDs:', newTabs.map(t => t.id))
+    console.log('📊 [TABS] Tab filenames:', newTabs.map(t => t.filename))
+  }
+
+  // 强制重新渲染
+  console.log('📊 [TABS] Forcing re-render...')
+}, { deep: true, immediate: true })
+
+// 监听currentFile变化
+watch(currentFile, (newFile, oldFile) => {
+  console.log('📊 [TABS] ===== CURRENT FILE CHANGED =====')
+  console.log('📊 [TABS] New file:', newFile)
+  console.log('📊 [TABS] Old file:', oldFile)
+  console.log('📊 [TABS] New file ID:', newFile?.id)
+  console.log('📊 [TABS] Old file ID:', oldFile?.id)
+}, { deep: true, immediate: true })
+
+// 监听bus事件
+onMounted(() => {
+  console.log('📊 [TABS] Component mounted')
+  bus.on('file-loaded', (data) => {
+    console.log('📊 [TABS] Received file-loaded event:', data)
+  })
+
+  bus.on('file-changed', (data) => {
+    console.log('📊 [TABS] Received file-changed event:', data)
+  })
+})
+
 const tabContainer = ref(null)
 const tabDropContainer = ref(null)
 let autoScroller = null
@@ -54,7 +98,15 @@ let drake = null
 
 // Methods incorporated from tabsMixins
 const selectFile = (file) => {
-  if (file.id !== currentFile.value.id) {
+  // Check if file is valid
+  if (!file || !file.id) {
+    console.warn('⚠️ [TABS] selectFile called with invalid file:', file)
+    return
+  }
+
+  // Check if currentFile is valid before comparison
+  if (!currentFile.value || !currentFile.value.id || file.id !== currentFile.value.id) {
+    console.log('📋 [TABS] Selecting file:', file.id)
     editorStore.UPDATE_CURRENT_FILE(file)
   }
 }

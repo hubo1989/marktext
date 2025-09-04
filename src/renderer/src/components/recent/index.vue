@@ -1,5 +1,5 @@
 <template>
-  <div class="recent-files-projects">
+  <div class="recent-files-container">
     <div class="centered-group">
       {{ t('recent.noTabsOpen') }}
       <button class="button-primary" @click="newFile">{{ t('recent.newFile') }}</button>
@@ -19,7 +19,7 @@ const newFile = () => {
 </script>
 
 <style scoped>
-.recent-files-projects {
+.recent-files-container {
   background: var(--editorBgColor);
   flex: 1;
   display: flex;

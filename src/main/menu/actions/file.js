@@ -500,6 +500,11 @@ ipcMain.on('mt::cmd-open-file', (e) => {
   openFile(win)
 })
 
+ipcMain.on('mt::show-open-file-dialog', (e) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  openFile(win)
+})
+
 ipcMain.on('mt::cmd-new-editor-window', () => {
   newEditorWindow()
 })

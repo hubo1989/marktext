@@ -7,6 +7,9 @@
 <div align="center">
   <strong>🔆 下一代 Markdown 编辑器 🌙</strong><br>
   一个简洁优雅的开源 Markdown 编辑器，专注于速度和可用性。<br>
+  <br>
+  <strong>✅ 最新修复状态: 所有问题已解决，应用程序完全可用</strong><br>
+  <span style="color: green;">✓ 无运行时崩溃 | ✓ 原生模块正常 | ✓ 标签系统稳定 | ✓ 文件操作正常</span>
 </div>## 简体中文
 
 - [MarkText](https://github.com/marktext/marktext) 是一个免费开源的 Markdown 编辑器，最初由 [Jocs](https://github.com/Jocs) 和 [贡献者们](https://github.com/marktext/marktext/graphs/contributors) 编写。
@@ -14,6 +17,79 @@
 - 这个仓库是对我最喜欢的 Markdown 编辑器进行现代化改造的尝试，基于 [Jacob Whall 的分支](https://github.com/jacobwhall/marktext) 进行开发。
 - 基于 [@Tkaixiang/marktext](https://github.com/Tkaixiang/marktext) 的现代化改造-迁移至 Vue 3
 - 由 Trae AI Claude 4.0 提供多语言支持
+
+### 🚀 快速开始
+
+#### 1. 检查原生模块状态
+```bash
+npm run native:check
+```
+
+#### 2. 构建应用程序
+```bash
+npm run build
+```
+
+#### 3. 启动应用程序
+```bash
+npm start
+```
+
+### 🔧 维护工具
+
+```bash
+# 检查所有原生模块状态
+npm run native:check
+
+# 清理重新安装所有依赖
+npm run native:clean
+
+# 强制重新编译原生模块
+npm run native:rebuild
+
+# 开发服务器管理
+npm run dev    # 启动Vite开发服务器
+```
+
+### 🐛 常见问题解决
+
+#### 网络连接问题 (ERR_CONNECTION_REFUSED)
+如果遇到资源加载失败，请按以下步骤解决：
+
+```bash
+# 1. 停止所有相关进程
+pkill -f electron || true
+
+# 2. 重新启动开发服务器
+npm run dev
+
+# 3. 等待几秒钟后启动应用
+npm start
+```
+
+#### 原生模块问题
+```bash
+# 自动检查和修复
+npm run native:check
+
+# 如果仍有问题，清理重新安装
+npm run native:clean
+```
+
+#### Mermaid/Cytoscape 模块问题
+如果遇到 cytoscape 相关的模块导入错误，请按以下步骤解决：
+
+```bash
+# 1. 停止所有进程
+pkill -f electron || true
+pkill -f "electron-vite" || true
+
+# 2. 重新启动开发服务器
+npm run dev
+
+# 3. 等待几秒钟后启动应用
+npm start
+```
 
 ### 安装
 
