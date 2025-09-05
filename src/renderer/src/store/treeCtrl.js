@@ -23,6 +23,10 @@ const getSubdirectoriesFromRoot = (rootPath, pathname) => {
  * @param {*} file The file that should be added
  */
 export const addFile = (tree, file) => {
+  if (!file || !file.pathname || !file.name) {
+    console.warn('🔧 [TREE_CTRL] addFile called with invalid file:', file)
+    return
+  }
   const { pathname, name } = file
   const dirname = window.path.dirname(pathname)
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
@@ -129,7 +133,7 @@ export const unlinkFile = (tree, file) => {
     currentSubFolders = childFolder.folders
   }
 
-  const index = currentFolder.files.findIndex((f) => f.pathname === pathname)
+  const index = currentFolder.files.findIndex((f) => f && f.pathname && f.pathname === pathname)
   if (index !== -1) {
     currentFolder.files.splice(index, 1)
   }
@@ -153,7 +157,7 @@ export const unlinkDirectory = (tree, dir) => {
     currentFolder = childFolder.folders
   }
 
-  const index = currentFolder.findIndex((f) => f.pathname === pathname)
+  const index = currentFolder.findIndex((f) => f && f.pathname && f.pathname === pathname)
   if (index !== -1) {
     currentFolder.splice(index, 1)
   }

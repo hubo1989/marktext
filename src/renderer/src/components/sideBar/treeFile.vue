@@ -1,17 +1,17 @@
 <template>
   <div
     ref="fileEl"
-    :title="file.pathname"
+    :title="file && file.pathname ? file.pathname : ''"
     class="side-bar-file"
-    :style="{ 'padding-left': `${depth * 20 + 20}px`, opacity: file.isMarkdown ? 1 : 0.75 }"
+    :style="{ 'padding-left': `${depth * 20 + 20}px`, opacity: file && file.isMarkdown ? 1 : 0.75 }"
     :class="[
-      { current: currentFile.pathname === file.pathname, active: file.id === activeItem.id }
+      { current: currentFile && currentFile.pathname && file && file.pathname && currentFile.pathname === file.pathname, active: file && file.id && activeItem && activeItem.id && file.id === activeItem.id }
     ]"
     @click="handleFileClick"
   >
     <file-icon :name="file.name"></file-icon>
     <input
-      v-if="renameCache === file.pathname"
+      v-if="renameCache && file && file.pathname && renameCache === file.pathname"
       ref="renameInput"
       v-model="newName"
       type="text"
@@ -61,7 +61,7 @@ const handleFileClick = () => {
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
   if (openedTab) {
-    if (currentFile.value.pathname === openedTab.pathname) {
+    if (currentFile.value && currentFile.value.pathname && openedTab.pathname && currentFile.value.pathname === openedTab.pathname) {
       return
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)
