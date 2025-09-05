@@ -765,8 +765,9 @@ export const useEditorStore = defineStore('editor', {
       if (this.tabs.length === 0) {
         this.listToc = []
         this.toc = []
-        // 当所有标签页关闭后，回到启动选择页面
-        devLog('🎯 [EDITOR] All tabs closed, returning to startup choice page')
+        // 当所有标签页关闭后，清空当前文件并回到启动选择页面
+        devLog('🎯 [EDITOR] All tabs closed, clearing current file and returning to startup choice page')
+        this.currentFile = null
         bus.emit('all-tabs-closed')
       }
 

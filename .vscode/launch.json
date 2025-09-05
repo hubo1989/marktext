@@ -13,6 +13,9 @@
       "runtimeArgs": ["--sourcemap"],
       "env": {
         "REMOTE_DEBUGGING_PORT": "9222"
+      },
+      "presentation": {
+        "group": "electron"
       }
     },
     {
@@ -23,16 +26,165 @@
       "webRoot": "${workspaceFolder}/src/renderer",
       "timeout": 60000,
       "presentation": {
+        "group": "electron",
         "hidden": true
+      }
+    },
+    {
+      "name": "Debug Preload Script",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": ["dev", "--sourcemap"],
+      "env": {
+        "NODE_ENV": "development",
+        "REMOTE_DEBUGGING_PORT": "9222"
+      },
+      "presentation": {
+        "group": "electron"
+      }
+    },
+    {
+      "name": "Debug Production Build",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/out/main/index.js",
+      "env": {
+        "NODE_ENV": "production",
+        "REMOTE_DEBUGGING_PORT": "9222"
+      },
+      "presentation": {
+        "group": "electron"
+      }
+    },
+    {
+      "name": "Debug Vue DevTools",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src/renderer",
+      "presentation": {
+        "group": "vue"
+      }
+    },
+    {
+      "name": "Debug Unit Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/vitest",
+      "args": ["run", "--reporter=verbose"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "group": "test"
+      }
+    },
+    {
+      "name": "Debug Unit Tests (Watch)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/vitest",
+      "args": ["--reporter=verbose"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "group": "test"
+      }
+    },
+    {
+      "name": "Debug Specific Test File",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/vitest",
+      "args": ["${file}", "--reporter=verbose"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "group": "test"
+      }
+    },
+    {
+      "name": "Debug with Hot Reload",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": ["dev", "--sourcemap", "--hmr"],
+      "env": {
+        "NODE_ENV": "development",
+        "REMOTE_DEBUGGING_PORT": "9222",
+        "HOT_RELOAD": "true"
+      },
+      "presentation": {
+        "group": "electron"
+      }
+    },
+    {
+      "name": "Debug with Inspector",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": ["dev", "--sourcemap", "--inspect=5858"],
+      "env": {
+        "NODE_ENV": "development",
+        "REMOTE_DEBUGGING_PORT": "9222"
+      },
+      "presentation": {
+        "group": "electron"
+      }
+    },
+    {
+      "name": "Debug Build Process",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "args": ["build", "--mode", "development"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "group": "build"
       }
     }
   ],
   "compounds": [
     {
-      "name": "Debug All",
+      "name": "Debug All Processes",
       "configurations": ["Debug Main Process", "Debug Renderer Process"],
       "presentation": {
-        "order": 1
+        "order": 1,
+        "group": "electron"
+      }
+    },
+    {
+      "name": "Debug Development Mode",
+      "configurations": ["Debug with Hot Reload", "Debug Renderer Process"],
+      "presentation": {
+        "order": 2,
+        "group": "electron"
+      }
+    },
+    {
+      "name": "Debug with Vue DevTools",
+      "configurations": ["Debug Main Process", "Debug Vue DevTools"],
+      "presentation": {
+        "order": 3,
+        "group": "electron"
       }
     }
   ]
