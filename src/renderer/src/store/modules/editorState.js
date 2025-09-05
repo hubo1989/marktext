@@ -98,9 +98,9 @@ export default {
     }
 
     devLog('🔄 [UPDATE_CURRENT_FILE] Called with:', {
-      id: currentFile.id,
-      filename: currentFile.filename,
-      pathname: currentFile.pathname
+      id: currentFile && currentFile.id ? currentFile.id : 'null',
+      filename: currentFile && currentFile.filename ? currentFile.filename : 'null',
+      pathname: currentFile && currentFile.pathname ? currentFile.pathname : 'null'
     })
 
     const oldCurrentFile = this.currentFile

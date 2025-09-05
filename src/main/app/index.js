@@ -246,9 +246,22 @@ devLog('🎯 [APP] About to check startup action logic')
 devLog('🎯 [APP] Startup action is:', startUpAction)
 
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
+      devLog('🎯 [APP] Folder startup: Opening configured directory:', defaultDirectoryToOpen)
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
         _openFilesCache.unshift(info)
+        // For folder startup, create window with sidebar enabled
+        devLog('🎯 [APP] Folder startup: Creating window with sidebar enabled')
+        this._createEditorWindow(defaultDirectoryToOpen, [], [], {
+          showStartupChoice: false,
+          sidebarEnabled: true
+        })
+        return // Exit early after creating window for folder startup
+      } else {
+        devLog('❌ [APP] Folder startup: Failed to normalize directory path:', defaultDirectoryToOpen)
+        // If directory normalization fails, fall back to startup choice
+        this._createEditorWindow(null, [], [], { showStartupChoice: true })
+        return
       }
     } else if (startUpAction === 'blank') {
       devLog('🎯 [APP] Blank startup condition matched, creating blank file...')
@@ -269,9 +282,16 @@ devLog('🎯 [APP] Startup action is:', startUpAction)
       const hasFilesFromArgs = args._.length > 0
       if (!hasFilesFromArgs && _openFilesCache.length === 0) {
         // No files from command line and no cached files, show startup choice page
+        devLog('🎯 [APP] LastState mode: No files to restore, showing startup choice page')
         this._createEditorWindow(null, [], [], { showStartupChoice: true })
+      } else {
+        // If there are cached files or command line args, they will be used
+        devLog('🎯 [APP] LastState mode: Found files to restore:', {
+          hasFilesFromArgs,
+          cachedFilesCount: _openFilesCache.length
+        })
+        // Files will be opened by the existing logic below
       }
-      // If there are cached files or command line args, they will be used
     }
 
     // Blank startup logic has been moved above and exits early
@@ -398,6 +418,14 @@ devLog('🎯 [APP] Startup action is:', startUpAction)
       markdownList,
       options
     })
+
+    // Handle sidebarEnabled option for folder startup
+    if (options.sidebarEnabled) {
+      devLog('🎯 [APP] Folder startup: Forcing sidebar visibility to true')
+      // We need to modify the preferences temporarily for this window
+      // The bootstrap message will override the sidebar visibility
+      options.forceSidebarVisible = true
+    }
 
     const editor = new EditorWindow(this._accessor)
     editor.createWindow(rootDirectory, fileList, markdownList, options)

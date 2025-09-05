@@ -234,7 +234,7 @@ export const useEditorStore = defineStore('editor', {
       }
 
       // Reload the editor if the tab is currently opened.
-      if (pathname === currentFile.pathname) {
+      if (currentFile && currentFile.pathname && pathname === currentFile.pathname) {
         this.currentFile = tab
         const { id, cursor, history, scrollTop, blocks } = tab
         bus.emit('file-changed', {
@@ -439,17 +439,12 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_CLOSE() {
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
-        const unsavedFiles = this.tabs
-          .filter((file) => !file.isSaved)
-          .map((file) => {
-            const { id, filename, pathname, markdown } = file
-            const options = getOptionsFromState(file)
-            return { id, filename, pathname, markdown, options }
-          })
-
-        if (unsavedFiles.length) {
-          window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
+        // 如果有打开的文件，直接退出程序，不显示保存对话框
+        if (this.tabs.length > 0) {
+          devLog('🎯 [EDITOR] Has opened files, directly exit application')
+          window.electron.ipcRenderer.send('mt::close-window')
         } else {
+          devLog('🎯 [EDITOR] No opened files, direct close window')
           window.electron.ipcRenderer.send('mt::close-window')
         }
       })
@@ -554,7 +549,7 @@ export const useEditorStore = defineStore('editor', {
 
     UPDATE_CURRENT_FILE(currentFile) {
       const oldCurrentFile = this.currentFile
-      if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
+      if (!oldCurrentFile || !oldCurrentFile.id || !currentFile || !currentFile.id || oldCurrentFile.id !== currentFile.id) {
         const { id, markdown, cursor, history, pathname, scrollTop, blocks } = currentFile
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
@@ -569,7 +564,7 @@ export const useEditorStore = defineStore('editor', {
         })
       }
 
-      if (!this.tabs.some((file) => file.id === currentFile.id)) {
+      if (currentFile && currentFile.id && !this.tabs.some((file) => file && file.id === currentFile.id)) {
         this.tabs.push(currentFile)
       }
       this.UPDATE_LINE_ENDING_MENU()

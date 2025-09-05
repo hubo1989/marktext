@@ -75,12 +75,15 @@ class EditorWindow extends BaseWindow {
     const {
       titleBarStyle,
       theme,
-      sideBarVisibility,
+      sideBarVisibility: defaultSideBarVisibility,
       tabBarVisibility,
       sourceCodeModeEnabled,
       spellcheckerEnabled,
       spellcheckerLanguage
     } = preferences.getAll()
+
+    // Force sidebar visibility for folder startup
+    const sideBarVisibility = options.forceSidebarVisible ? true : defaultSideBarVisibility
 
     // Enable native or custom/frameless window and titlebar
     if (!isOsx) {

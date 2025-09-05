@@ -348,7 +348,7 @@ export default {
 
     const { currentFile, tabs } = this
     const { pathname } = markdownDocument
-    const existingTab = tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
+    const existingTab = tabs.find((t) => t && t.pathname && window.fileUtils.isSamePathSync(t.pathname, pathname))
     if (existingTab) {
       this.UPDATE_CURRENT_FILE(existingTab)
       return

@@ -5,14 +5,14 @@
         <li
           v-for="file of tabs"
           :key="file.id"
-          :title="file.pathname"
-          :class="{ active: currentFile.id === file.id, unsaved: !file.isSaved }"
+          :title="file && file.pathname ? file.pathname : ''"
+          :class="{ active: currentFile && currentFile.id === file.id, unsaved: file && !file.isSaved }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
-          <span>{{ file.filename }}</span>
+          <span>{{ file && file.filename ? file.filename : 'Untitled' }}</span>
           <svg class="close-icon icon" aria-hidden="true" @click.stop="removeFileInTab(file)">
             <circle id="unsaved-circle-icon" cx="6" cy="6" r="3"></circle>
             <use id="default-close-icon" xlink:href="#icon-close-small"></use>
